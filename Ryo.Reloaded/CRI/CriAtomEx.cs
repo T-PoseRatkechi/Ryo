@@ -41,6 +41,8 @@ internal unsafe partial class CriAtomEx : IGameHook
     private IHook<criAtomExPlayer_SetCueId>? setCueIdHook;
     private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
 
+    private bool devMode;
+
     public CriAtomEx(string game)
     {
         this.game = game;
@@ -172,6 +174,9 @@ internal unsafe partial class CriAtomEx : IGameHook
         }
     }
 
+    public void SetDevMode(bool devMode)
+        => this.devMode = devMode;
+
     public PlayerConfig? GetPlayerByAcbPath(string acbPath)
     {
         var player = this.players.FirstOrDefault(x => x.Acb.AcbPath == acbPath);
@@ -183,16 +188,8 @@ internal unsafe partial class CriAtomEx : IGameHook
         return player;
     }
 
-    public PlayerConfig? GetPlayerByPreviousCueName(string cueName)
-    {
-        var player = this.players.FirstOrDefault(x => x.PreviousCueName == cueName);
-        if (player != null)
-        {
-            Log.Debug($"PlayerHn: {player.PlayerHn} || ACB Path: {player.Acb.AcbPath} || ID: {this.players.IndexOf(player)}");
-        }
-
-        return player;
-    }
+    public PlayerConfig? GetPlayerByHn(nint playerHn)
+        => this.players.FirstOrDefault(x => x.PlayerHn == playerHn);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
@@ -213,10 +210,12 @@ internal unsafe partial class CriAtomEx : IGameHook
 
     public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)
     {
-        // Update player last played cue.
-        var player = this.players.First(x => x.PlayerHn == playerHn);
-        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName);
-        player.PreviousCueName = cueNameStr;
+        if (this.devMode)
+        {
+            var player = this.players.First(x => x.PlayerHn == playerHn);
+            var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName);
+            Log.Information($"{nameof(criAtomExPlayer_SetCueName)} || Player ID: {player.Id} || {cueNameStr}");
+        }
 
         this.setCueNameHook!.OriginalFunction(playerHn, acbHn, cueName);
     }
@@ -268,7 +267,7 @@ internal unsafe partial class CriAtomEx : IGameHook
     private nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize)
     {
         var playerId = this.players.Count;
-        Log.Verbose($"Create || Config: {(nint)config:X} || Work: {(nint)work:X} || WorkSize: {workSize}");
+        Log.Verbose($"{nameof(criAtomExPlayer_Create)} || Config: {(nint)config:X} || Work: {(nint)work:X} || WorkSize: {workSize}");
 
         CriAtomExPlayerConfigTag* currentConfigPtr;
         if (this.playerConfigs.TryGetValue(playerId, out var newConfig))
@@ -283,16 +282,9 @@ internal unsafe partial class CriAtomEx : IGameHook
         }
 
         var playerHn = this.createHook!.OriginalFunction(currentConfigPtr, work, workSize);
-        this.players.Add(new()
-        {
-            PlayerHn = playerHn,
-        });
+        this.players.Add(new(playerId, playerHn));
 
-        if (this.playerConfigs.ContainsKey(playerId))
-        {
-            Log.Information($"Player: {playerHn:X} || Config: {(nint)config:X} || ID: {playerId}");
-        }
-
+        Log.Debug($"Player: {playerHn:X} || ID: {playerId}");
         return playerHn;
     }
 
@@ -317,11 +309,17 @@ internal unsafe partial class CriAtomEx : IGameHook
 
 internal class PlayerConfig
 {
-    public nint PlayerHn { get; set; }
+    public PlayerConfig(int id, nint playerHn)
+    {
+        this.Id = id;
+        this.PlayerHn = playerHn;
+    }
+
+    public int Id { get; init; }
+
+    public nint PlayerHn { get; init; }
 
     public AcbConfig Acb { get; set; } = new();
-
-    public string? PreviousCueName { get; set; }
 }
 
 internal class AcbConfig

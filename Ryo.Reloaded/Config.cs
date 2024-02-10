@@ -6,7 +6,13 @@ namespace Ryo.Reloaded.Configuration;
 public class Config : Configurable<Config>
 {
     [DisplayName("Log Level")]
+    [DefaultValue(LogLevel.Information)]
     public LogLevel LogLevel { get; set; } = LogLevel.Information;
+
+    [DisplayName("Developer Mode")]
+    [Description("Display extra information useful for mod development.")]
+    [DefaultValue(false)]
+    public bool DevMode { get; set; } = false;
 }
 
 /// <summary>
