@@ -3,10 +3,11 @@ using static Ryo.Reloaded.CRI.CriAtomExFunctions;
 using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using Ryo.Reloaded.CRI.Types;
+using CommunityToolkit.Mvvm.ComponentModel;
 
 namespace Ryo.Reloaded.CRI;
 
-internal unsafe partial class CriAtomEx : IGameHook
+internal unsafe partial class CriAtomEx : ObservableObject, IGameHook
 {
     private readonly string game;
     private readonly CriAtomExPatterns patterns;
@@ -33,7 +34,11 @@ internal unsafe partial class CriAtomEx : IGameHook
     private IFunction<criAtomExPlayer_SetCategoryByName>? setCategoryByName;
     private IFunction<criAtomExPlayer_GetCategoryInfo>? getCategoryInfo;
     private IFunction<criAtomExPlayer_SetData>? setData;
+
+    [ObservableProperty]
     private IFunction<criAtomExPlayer_SetCueName>? setCueName;
+
+    [ObservableProperty]
     private IFunction<criAtomExPlayer_SetCueId>? setCueId;
 
     private IHook<criAtomExPlayer_Create>? createHook;
@@ -71,8 +76,8 @@ internal unsafe partial class CriAtomEx : IGameHook
             this.patterns.CriAtomExPlayer_SetCueName,
             (hooks, result) =>
             {
-                this.setCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result);
-                this.setCueNameHook = this.setCueName.Hook(this.Player_SetCueName).Activate();
+                this.SetCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result);
+                this.setCueNameHook = this.SetCueName.Hook(this.Player_SetCueName).Activate();
             });
 
         this.AddHookScan(
@@ -80,8 +85,8 @@ internal unsafe partial class CriAtomEx : IGameHook
             this.patterns.CriAtomExPlayer_SetCueId,
             (hooks, result) =>
             {
-                this.setCueId = hooks.CreateFunction<criAtomExPlayer_SetCueId>(result);
-                this.setCueIdHook = this.setCueId.Hook(this.Player_SetCueId).Activate();
+                this.SetCueId = hooks.CreateFunction<criAtomExPlayer_SetCueId>(result);
+                this.setCueIdHook = this.SetCueId.Hook(this.Player_SetCueId).Activate();
             });
 
         this.AddHookScan(
@@ -188,8 +193,8 @@ internal unsafe partial class CriAtomEx : IGameHook
         return player;
     }
 
-    public PlayerConfig? GetPlayerByHn(nint playerHn)
-        => this.players.FirstOrDefault(x => x.PlayerHn == playerHn);
+    public PlayerConfig GetPlayerByHn(nint playerHn)
+        => this.players.First(x => x.PlayerHn == playerHn);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
