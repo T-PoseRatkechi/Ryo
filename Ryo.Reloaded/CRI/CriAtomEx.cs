@@ -2,12 +2,13 @@
 using static Ryo.Reloaded.CRI.CriAtomExFunctions;
 using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
-using Ryo.Reloaded.CRI.Types;
 using CommunityToolkit.Mvvm.ComponentModel;
+using Ryo.Interfaces.Types;
+using Ryo.Interfaces;
 
 namespace Ryo.Reloaded.CRI;
 
-internal unsafe partial class CriAtomEx : ObservableObject, IGameHook
+internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomEx
 {
     private readonly string game;
     private readonly CriAtomExPatterns patterns;
@@ -193,8 +194,11 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook
         return player;
     }
 
-    public PlayerConfig GetPlayerByHn(nint playerHn)
-        => this.players.First(x => x.PlayerHn == playerHn);
+    public PlayerConfig? GetPlayerByHn(nint playerHn)
+        => this.players.FirstOrDefault(x => x.PlayerHn == playerHn);
+
+    public PlayerConfig? GetPlayerById(int playerId)
+        => this.players.FirstOrDefault(x => x.Id == playerId);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
@@ -240,7 +244,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook
     public void Player_SetFile(nint playerHn, nint criBinderHn, byte* path)
         => this.setFile!.GetWrapper()(playerHn, criBinderHn, path);
 
-    public void Player_SetFormat(nint playerHn, CRIATOM_FORMAT format)
+    public void Player_SetFormat(nint playerHn, CriAtom_Format format)
         => this.setFormat!.GetWrapper()(playerHn, format);
 
     public void Player_SetNumChannels(nint playerHn, int numChannels)
@@ -310,28 +314,6 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook
 
     private void AddHookScan(string name, string? pattern, Action<IReloadedHooks, nint> success)
         => this.scans.Add(new(name, pattern, success));
-}
-
-internal class PlayerConfig
-{
-    public PlayerConfig(int id, nint playerHn)
-    {
-        this.Id = id;
-        this.PlayerHn = playerHn;
-    }
-
-    public int Id { get; init; }
-
-    public nint PlayerHn { get; init; }
-
-    public AcbConfig Acb { get; set; } = new();
-}
-
-internal class AcbConfig
-{
-    public nint AcbHn { get; set; }
-
-    public string AcbPath { get; set; } = string.Empty;
 }
 
 internal class ScanHook

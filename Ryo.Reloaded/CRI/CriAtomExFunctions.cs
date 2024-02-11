@@ -1,5 +1,5 @@
 ﻿using Reloaded.Hooks.Definitions.X64;
-using Ryo.Reloaded.CRI.Types;
+using Ryo.Interfaces.Types;
 
 namespace Ryo.Reloaded.CRI;
 
@@ -21,7 +21,7 @@ internal unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetFile(nint playerHn, nint criBinderHn, byte* path);
 
     [Function(CallingConventions.Microsoft)]
-    public delegate void criAtomExPlayer_SetFormat(nint playerHn, CRIATOM_FORMAT format);
+    public delegate void criAtomExPlayer_SetFormat(nint playerHn, CriAtom_Format format);
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetSamplingRate(nint playerHn, int samplingRate);
