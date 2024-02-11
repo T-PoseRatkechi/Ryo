@@ -1,4 +1,4 @@
-﻿using Ryo.Reloaded.CRI.Types;
+﻿using Ryo.Interfaces.Types;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -8,10 +8,11 @@ internal static class GameAudio
     {
         ["p3r"] = new()
         {
-            Format = CRIATOM_FORMAT.ADX,
+            Format = CriAtom_Format.ADX,
             NumChannels = 2,
             SampleRate = 44100,
             CategoryIds = new int[] { 0, 13 },
+            PlayerId = 0,
         },
     };
 
