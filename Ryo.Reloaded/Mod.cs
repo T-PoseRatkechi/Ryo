@@ -2,6 +2,7 @@
 using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Reloaded.Mod.Interfaces;
 using Reloaded.Mod.Interfaces.Internal;
+using Ryo.Interfaces;
 using Ryo.Reloaded.Audio;
 using Ryo.Reloaded.Configuration;
 using Ryo.Reloaded.CRI;
@@ -11,7 +12,7 @@ using System.Drawing;
 
 namespace Ryo.Reloaded;
 
-public class Mod : ModBase
+public class Mod : ModBase, IExports
 {
     private readonly IModLoader modLoader;
     private readonly IReloadedHooks hooks;
@@ -42,13 +43,17 @@ public class Mod : ModBase
         this.game = Path.GetFileNameWithoutExtension(this.modLoader.GetAppConfig().AppId);
 
         Log.Initialize($"Ryo ({this.game.ToUpper()})", this.log, Color.FromArgb(138, 177, 255));
+        Log.LogLevel = this.config.LogLevel;
+
         this.modLoader.GetController<IStartupScanner>().TryGetTarget(out var scanner);
 
         this.criAtomEx = new(this.game);
         this.criAtomEx.Initialize(scanner!, this.hooks);
+        this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
         this.audioRegistry = new(this.game);
         this.audioService = new(this.criAtomEx, this.audioRegistry);
+        this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.audioRegistry);
 
         this.modLoader.ModLoading += this.OnModLoading;
 
@@ -85,6 +90,9 @@ public class Mod : ModBase
         this.log.WriteLine($"[{this.modConfig.ModId}] Config Updated: Applying");
         this.ApplyConfig();
     }
+
+    public Type[] GetTypes() => new[] { typeof(ICriAtomEx), typeof(IRyoApi) };
+
     #endregion
 
     #region For Exports, Serialization etc.

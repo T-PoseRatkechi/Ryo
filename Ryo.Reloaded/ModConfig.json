@@ -12,7 +12,7 @@
   "ModNativeDll64": "",
   "Tags": [],
   "CanUnload": null,
-  "HasExports": null,
+  "HasExports": true,
   "IsLibrary": true,
   "ReleaseMetadataFileName": "Ryo.Reloaded.ReleaseMetadata.json",
   "PluginData": {
