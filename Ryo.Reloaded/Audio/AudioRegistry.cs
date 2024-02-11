@@ -1,12 +1,12 @@
-﻿using Ryo.Reloaded.CRI;
-using YamlDotNet.Serialization.NamingConventions;
+﻿using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.Diagnostics.CodeAnalysis;
-using Ryo.Reloaded.CRI.Types;
+using Ryo.Interfaces.Types;
+using Ryo.Interfaces;
 
 namespace Ryo.Reloaded.Audio;
 
-internal class AudioRegistry
+internal class AudioRegistry : IRyoApi
 {
     private readonly IDeserializer deserializer = new DeserializerBuilder()
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
@@ -24,6 +24,11 @@ internal class AudioRegistry
     {
         foreach (var file in Directory.EnumerateFiles(dir))
         {
+            if (file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
+            {
+                continue;
+            }
+
             this.AddAudioFile(file);
         }
     }
@@ -44,24 +49,25 @@ internal class AudioRegistry
 
     private AudioConfig GetAudioConfig(string file)
     {
-        var defaultConfig  = GameAudio.GetDefaultConfig(this.game);
+        var defaultConfig = GameAudio.GetDefaultConfig(this.game);
         var config = new AudioConfig()
         {
             CategoryIds = defaultConfig.CategoryIds,
             Format = defaultConfig.Format,
             NumChannels = defaultConfig.NumChannels,
             SampleRate = defaultConfig.SampleRate,
+            PlayerId = defaultConfig.PlayerId,
         };
 
         // Load cue data from config.
-        var configFile = Path.ChangeExtension(file, "*.yaml");
+        var configFile = Path.ChangeExtension(file, ".yaml");
         if (File.Exists(configFile))
         {
-            config ??= this.deserializer.Deserialize<AudioConfig>(File.ReadAllText(configFile));
+            config = this.deserializer.Deserialize<AudioConfig>(File.ReadAllText(configFile));
         }
 
-        // Use file name for cue data.
-        else
+        // Use file name for cue data if none set.
+        if (string.IsNullOrEmpty(config.CueName))
         {
             config.CueName = Path.GetFileNameWithoutExtension(file);
         }
@@ -71,11 +77,11 @@ internal class AudioRegistry
         return config;
     }
 
-    private static CRIATOM_FORMAT GetAudioFormat(string file)
+    private static CriAtom_Format GetAudioFormat(string file)
         => Path.GetExtension(file).ToLower() switch
         {
-            ".hca" => CRIATOM_FORMAT.HCA,
-            ".adx" => CRIATOM_FORMAT.ADX,
+            ".hca" => CriAtom_Format.HCA,
+            ".adx" => CriAtom_Format.ADX,
             _ => throw new Exception("Unknown audio format.")
         };
 }
