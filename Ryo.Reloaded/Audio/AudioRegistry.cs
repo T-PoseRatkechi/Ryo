@@ -12,7 +12,7 @@ internal class AudioRegistry : IRyoApi
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
         .Build();
 
-    private readonly Dictionary<string, AudioConfig> cueNameAudio = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, FileAudioConfig> cueNameAudio = new(StringComparer.OrdinalIgnoreCase);
     private readonly string game;
 
     public AudioRegistry(string game)
@@ -22,6 +22,15 @@ internal class AudioRegistry : IRyoApi
 
     public void AddAudioFolder(string dir)
     {
+        Log.Information($"Adding folder: {dir}");
+
+        var dirConfigFile = Path.Join(dir, "config.yaml");
+        var dirConfig = File.Exists(dirConfigFile) ? this.GetFolderConfig(dirConfigFile) : null;
+        if (dirConfig != null)
+        {
+            PrintConfig(dirConfig);
+        }
+
         foreach (var file in Directory.EnumerateFiles(dir))
         {
             if (file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
@@ -29,41 +38,49 @@ internal class AudioRegistry : IRyoApi
                 continue;
             }
 
-            this.AddAudioFile(file);
+            this.AddAudioFile(file, dirConfig);
+        }
+
+        foreach (var folder in Directory.EnumerateDirectories(dir))
+        {
+            this.AddAudioFolder(folder);
         }
     }
 
     public void AddAudioFile(string file)
-    {
-        var config = GetAudioConfig(file);
-        if (string.IsNullOrEmpty(config.CueName)) throw new Exception("Missing cue data.");
-        this.cueNameAudio[config.CueName] = config;
+        => this.AddAudioFile(file, null);
 
-        Log.Information($"Assigned cue.\nCue Name: {config.CueName}\nFile: {config.AudioFile}");
+    public void AddAudioFile(string file, FolderAudioConfig? baseConfig = null)
+    {
+        var fileConfig = this.GetFileAudioConfig(file, baseConfig);
+        if (string.IsNullOrEmpty(fileConfig.CueName)) throw new Exception("Missing cue data.");
+        this.cueNameAudio[fileConfig.CueName] = fileConfig;
+
+        Log.Information($"Assigned cue.\nCue Name: {fileConfig.CueName}\nFile: {fileConfig.AudioFile}");
     }
 
-    public bool TryGetAudio(PlayerConfig player, string cueName, [NotNullWhen(true)] out AudioConfig? audio)
+    public bool TryGetAudio(PlayerConfig player, string cueName, [NotNullWhen(true)] out FileAudioConfig? audio)
     {
         return this.cueNameAudio.TryGetValue(cueName, out audio);
     }
 
-    private AudioConfig GetAudioConfig(string file)
+    private FileAudioConfig GetFileAudioConfig(string file, FolderAudioConfig? baseConfig = null)
     {
         var defaultConfig = GameAudio.GetDefaultConfig(this.game);
-        var config = new AudioConfig()
+        var config = new FileAudioConfig()
         {
-            CategoryIds = defaultConfig.CategoryIds,
-            Format = defaultConfig.Format,
-            NumChannels = defaultConfig.NumChannels,
-            SampleRate = defaultConfig.SampleRate,
-            PlayerId = defaultConfig.PlayerId,
+            PlayerId = baseConfig?.PlayerId ?? defaultConfig.PlayerId,
+            CategoryIds = baseConfig?.CategoryIds ?? defaultConfig.CategoryIds,
+            NumChannels = baseConfig?.NumChannels ?? defaultConfig.NumChannels,
+            SampleRate = baseConfig?.SampleRate ?? defaultConfig.SampleRate,
+            Volume = baseConfig?.Volume ?? defaultConfig.Volume,
         };
 
         // Load cue data from config.
         var configFile = Path.ChangeExtension(file, ".yaml");
         if (File.Exists(configFile))
         {
-            config = this.deserializer.Deserialize<AudioConfig>(File.ReadAllText(configFile));
+            config = this.GetFileConfig(configFile);
         }
 
         // Use file name for cue data if none set.
@@ -77,6 +94,12 @@ internal class AudioRegistry : IRyoApi
         return config;
     }
 
+    private FileAudioConfig GetFileConfig(string configFile)
+        => this.deserializer.Deserialize<FileAudioConfig>(File.ReadAllText(configFile));
+
+    private FolderAudioConfig GetFolderConfig(string configFile)
+        => this.deserializer.Deserialize<FolderAudioConfig>(File.ReadAllText(configFile));
+
     private static CriAtom_Format GetAudioFormat(string file)
         => Path.GetExtension(file).ToLower() switch
         {
@@ -84,4 +107,16 @@ internal class AudioRegistry : IRyoApi
             ".adx" => CriAtom_Format.ADX,
             _ => throw new Exception("Unknown audio format.")
         };
+
+    private static void PrintConfig(FolderAudioConfig config)
+    {
+        var categories = (config.CategoryIds != null) ? string.Join(',', config.CategoryIds.Select(x => x.ToString())) : "Not Set";
+        Log.Debug(
+            $"Folder Config\n" +
+            $"Player ID: {config.PlayerId?.ToString() ?? "Not Set"}\n" +
+            $"Categories: {categories}\n" +
+            $"Volume: {config.Volume?.ToString() ?? "Not Set"}\n" +
+            $"Sample Rate: {config.SampleRate?.ToString() ?? "Not Set"}\n" +
+            $"Channels: {config.NumChannels?.ToString() ?? "Not Set"}");
+    }
 }
