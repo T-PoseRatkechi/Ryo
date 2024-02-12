@@ -35,6 +35,8 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     private IFunction<criAtomExPlayer_SetCategoryByName>? setCategoryByName;
     private IFunction<criAtomExPlayer_GetCategoryInfo>? getCategoryInfo;
     private IFunction<criAtomExPlayer_SetData>? setData;
+    private IFunction<criAtomExCategory_SetVolumeById>? setVolumeById;
+    private IFunction<criAtomExPlayer_UpdateAll>? updateAll;
 
     [ObservableProperty]
     private IFunction<criAtomExPlayer_SetCueName>? setCueName;
@@ -164,6 +166,16 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
             nameof(criAtomExPlayer_SetData),
             this.patterns.CriAtomExPlayer_SetData,
             (hooks, result) => this.setData = hooks.CreateFunction<criAtomExPlayer_SetData>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExCategory_SetVolumeById),
+            this.patterns.CriAtomExCategory_SetVolumeById,
+            (hooks, result) => this.setVolumeById = hooks.CreateFunction<criAtomExCategory_SetVolumeById>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExPlayer_UpdateAll),
+            this.patterns.CriAtomExPlayer_UpdateAll,
+            (hooks, result) => this.updateAll = hooks.CreateFunction<criAtomExPlayer_UpdateAll>(result));
     }
 
     public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
@@ -270,8 +282,14 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     public void Player_SetVolume(nint playerHn, float volume)
         => this.setVolume!.GetWrapper()(playerHn, volume);
 
+    public void Category_SetVolumeById(uint id, float volume)
+        => this.setVolumeById!.GetWrapper()(id, volume);
+
     public void Player_SetData(nint playerHn, byte* buffer, int size)
         => this.setData!.GetWrapper()(playerHn, buffer, size);
+
+    public void Player_UpdateAll(nint playerHn)
+        => this.updateAll!.GetWrapper()(playerHn);
 
     private nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize)
     {

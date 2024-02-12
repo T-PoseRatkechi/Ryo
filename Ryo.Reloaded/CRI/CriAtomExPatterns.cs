@@ -14,6 +14,9 @@ internal static class CriAtomExGames
             CriAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 89 D7 48 89 CB 48 85 C9 74 ?? 85 D2",
             CriAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
             CriAtomExPlayer_SetCueName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 48 8B EA 48 8B D9",
+            CriAtomExPlayer_SetVolume = "48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? 33 D2",
+            CriAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24",
+            CriAtomExPlayer_UpdateAll = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? EB",
         }
     };
 
@@ -50,7 +53,7 @@ internal class CriAtomExPatterns
 
     public string? CriAtomExPlayer_SetVolume { get; init; }
 
-    public string? CriAtomExPlayer_SetVolumeById { get; init; }
+    public string? CriAtomExCategory_SetVolumeById { get; init; }
 
     public string? CriAtomExPlayer_SetCategoryById { get; init; }
 
@@ -69,4 +72,6 @@ internal class CriAtomExPatterns
     public string? CriAtomExPlayer_SetData { get; init; }
 
     public string? CriAtomExPlayer_SetCueName { get; init; }
+
+    public string? CriAtomExPlayer_UpdateAll { get; init; }
 }

@@ -36,6 +36,9 @@ internal unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetVolume(nint playerHn, float volume);
 
     [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExCategory_SetVolumeById(uint id, float volume);
+
+    [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetCategoryById(nint playerHn, uint id);
 
     [Function(CallingConventions.Microsoft)]
@@ -61,4 +64,7 @@ internal unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueName);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_UpdateAll(nint playerHn);
 }
