@@ -2,7 +2,7 @@
 
 namespace Ryo.Reloaded.Audio;
 
-internal class AudioConfig
+internal class FileAudioConfig
 {
     public string CueName { get; set; } = string.Empty;
 
@@ -17,4 +17,6 @@ internal class AudioConfig
     public int[] CategoryIds { get; set; } = Array.Empty<int>();
 
     public string AudioFile { get; set; } = string.Empty;
+
+    public float Volume { get; set; } = 1.0f;
 }
