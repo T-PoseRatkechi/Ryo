@@ -13,7 +13,7 @@ internal static class GameAudio
             SampleRate = 44100,
             CategoryIds = new int[] { 0, 3, 13, 18 },
             PlayerId = 0,
-            Volume = 0.20f,
+            Volume = 0.35f,
         },
     };
 

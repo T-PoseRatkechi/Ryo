@@ -18,5 +18,5 @@ internal class AudioConfig
 
     public string AudioFile { get; set; } = string.Empty;
 
-    public float Volume { get; set; } = 1.0f;
+    public float Volume { get; set; } = -1f;
 }
