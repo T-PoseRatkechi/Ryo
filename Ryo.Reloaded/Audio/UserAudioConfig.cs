@@ -3,10 +3,12 @@
 namespace Ryo.Reloaded.Audio;
 
 /// <summary>
-/// Base audio settings for folder audio files.
+/// User defined audio settings.
 /// </summary>
-internal class FolderAudioConfig
+internal class UserAudioConfig
 {
+    public string? CueName { get; set; }
+
     public int? SampleRate { get; set; }
 
     public CriAtom_Format? Format { get; set; }

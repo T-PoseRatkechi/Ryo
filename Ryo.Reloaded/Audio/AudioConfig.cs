@@ -2,7 +2,7 @@
 
 namespace Ryo.Reloaded.Audio;
 
-internal class FileAudioConfig
+internal class AudioConfig
 {
     public string CueName { get; set; } = string.Empty;
 
