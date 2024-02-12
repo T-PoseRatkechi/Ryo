@@ -53,6 +53,7 @@ public class Mod : ModBase, IExports
 
         this.audioRegistry = new(this.game);
         this.audioService = new(this.criAtomEx, this.audioRegistry);
+        this.audioService.Initialize(scanner!, this.hooks);
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.audioRegistry);
 
         this.modLoader.ModLoading += this.OnModLoading;
