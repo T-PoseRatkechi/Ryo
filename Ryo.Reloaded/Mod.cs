@@ -42,7 +42,7 @@ public class Mod : ModBase, IExports
 
         this.game = Path.GetFileNameWithoutExtension(this.modLoader.GetAppConfig().AppId);
 
-        Log.Initialize($"Ryo ({this.game.ToUpper()})", this.log, Color.FromArgb(138, 177, 255));
+        Log.Initialize($"Ryo ({this.game.ToUpper()})", this.log, Color.FromArgb(110, 209, 248));
         Log.LogLevel = this.config.LogLevel;
 
         this.modLoader.GetController<IStartupScanner>().TryGetTarget(out var scanner);
