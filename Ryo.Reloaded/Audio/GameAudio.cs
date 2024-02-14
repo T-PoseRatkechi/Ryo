@@ -11,9 +11,9 @@ internal static class GameAudio
             Format = CriAtom_Format.HCA,
             NumChannels = 2,
             SampleRate = 44100,
-            CategoryIds = new int[] { 0, 3, 13, 18 },
+            CategoryIds = new int[] { 0, 13 },
             PlayerId = 0,
-            Volume = 0.35f,
+            Volume = 0.15f,
         },
     };
 
