@@ -83,7 +83,7 @@ internal class AudioRegistry : IRyoApi
         // Use file name for cue data if none set.
         if (string.IsNullOrEmpty(config.CueName))
         {
-            config.CueName = Path.GetFileNameWithoutExtension(file);
+            config.CueName = GetCueName(file);
         }
 
         config.AudioFile = file;
@@ -111,6 +111,17 @@ internal class AudioRegistry : IRyoApi
             ".adx" => CriAtom_Format.ADX,
             _ => throw new Exception("Unknown audio format.")
         };
+
+    private static string GetCueName(string file)
+    {
+        var nameParts = Path.GetFileNameWithoutExtension(file).Split('_');
+        if (nameParts.Length > 0 && int.TryParse(nameParts[0], out var bgmId))
+        {
+            return bgmId.ToString();
+        }
+
+        return Path.GetFileNameWithoutExtension(file);
+    }
 
     private static void PrintUserConfig(UserAudioConfig config)
     {
