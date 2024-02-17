@@ -33,12 +33,11 @@ internal class AudioRegistry : IRyoApi
 
         foreach (var file in Directory.EnumerateFiles(dir))
         {
-            if (file.EndsWith(".yaml", StringComparison.OrdinalIgnoreCase))
+            var ext = Path.GetExtension(file).ToLower();
+            if (ext == ".hca" || ext == ".adx")
             {
-                continue;
+                this.AddAudioFile(file, dirConfig);
             }
-
-            this.AddAudioFile(file, dirConfig);
         }
 
         foreach (var folder in Directory.EnumerateDirectories(dir))
