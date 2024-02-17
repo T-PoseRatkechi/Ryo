@@ -67,4 +67,7 @@ internal unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_UpdateAll(nint playerHn);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_LimitLoopCount(nint playerHn, int count);
 }

@@ -48,6 +48,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     private IHook<criAtomExAcb_LoadAcbFile>? loadAcbFileHook;
     private IHook<criAtomExPlayer_SetCueId>? setCueIdHook;
     private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
+    private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
 
     private bool devMode;
 
@@ -58,7 +59,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_Create),
-            this.patterns.CriAtomExPlayer_Create,
+            this.patterns.criAtomExPlayer_Create,
             (hooks, result) =>
             {
                 this.create = hooks.CreateFunction<criAtomExPlayer_Create>(result);
@@ -76,7 +77,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetCueName),
-            this.patterns.CriAtomExPlayer_SetCueName,
+            this.patterns.criAtomExPlayer_SetCueName,
             (hooks, result) =>
             {
                 this.SetCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result);
@@ -109,7 +110,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_Start),
-            this.patterns.CriAtomExPlayer_Start,
+            this.patterns.criAtomExPlayer_Start,
             (hooks, result) => this.start = hooks.CreateFunction<criAtomExPlayer_Start>(result));
 
         this.AddHookScan(
@@ -119,17 +120,17 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetFormat),
-            this.patterns.CriAtomExPlayer_SetFormat,
+            this.patterns.criAtomExPlayer_SetFormat,
             (hooks, result) => this.setFormat = hooks.CreateFunction<criAtomExPlayer_SetFormat>(result));
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetSamplingRate),
-            this.patterns.CriAtomExPlayer_SetSamplingRate,
+            this.patterns.criAtomExPlayer_SetSamplingRate,
             (hooks, result) => this.setSamplingRate = hooks.CreateFunction<criAtomExPlayer_SetSamplingRate>(result));
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetNumChannels),
-            this.patterns.CriAtomExPlayer_SetNumChannels,
+            this.patterns.criAtomExPlayer_SetNumChannels,
             (hooks, result) => this.setNumChannels = hooks.CreateFunction<criAtomExPlayer_SetNumChannels>(result));
 
         this.AddHookScan(
@@ -139,12 +140,12 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetVolume),
-            this.patterns.CriAtomExPlayer_SetVolume,
+            this.patterns.criAtomExPlayer_SetVolume,
             (hooks, result) => this.setVolume = hooks.CreateFunction<criAtomExPlayer_SetVolume>(result));
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetCategoryById),
-            this.patterns.CriAtomExPlayer_SetCategoryById,
+            this.patterns.criAtomExPlayer_SetCategoryById,
             (hooks, result) => this.setCategoryById = hooks.CreateFunction<criAtomExPlayer_SetCategoryById>(result));
 
         this.AddHookScan(
@@ -164,18 +165,23 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
         this.AddHookScan(
             nameof(criAtomExPlayer_SetData),
-            this.patterns.CriAtomExPlayer_SetData,
+            this.patterns.criAtomExPlayer_SetData,
             (hooks, result) => this.setData = hooks.CreateFunction<criAtomExPlayer_SetData>(result));
 
         this.AddHookScan(
             nameof(criAtomExCategory_SetVolumeById),
-            this.patterns.CriAtomExCategory_SetVolumeById,
+            this.patterns.criAtomExCategory_SetVolumeById,
             (hooks, result) => this.setVolumeById = hooks.CreateFunction<criAtomExCategory_SetVolumeById>(result));
 
         this.AddHookScan(
             nameof(criAtomExPlayer_UpdateAll),
-            this.patterns.CriAtomExPlayer_UpdateAll,
+            this.patterns.criAtomExPlayer_UpdateAll,
             (hooks, result) => this.updateAll = hooks.CreateFunction<criAtomExPlayer_UpdateAll>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExPlayer_LimitLoopCount),
+            this.patterns.criAtomExPlayer_LimitLoopCount,
+            (hooks, result) => this.limitLoopCount = hooks.CreateFunction<criAtomExPlayer_LimitLoopCount>(result));
     }
 
     public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
@@ -211,6 +217,9 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
     public PlayerConfig? GetPlayerById(int playerId)
         => this.players.FirstOrDefault(x => x.Id == playerId);
+
+    public void Player_LimitLoopCount(nint playerHn, int count)
+        => this.limitLoopCount!.GetWrapper()(playerHn, count);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {

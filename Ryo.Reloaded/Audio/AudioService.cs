@@ -63,6 +63,7 @@ internal unsafe class AudioService : IGameHook
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
             this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
             this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
+            //this.criAtomEx.Player_LimitLoopCount(player.PlayerHn, -3);
 
             // Use first category for setting custom volume.
             int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
