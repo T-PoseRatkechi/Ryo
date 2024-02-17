@@ -57,8 +57,18 @@ public class Mod : ModBase, IExports
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.audioRegistry);
 
         this.modLoader.ModLoading += this.OnModLoading;
+        this.modLoader.OnModLoaderInitialized += this.OnModLoaderInitialized;
 
         this.ApplyConfig();
+    }
+
+    private void OnModLoaderInitialized()
+    {
+        if (this.config.PreloadAudio)
+        {
+            Log.Information("Preloading audio.");
+            this.audioRegistry.PreloadAudio();
+        }
     }
 
     private void OnModLoading(IModV1 mod, IModConfigV1 config)

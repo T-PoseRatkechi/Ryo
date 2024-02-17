@@ -10,8 +10,6 @@ namespace Ryo.Reloaded.Audio;
 
 internal unsafe class AudioService : IGameHook
 {
-    private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
-
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
     private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
@@ -64,7 +62,7 @@ internal unsafe class AudioService : IGameHook
                 Log.Debug($"Stopped player: {player.Id}");
             }
 
-            var audioData = this.GetAudioData(audio.AudioFile);
+            var audioData = this.audioRegistry.GetAudioData(audio.AudioFile);
             this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
             this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
@@ -110,20 +108,6 @@ internal unsafe class AudioService : IGameHook
         }
     }
 
-    private AudioData GetAudioData(string audioFile)
-    {
-        if (this.cachedAudioData.TryGetValue(audioFile, out var existingData))
-        {
-            return existingData;
-        }
-
-        var data = File.ReadAllBytes(audioFile);
-        var buffer = Marshal.AllocHGlobal(data.Length);
-        Marshal.Copy(data, 0, buffer, data.Length);
-        this.cachedAudioData[audioFile] = new(buffer, data.Length);
-        return this.cachedAudioData[audioFile];
-    }
-
     private void ResetPlayerVolume(nint playerHn)
     {
         // Reset modified category volume.
@@ -135,8 +119,6 @@ internal unsafe class AudioService : IGameHook
             this.modifiedCategories.Remove(playerHn);
         }
     }
-
-    private record AudioData(nint Buffer, int Size);
 
     private record CategoryVolume(int PlayerId, int CategoryId, float OriginalVolume);
 }

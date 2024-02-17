@@ -3,6 +3,7 @@ using YamlDotNet.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using Ryo.Interfaces.Types;
 using Ryo.Interfaces;
+using System.Runtime.InteropServices;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -61,6 +62,32 @@ internal class AudioRegistry : IRyoApi
     public bool TryGetAudio(PlayerConfig player, string cueName, [NotNullWhen(true)] out AudioConfig? audio)
     {
         return this.cueNameAudio.TryGetValue(cueName, out audio);
+    }
+
+    public record AudioData(nint Buffer, int Size);
+
+    private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
+
+    public AudioData GetAudioData(string audioFile)
+    {
+        if (this.cachedAudioData.TryGetValue(audioFile, out var existingData))
+        {
+            return existingData;
+        }
+
+        var data = File.ReadAllBytes(audioFile);
+        var buffer = Marshal.AllocHGlobal(data.Length);
+        Marshal.Copy(data, 0, buffer, data.Length);
+        this.cachedAudioData[audioFile] = new(buffer, data.Length);
+        return this.cachedAudioData[audioFile];
+    }
+
+    public void PreloadAudio()
+    {
+        foreach (var audio in this.cueNameAudio)
+        {
+            this.GetAudioData(audio.Value.AudioFile);
+        }
     }
 
     private AudioConfig GetAudioConfig(string file, UserAudioConfig? folderConfig = null)

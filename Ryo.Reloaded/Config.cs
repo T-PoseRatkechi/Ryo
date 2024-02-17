@@ -13,6 +13,11 @@ public class Config : Configurable<Config>
     [Description("Display extra information useful for mod development.")]
     [DefaultValue(false)]
     public bool DevMode { get; set; } = false;
+
+    [DisplayName("Preload Audio Data")]
+    [Description("Loads all audio files into memory. DON'T USE UNDER NORMAL CIRCUMSTANCES!")]
+    [DefaultValue(false)]
+    public bool PreloadAudio { get; set; } = false;
 }
 
 /// <summary>
