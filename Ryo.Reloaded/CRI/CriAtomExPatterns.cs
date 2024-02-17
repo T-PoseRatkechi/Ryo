@@ -1,4 +1,6 @@
-﻿namespace Ryo.Reloaded.CRI;
+﻿using static Ryo.Reloaded.CRI.CriAtomExFunctions;
+
+namespace Ryo.Reloaded.CRI;
 
 internal static class CriAtomExGames
 {
@@ -17,7 +19,9 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetVolume = "48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? 33 D2",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24",
             criAtomExPlayer_UpdateAll = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? EB",
-            criAtomExPlayer_LimitLoopCount = "44 8B C2 48 85 C9 74 ?? 83 FA FD"
+            criAtomExPlayer_LimitLoopCount = "44 8B C2 48 85 C9 74 ?? 83 FA FD",
+            criAtomExPlayer_GetStatus = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8D 47",
+            criAtomExPlayer_Stop = "40 53 48 83 EC 20 48 8B D9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? 48 83 C4 20 5B E9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 74 ?? 83 F8 03 75 ?? 48 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 63 ?? 00 83 A3 ?? ?? ?? ?? 00 C6 83 ?? ?? ?? ?? 00 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 48 8B CB",
         }
     };
 
@@ -76,4 +80,6 @@ internal class CriAtomExPatterns
 
     public string? criAtomExPlayer_UpdateAll { get; init; }
     public string criAtomExPlayer_LimitLoopCount { get; internal set; }
+    public string criAtomExPlayer_GetStatus { get; internal set; }
+    public string criAtomExPlayer_Stop { get; internal set; }
 }

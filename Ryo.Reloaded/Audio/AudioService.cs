@@ -58,6 +58,12 @@ internal unsafe class AudioService : IGameHook
                 manualStart = true;
             }
 
+            if (audio.ForceStop)
+            {
+                this.criAtomEx.Player_StopAsync(player.PlayerHn).Wait();
+                Log.Debug($"Stopped player: {player.Id}");
+            }
+
             var audioData = this.GetAudioData(audio.AudioFile);
             this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);

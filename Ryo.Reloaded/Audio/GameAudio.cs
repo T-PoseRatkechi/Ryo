@@ -14,6 +14,7 @@ internal static class GameAudio
             CategoryIds = new int[] { 0, 13 },
             PlayerId = 0,
             Volume = 0.15f,
+            ForceStop = true,
         },
     };
 

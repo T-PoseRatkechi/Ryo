@@ -51,6 +51,8 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
 
     private bool devMode;
+    private IFunction<criAtomExPlayer_GetStatus> getStatus;
+    private IFunction<criAtomExPlayer_Stop> stop;
 
     public CriAtomEx(string game)
     {
@@ -182,6 +184,16 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
             nameof(criAtomExPlayer_LimitLoopCount),
             this.patterns.criAtomExPlayer_LimitLoopCount,
             (hooks, result) => this.limitLoopCount = hooks.CreateFunction<criAtomExPlayer_LimitLoopCount>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExPlayer_GetStatus),
+            this.patterns.criAtomExPlayer_GetStatus,
+            (hooks, result) => this.getStatus = hooks.CreateFunction<criAtomExPlayer_GetStatus>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExPlayer_Stop),
+            this.patterns.criAtomExPlayer_Stop,
+            (hooks, result) => this.stop = hooks.CreateFunction<criAtomExPlayer_Stop>(result));
     }
 
     public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
@@ -218,8 +230,42 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     public PlayerConfig? GetPlayerById(int playerId)
         => this.players.FirstOrDefault(x => x.Id == playerId);
 
+    public CriAtomExPlayerStatusTag Player_GetStatus(nint playerHn)
+        => this.getStatus.GetWrapper()(playerHn);
+
     public void Player_LimitLoopCount(nint playerHn, int count)
         => this.limitLoopCount!.GetWrapper()(playerHn, count);
+
+    public void Player_Stop(nint playerHn)
+        => this.stop.GetWrapper()(playerHn);
+
+    public Task Player_StopAsync(nint playerHn)
+    {
+        var task = Task.Run(() =>
+        {
+            Log.Debug("Stopping player.");
+            this.Player_Stop(playerHn);
+            while (true)
+            {
+                var currentStatus = this.Player_GetStatus(playerHn);
+                if (currentStatus == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_STOP)
+                {
+                    Log.Debug("Player stopped.");
+                    return;
+                }
+
+                if (currentStatus == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_ERROR)
+                {
+                    Log.Debug("Player errored while stopping.");
+                    return;
+                }
+
+                Thread.Sleep(500);
+            }
+        });
+
+        return task;
+    }
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
