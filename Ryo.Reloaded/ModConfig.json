@@ -2,7 +2,7 @@
   "ModId": "Ryo.Reloaded",
   "ModName": "Ryo Audio Framework",
   "ModAuthor": "zutomayofan50",
-  "ModVersion": "1.1.2",
+  "ModVersion": "1.2.7",
   "ModDescription": "Ryo Audio Framework adds the ability to add or replace game audio with zero file editing.",
   "ModDll": "Ryo.Reloaded.dll",
   "ModIcon": "Preview.png",
