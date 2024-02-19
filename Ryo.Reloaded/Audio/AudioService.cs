@@ -56,18 +56,27 @@ internal unsafe class AudioService : IGameHook
                 manualStart = true;
             }
 
-            if (audio.ForceStop)
-            {
-                this.criAtomEx.Player_StopAsync(player.PlayerHn).Wait();
-                Log.Debug($"Stopped player: {player.Id}");
-            }
+            //if (audio.ForceStop)
+            //{
+            //    //this.criAtomEx.Player_StopAsync(player.PlayerHn).Wait();
+            //    this.criAtomEx.Player_Stop(player.PlayerHn);
+            //    for (; ; )
+            //    {
+            //        var status = this.criAtomEx.Player_GetStatus(player.PlayerHn);
+            //        if (status == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_STOP || status == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_ERROR)
+            //        {
+            //            break;
+            //        }
+            //    }
+
+            //    Log.Debug($"Stopped player: {player.Id}");
+            //}
 
             var audioData = this.audioRegistry.GetAudioData(audio.AudioFile);
             this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
             this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
             this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
-            //this.criAtomEx.Player_LimitLoopCount(player.PlayerHn, -3);
 
             // Use first category for setting custom volume.
             int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;

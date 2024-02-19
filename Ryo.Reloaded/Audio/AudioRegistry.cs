@@ -79,6 +79,8 @@ internal class AudioRegistry : IRyoApi
         var buffer = Marshal.AllocHGlobal(data.Length);
         Marshal.Copy(data, 0, buffer, data.Length);
         this.cachedAudioData[audioFile] = new(buffer, data.Length);
+
+        Log.Debug($"Loading audio: {audioFile}");
         return this.cachedAudioData[audioFile];
     }
 
