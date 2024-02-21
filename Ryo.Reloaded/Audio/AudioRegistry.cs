@@ -123,6 +123,7 @@ internal class AudioRegistry : IRyoApi
     {
         try
         {
+            Log.Debug($"Loading user config: {configFile}");
             var config = this.deserializer.Deserialize<UserAudioConfig>(File.ReadAllText(configFile)) ?? throw new Exception();
             return config;
         }
