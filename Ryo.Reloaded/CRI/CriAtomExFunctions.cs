@@ -76,4 +76,7 @@ internal unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_Stop(nint playerHn);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue);
 }

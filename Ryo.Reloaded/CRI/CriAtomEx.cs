@@ -53,6 +53,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
     private bool devMode;
     private IFunction<criAtomExPlayer_GetStatus> getStatus;
     private IFunction<criAtomExPlayer_Stop> stop;
+    private IFunction<criAtomExPlayer_SetAisacControlByName> setAisacControlByName;
 
     public CriAtomEx(string game)
     {
@@ -194,6 +195,11 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
             nameof(criAtomExPlayer_Stop),
             this.patterns.criAtomExPlayer_Stop,
             (hooks, result) => this.stop = hooks.CreateFunction<criAtomExPlayer_Stop>(result));
+
+        this.AddHookScan(
+            nameof(criAtomExPlayer_SetAisacControlByName),
+            this.patterns.criAtomExPlayer_SetAisacControlByName,
+            (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
     }
 
     public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
@@ -238,6 +244,9 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
 
     public void Player_Stop(nint playerHn)
         => this.stop.GetWrapper()(playerHn);
+
+    public void Player_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue)
+        => this.setAisacControlByName.GetWrapper()(playerHn, controlName, controlValue);
 
     public Task Player_StopAsync(nint playerHn)
     {
