@@ -119,10 +119,21 @@ internal class AudioRegistry : IRyoApi
         return config;
     }
 
-    private UserAudioConfig GetUserConfig(string configFile)
-        => this.deserializer.Deserialize<UserAudioConfig>(File.ReadAllText(configFile));
+    private UserAudioConfig? GetUserConfig(string configFile)
+    {
+        try
+        {
+            var config = this.deserializer.Deserialize<UserAudioConfig>(File.ReadAllText(configFile)) ?? throw new Exception();
+            return config;
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, $"Failed to parse user config.\nFile: {configFile}");
+            return null;
+        }
+    }
 
-    private static void ApplyUserConfig(AudioConfig config, UserAudioConfig userConfig)
+    private static void ApplyUserConfig(AudioConfig config, UserAudioConfig? userConfig)
     {
         config.CueName = userConfig?.CueName ?? string.Empty;
         config.PlayerId = userConfig?.PlayerId ?? config.PlayerId;

@@ -41,12 +41,6 @@ internal unsafe class AudioService : IGameHook
         var player = this.criAtomEx.GetPlayerByHn(playerHn)!;
         var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName);
 
-        //for (int i = 0; i < 25; i++)
-        //{
-        //    Log.Information($"Category: {i} || Volume: {this.volume.CriAtomExCategory_GetVolumeById((uint)i)}");
-        //}
-
-        this.ResetPlayerVolume(player.PlayerHn);
         if (this.audioRegistry.TryGetAudio(player, cueNameStr ?? string.Empty, out var audio))
         {
             var manualStart = false;
@@ -56,22 +50,6 @@ internal unsafe class AudioService : IGameHook
                 manualStart = true;
             }
 
-            //if (audio.ForceStop)
-            //{
-            //    //this.criAtomEx.Player_StopAsync(player.PlayerHn).Wait();
-            //    this.criAtomEx.Player_Stop(player.PlayerHn);
-            //    for (; ; )
-            //    {
-            //        var status = this.criAtomEx.Player_GetStatus(player.PlayerHn);
-            //        if (status == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_STOP || status == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_ERROR)
-            //        {
-            //            break;
-            //        }
-            //    }
-
-            //    Log.Debug($"Stopped player: {player.Id}");
-            //}
-
             var audioData = this.audioRegistry.GetAudioData(audio.AudioFile);
             this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
@@ -80,13 +58,8 @@ internal unsafe class AudioService : IGameHook
 
             // Use first category for setting custom volume.
             int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
-            if (volumeCategory > -1 && audio.Volume >= 0)
+            if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
             {
-                if (this.modifiedCategories.ContainsKey(player.PlayerHn))
-                {
-                    Log.Warning("Modifiying mulitple category volumes before reseting.");
-                }
-
                 var currentVolume = this.volume.CriAtomExCategory_GetVolumeById((uint)volumeCategory);
                 this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
                 this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
@@ -99,10 +72,6 @@ internal unsafe class AudioService : IGameHook
                 this.criAtomEx.Player_SetCategoryById(player.PlayerHn, (uint)id);
             }
 
-            // I wish this worked :(
-            //this.criAtomEx.Player_SetVolume(player.PlayerHn, 0.0f);
-            //this.criAtomEx.Player_UpdateAll(player.PlayerHn);
-
             if (manualStart)
             {
                 this.criAtomEx.Player_Start(player.PlayerHn);
@@ -113,6 +82,7 @@ internal unsafe class AudioService : IGameHook
         }
         else
         {
+            this.ResetPlayerVolume(playerHn);
             this.setCueNameHook!.OriginalFunction(playerHn, acbHn, cueName);
         }
     }
