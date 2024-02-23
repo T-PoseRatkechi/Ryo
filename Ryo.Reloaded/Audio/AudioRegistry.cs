@@ -4,6 +4,7 @@ using System.Diagnostics.CodeAnalysis;
 using Ryo.Interfaces.Types;
 using Ryo.Interfaces;
 using System.Runtime.InteropServices;
+using Ryo.Reloaded.Audio.Models;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -13,8 +14,9 @@ internal class AudioRegistry : IRyoApi
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
         .Build();
 
-    private readonly Dictionary<string, AudioConfig> cueNameAudio = new(StringComparer.OrdinalIgnoreCase);
     private readonly string game;
+    private readonly Dictionary<Cue, AudioConfig> assignedCues = new(CueComparer.Instance);
+    private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
 
     public AudioRegistry(string game)
     {
@@ -53,20 +55,18 @@ internal class AudioRegistry : IRyoApi
     public void AddAudioFile(string file, UserAudioConfig? folderConfig = null)
     {
         var audio = this.GetAudioConfig(file, folderConfig);
-        if (string.IsNullOrEmpty(audio.CueName)) throw new Exception("Missing cue data.");
-        this.cueNameAudio[audio.CueName] = audio;
+        if (string.IsNullOrEmpty(audio.CueName) || string.IsNullOrEmpty(audio.AcbName)) throw new Exception("Missing cue or ACB name.");
 
-        Log.Information($"Assigned cue.\nCue Name: {audio.CueName}\nFile: {audio.AudioFile}");
+        var cue = new Cue(audio.CueName, audio.AcbName);
+        this.assignedCues[cue] = audio;
+
+        Log.Information($"Assigned Cue: {cue.CueName} || ACB: {cue.AcbName}\nFile: {audio.AudioFile}");
     }
 
-    public bool TryGetAudio(PlayerConfig player, string cueName, [NotNullWhen(true)] out AudioConfig? audio)
-    {
-        return this.cueNameAudio.TryGetValue(cueName, out audio);
-    }
+    public bool TryGetAudio(string cueName, string acbName, [NotNullWhen(true)] out AudioConfig? audio)
+        => this.assignedCues.TryGetValue(new(cueName, acbName), out audio);
 
     public record AudioData(nint Buffer, int Size);
-
-    private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
 
     public AudioData GetAudioData(string audioFile)
     {
@@ -86,9 +86,9 @@ internal class AudioRegistry : IRyoApi
 
     public void PreloadAudio()
     {
-        foreach (var audio in this.cueNameAudio)
+        foreach (var cue in this.assignedCues)
         {
-            this.GetAudioData(audio.Value.AudioFile);
+            this.GetAudioData(cue.Value.AudioFile);
         }
     }
 
@@ -137,6 +137,7 @@ internal class AudioRegistry : IRyoApi
     private static void ApplyUserConfig(AudioConfig config, UserAudioConfig? userConfig)
     {
         config.CueName = userConfig?.CueName ?? string.Empty;
+        config.AcbName = userConfig?.AcbName ?? string.Empty;
         config.PlayerId = userConfig?.PlayerId ?? config.PlayerId;
         config.CategoryIds = userConfig?.CategoryIds ?? config.CategoryIds;
         config.NumChannels = userConfig?.NumChannels ?? config.NumChannels;
@@ -169,6 +170,7 @@ internal class AudioRegistry : IRyoApi
         Log.Debug(
             $"User Config\n" +
             $"Cue Name: {config.CueName ?? "Not Set"}\n" +
+            $"ACB Name: {config.AcbName ?? "Not Set"}\n" +
             $"Player ID: {config.PlayerId?.ToString() ?? "Not Set"}\n" +
             $"Categories: {categories}\n" +
             $"Volume: {config.Volume?.ToString() ?? "Not Set"}\n" +
