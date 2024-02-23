@@ -1,6 +1,6 @@
 ﻿using Reloaded.Hooks.Definitions;
-using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
 using Ryo.Interfaces.Types;
+using Ryo.Reloaded.Audio.Models;
 using Ryo.Reloaded.CRI;
 using Ryo.Reloaded.P3R;
 using System.Runtime.InteropServices;
@@ -8,19 +8,23 @@ using static Ryo.Reloaded.CRI.CriAtomExFunctions;
 
 namespace Ryo.Reloaded.Audio;
 
-internal unsafe class AudioService : IGameHook
+internal unsafe class AudioService
 {
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
+    private readonly AudioConfig defaultAudio;
+    private readonly VolumeGetterAlt volume;
     private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
 
-    private readonly VolumeGetterAlt volume = new();
+    private bool devMode;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
 
-    public AudioService(CriAtomEx criAtomEx, AudioRegistry audioRegistry)
+    public AudioService(CriAtomEx criAtomEx, AudioRegistry audioRegistry, AudioConfig defaultAudio)
     {
         this.criAtomEx = criAtomEx;
         this.audioRegistry = audioRegistry;
+        this.defaultAudio = defaultAudio;
+        this.volume = new();
 
         criAtomEx.PropertyChanged += (sender, args) =>
         {
@@ -31,17 +35,21 @@ internal unsafe class AudioService : IGameHook
         };
     }
 
-    public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
-    {
-        this.volume.Initialize(scanner, hooks);
-    }
+    public void SetDevMode(bool devMode)
+        => this.devMode = devMode;
 
     private void CriAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueName)
     {
         var player = this.criAtomEx.GetPlayerByHn(playerHn)!;
-        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName);
+        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName)!;
+        var acbName = AcbRegistry.GetAcbName(acbHn) ?? this.defaultAudio.AcbName;
 
-        if (this.audioRegistry.TryGetAudio(player, cueNameStr ?? string.Empty, out var audio))
+        if (this.devMode)
+        {
+            Log.Information($"{nameof(CriAtomExPlayer_SetCueName)} || Cue: {cueNameStr} || ACB: {acbName}");
+        }
+
+        if (this.audioRegistry.TryGetAudio(cueNameStr, acbName, out var audio))
         {
             var manualStart = false;
             if (player.Id != audio.PlayerId && this.criAtomEx.GetPlayerById(audio.PlayerId) is PlayerConfig newPlayer)

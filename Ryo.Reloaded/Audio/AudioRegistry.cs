@@ -94,7 +94,7 @@ internal class AudioRegistry : IRyoApi
 
     private AudioConfig GetAudioConfig(string file, UserAudioConfig? folderConfig = null)
     {
-        var config = GameAudio.CreateDefaultConfig(this.game);
+        var config = GameDefaults.CreateDefaultConfig(this.game);
         if (folderConfig != null)
         {
             ApplyUserConfig(config, folderConfig);

@@ -27,7 +27,7 @@ internal static class AcbRegistry
             return acbName;
         }
 
-        Log.Warning($"Unknown ACB Hn: {acbHn:X}");
+        Log.Debug($"Unknown ACB Hn: {acbHn:X}");
         return null;
     }
 }
