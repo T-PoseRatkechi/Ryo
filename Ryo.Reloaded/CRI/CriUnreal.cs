@@ -12,7 +12,6 @@ internal unsafe class CriUnreal
     private IHook<USoundAtomCueSheet_AsyncLoadCueSheetTask> asyncLoadCueSheetTaskHook;
     private IFunction<PlayAdxControl_CreatePlayerBank> createPlayerBank;
     private IFunction<USoundAtomCueSheet_GetAtomCueById> getAtomCueById;
-    private IHook<USoundAtomCueSheet_GetAtomCueById> getAtomCueByIdHook;
     private IFunction<USoundAtomCueSheet_LoadAtomCueSheet> loadAtomCueSheet;
     private IFunction<PlayAdxControl_SetPlayerAcbBank> setPlayerAcbBank;
     private IFunction<PlayAdxControl_RequestSound> requestSound;
@@ -37,11 +36,7 @@ internal unsafe class CriUnreal
         ScanHooks.Add(
             nameof(USoundAtomCueSheet_GetAtomCueById),
             this.patterns.USoundAtomCueSheet_GetAtomCueById,
-            (hooks, result) =>
-            {
-                this.getAtomCueById = hooks.CreateFunction<USoundAtomCueSheet_GetAtomCueById>(result);
-                this.getAtomCueByIdHook = this.getAtomCueById.Hook(this.USoundAtomCueSheet_GetAtomCueById).Activate();
-            });
+            (hooks, result) => this.getAtomCueById = hooks.CreateFunction<USoundAtomCueSheet_GetAtomCueById>(result));
 
         ScanHooks.Add(
             nameof(PlayAdxControl_RequestSound),
@@ -72,17 +67,6 @@ internal unsafe class CriUnreal
     public void SetDevMode(bool devMode)
     {
         this.devMode = devMode;
-    }
-
-    private USoundAtomCue* USoundAtomCueSheet_GetAtomCueById(USoundAtomCueSheet* instance, int cueId)
-    {
-        var result = this.getAtomCueByIdHook.OriginalFunction(instance, cueId);
-        if (this.devMode)
-        {
-            Log.Information($"{nameof(USoundAtomCueSheet_GetAtomCueById)} || Cue: {result->CueName.GetString()} || ACB: {result->CueSheet->CueSheetName.GetString()}");
-        }
-
-        return result;
     }
 
     private unsafe void USoundAtomCueSheet_AsyncLoadCueSheetTask(LoadTaskParameter* taskParams)

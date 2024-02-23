@@ -45,7 +45,6 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
     private IHook<criAtomExPlayer_Create>? createHook;
     private IHook<criAtomExAcb_LoadAcbFile>? loadAcbFileHook;
     private IHook<criAtomExPlayer_SetCueId>? setCueIdHook;
-    private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
     private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
 
     private bool devMode;
@@ -79,11 +78,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetCueName),
             this.patterns.criAtomExPlayer_SetCueName,
-            (hooks, result) =>
-            {
-                this.SetCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result);
-                this.setCueNameHook = this.SetCueName.Hook(this.Player_SetCueName).Activate();
-            });
+            (hooks, result) => this.SetCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetCueId),
@@ -278,16 +273,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
     }
 
     public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)
-    {
-        if (this.devMode)
-        {
-            var player = this.players.First(x => x.PlayerHn == playerHn);
-            var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName);
-            Log.Information($"{nameof(criAtomExPlayer_SetCueName)} || Player ID: {player.Id} || {cueNameStr}");
-        }
-
-        this.setCueNameHook!.OriginalFunction(playerHn, acbHn, cueName);
-    }
+        => this.SetCueName!.GetWrapper()(playerHn, acbHn, cueName);
 
     public void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config)
         => this.playerConfigs[id] = config;
