@@ -1,0 +1,97 @@
+﻿using Reloaded.Hooks.Definitions;
+using Ryo.Reloaded.Audio;
+using static Ryo.Reloaded.CRI.CriUnrealFunctions;
+
+namespace Ryo.Reloaded.CRI;
+
+internal unsafe class CriUnreal
+{
+    private readonly string game;
+    private readonly CriUnrealPatterns patterns;
+    private IFunction<USoundAtomCueSheet_AsyncLoadCueSheetTask> asyncLoadCueSheetTask;
+    private IHook<USoundAtomCueSheet_AsyncLoadCueSheetTask> asyncLoadCueSheetTaskHook;
+    private IFunction<PlayAdxControl_CreatePlayerBank> createPlayerBank;
+    private IFunction<USoundAtomCueSheet_GetAtomCueById> getAtomCueById;
+    private IHook<USoundAtomCueSheet_GetAtomCueById> getAtomCueByIdHook;
+    private IFunction<USoundAtomCueSheet_LoadAtomCueSheet> loadAtomCueSheet;
+    private IFunction<PlayAdxControl_SetPlayerAcbBank> setPlayerAcbBank;
+    private IFunction<PlayAdxControl_RequestSound> requestSound;
+    private IFunction<PlayAdxControl_RequestLoadAcb> requestLoadAcb;
+    private bool devMode;
+
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+    public CriUnreal(string game)
+    {
+        this.game = game;
+        this.patterns = CriUnrealGames.GetGamePatterns(game);
+
+        ScanHooks.Add(
+            nameof(USoundAtomCueSheet_AsyncLoadCueSheetTask),
+            this.patterns.USoundAtomCueSheet_AsyncLoadCueSheetTask,
+            (hooks, result) =>
+            {
+                this.asyncLoadCueSheetTask = hooks.CreateFunction<USoundAtomCueSheet_AsyncLoadCueSheetTask>(result);
+                this.asyncLoadCueSheetTaskHook = this.asyncLoadCueSheetTask.Hook(this.USoundAtomCueSheet_AsyncLoadCueSheetTask).Activate();
+            });
+
+        ScanHooks.Add(
+            nameof(USoundAtomCueSheet_GetAtomCueById),
+            this.patterns.USoundAtomCueSheet_GetAtomCueById,
+            (hooks, result) =>
+            {
+                this.getAtomCueById = hooks.CreateFunction<USoundAtomCueSheet_GetAtomCueById>(result);
+                this.getAtomCueByIdHook = this.getAtomCueById.Hook(this.USoundAtomCueSheet_GetAtomCueById).Activate();
+            });
+
+        ScanHooks.Add(
+            nameof(PlayAdxControl_RequestSound),
+            this.patterns.PlayAdxControl_RequestSound,
+            (hooks, result) => this.requestSound = hooks.CreateFunction<PlayAdxControl_RequestSound>(result));
+
+        ScanHooks.Add(
+            nameof(PlayAdxControl_RequestLoadAcb),
+            this.patterns.PlayAdxControl_RequestLoadAcb,
+            (hooks, result) => this.requestLoadAcb = hooks.CreateFunction<PlayAdxControl_RequestLoadAcb>(result));
+
+        ScanHooks.Add(
+            nameof(PlayAdxControl_SetPlayerAcbBank),
+            this.patterns.PlayAdxControl_SetPlayerAcbBank,
+            (hooks, result) => this.setPlayerAcbBank = hooks.CreateFunction<PlayAdxControl_SetPlayerAcbBank>(result));
+
+        ScanHooks.Add(
+            nameof(USoundAtomCueSheet_LoadAtomCueSheet),
+            this.patterns.USoundAtomCueSheet_LoadAtomCueSheet,
+            (hooks, result) => this.loadAtomCueSheet = hooks.CreateFunction<USoundAtomCueSheet_LoadAtomCueSheet>(result));
+
+        ScanHooks.Add(
+            nameof(PlayAdxControl_CreatePlayerBank),
+            this.patterns.PlayAdxControl_CreatePlayerBank,
+            (hooks, result) => this.createPlayerBank = hooks.CreateFunction<PlayAdxControl_CreatePlayerBank>(result));
+    }
+
+    public void SetDevMode(bool devMode)
+    {
+        this.devMode = devMode;
+    }
+
+    private USoundAtomCue* USoundAtomCueSheet_GetAtomCueById(USoundAtomCueSheet* instance, int cueId)
+    {
+        var result = this.getAtomCueByIdHook.OriginalFunction(instance, cueId);
+        if (this.devMode)
+        {
+            Log.Information($"{nameof(USoundAtomCueSheet_GetAtomCueById)} || Cue: {result->CueName.GetString()} || ACB: {result->CueSheet->CueSheetName.GetString()}");
+        }
+
+        return result;
+    }
+
+    private unsafe void USoundAtomCueSheet_AsyncLoadCueSheetTask(LoadTaskParameter* taskParams)
+    {
+        this.asyncLoadCueSheetTaskHook.OriginalFunction(taskParams);
+
+        var acbName = taskParams->CueSheet->CueSheetName.GetString()!;
+        var acbHn = *taskParams->CueSheet->_AcbHn;
+
+        CueSheetRegistry.RegisterAcb(acbName, acbHn);
+    }
+}
