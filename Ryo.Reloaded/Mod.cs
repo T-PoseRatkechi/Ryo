@@ -26,6 +26,7 @@ public class Mod : ModBase, IExports
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
     private readonly AudioService audioService;
+    private readonly CriUnreal criUnreal;
 
     public Mod(ModContext context)
     {
@@ -48,13 +49,15 @@ public class Mod : ModBase, IExports
         this.modLoader.GetController<IStartupScanner>().TryGetTarget(out var scanner);
 
         this.criAtomEx = new(this.game);
-        this.criAtomEx.Initialize(scanner!, this.hooks);
         this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
+        this.criUnreal = new(this.game);
+
         this.audioRegistry = new(this.game);
-        this.audioService = new(this.criAtomEx, this.audioRegistry);
-        this.audioService.Initialize(scanner!, this.hooks);
+        this.audioService = new(this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.audioRegistry);
+
+        ScanHooks.Initialize(scanner!, this.hooks);
 
         this.modLoader.ModLoading += this.OnModLoading;
         this.modLoader.OnModLoaderInitialized += this.OnModLoaderInitialized;
@@ -90,6 +93,8 @@ public class Mod : ModBase, IExports
     {
         Log.LogLevel = this.config.LogLevel;
         this.criAtomEx.SetDevMode(this.config.DevMode);
+        this.criUnreal.SetDevMode(this.config.DevMode);
+        this.audioService.SetDevMode(this.config.DevMode);
     }
 
     #region Standard Overrides
