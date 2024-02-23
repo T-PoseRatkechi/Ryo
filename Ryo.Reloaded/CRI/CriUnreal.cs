@@ -92,6 +92,6 @@ internal unsafe class CriUnreal
         var acbName = taskParams->CueSheet->CueSheetName.GetString()!;
         var acbHn = *taskParams->CueSheet->_AcbHn;
 
-        CueSheetRegistry.RegisterAcb(acbName, acbHn);
+        AcbRegistry.Register(acbName, acbHn);
     }
 }
