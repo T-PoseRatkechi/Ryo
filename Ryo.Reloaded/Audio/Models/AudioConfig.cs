@@ -1,14 +1,16 @@
 ﻿using Ryo.Interfaces.Types;
 
-namespace Ryo.Reloaded.Audio;
+namespace Ryo.Reloaded.Audio.Models;
 
 internal class AudioConfig
 {
     public string CueName { get; set; } = string.Empty;
 
+    public string AcbName { get; set; } = string.Empty;
+
     public int SampleRate { get; set; } = 44100;
 
-    public CriAtom_Format Format { get; set; } = CriAtom_Format.ADX;
+    public CriAtom_Format Format { get; set; } = CriAtom_Format.HCA;
 
     public int NumChannels { get; set; } = 2;
 

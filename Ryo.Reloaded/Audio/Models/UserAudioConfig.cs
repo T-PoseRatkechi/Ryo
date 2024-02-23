@@ -1,6 +1,6 @@
 ﻿using Ryo.Interfaces.Types;
 
-namespace Ryo.Reloaded.Audio;
+namespace Ryo.Reloaded.Audio.Models;
 
 /// <summary>
 /// User defined audio settings.
@@ -8,6 +8,8 @@ namespace Ryo.Reloaded.Audio;
 internal class UserAudioConfig
 {
     public string? CueName { get; set; }
+
+    public string? AcbName { get; set; }
 
     public int? SampleRate { get; set; }
 
