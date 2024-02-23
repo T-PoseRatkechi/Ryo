@@ -1,13 +1,15 @@
 ﻿using Ryo.Interfaces.Types;
+using Ryo.Reloaded.Audio.Models;
 
 namespace Ryo.Reloaded.Audio;
 
-internal static class GameAudio
+internal static class GameDefaults
 {
     private static readonly Dictionary<string, Func<AudioConfig>> defaults = new()
     {
         ["p3r"] = () => new()
         {
+            AcbName = "bgm",
             Format = CriAtom_Format.HCA,
             NumChannels = 2,
             SampleRate = 44100,
