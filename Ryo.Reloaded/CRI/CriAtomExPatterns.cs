@@ -1,6 +1,4 @@
-﻿using static Ryo.Reloaded.CRI.CriAtomExFunctions;
-
-namespace Ryo.Reloaded.CRI;
+﻿namespace Ryo.Reloaded.CRI;
 
 internal static class CriAtomExGames
 {
@@ -32,6 +30,8 @@ internal static class CriAtomExGames
 
 internal class CriAtomExPatterns
 {
+#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
+#pragma warning disable IDE1006 // Naming Styles
     public CriAtomExPatterns(params string[] games)
     {
         this.Games = games;

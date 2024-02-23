@@ -1,5 +1,4 @@
-﻿using Reloaded.Memory.SigScan.ReloadedII.Interfaces;
-using static Ryo.Reloaded.CRI.CriAtomExFunctions;
+﻿using static Ryo.Reloaded.CRI.CriAtomExFunctions;
 using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using CommunityToolkit.Mvvm.ComponentModel;
@@ -8,12 +7,11 @@ using Ryo.Interfaces;
 
 namespace Ryo.Reloaded.CRI;
 
-internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomEx
+internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
 {
     private readonly string game;
     private readonly CriAtomExPatterns patterns;
 
-    private readonly List<ScanHook> scans = new();
     private readonly Dictionary<int, CriAtomExPlayerConfigTag> playerConfigs = new();
     private readonly List<PlayerConfig> players = new();
     private readonly List<AcbConfig> acbs = new();
@@ -60,7 +58,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
         this.game = game;
         this.patterns = CriAtomExGames.GetGamePatterns(game);
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_Create),
             this.patterns.criAtomExPlayer_Create,
             (hooks, result) =>
@@ -69,7 +67,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
                 this.createHook = this.create.Hook(this.Player_Create).Activate();
             });
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExAcb_LoadAcbFile),
             this.patterns.CriAtomExAcb_LoadAcbFile,
             (hooks, result) =>
@@ -78,7 +76,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
                 this.loadAcbFileHook = this.loadAcbFile.Hook(this.Acb_LoadAcbFile).Activate();
             });
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetCueName),
             this.patterns.criAtomExPlayer_SetCueName,
             (hooks, result) =>
@@ -87,7 +85,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
                 this.setCueNameHook = this.SetCueName.Hook(this.Player_SetCueName).Activate();
             });
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetCueId),
             this.patterns.CriAtomExPlayer_SetCueId,
             (hooks, result) =>
@@ -96,124 +94,110 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
                 this.setCueIdHook = this.SetCueId.Hook(this.Player_SetCueId).Activate();
             });
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetStartTime),
             this.patterns.CriAtomExPlayer_SetStartTime,
             (hooks, result) => this.setStartTime = hooks.CreateFunction<criAtomExPlayer_SetStartTime>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayback_GetTimeSyncedWithAudio),
             this.patterns.CriAtomExPlayback_GetTimeSyncedWithAudio,
             (hooks, result) => this.getTimeSyncedWithAudio = hooks.CreateFunction<criAtomExPlayback_GetTimeSyncedWithAudio>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_GetNumPlayedSamples),
             this.patterns.CriAtomExPlayer_GetNumPlayedSamples,
             (hooks, result) => this.getNumPlayedSamples = hooks.CreateFunction<criAtomExPlayer_GetNumPlayedSamples>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_Start),
             this.patterns.criAtomExPlayer_Start,
             (hooks, result) => this.start = hooks.CreateFunction<criAtomExPlayer_Start>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetFile),
             this.patterns.CriAtomExPlayer_SetFile,
             (hooks, result) => this.setFile = hooks.CreateFunction<criAtomExPlayer_SetFile>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetFormat),
             this.patterns.criAtomExPlayer_SetFormat,
             (hooks, result) => this.setFormat = hooks.CreateFunction<criAtomExPlayer_SetFormat>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetSamplingRate),
             this.patterns.criAtomExPlayer_SetSamplingRate,
             (hooks, result) => this.setSamplingRate = hooks.CreateFunction<criAtomExPlayer_SetSamplingRate>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetNumChannels),
             this.patterns.criAtomExPlayer_SetNumChannels,
             (hooks, result) => this.setNumChannels = hooks.CreateFunction<criAtomExPlayer_SetNumChannels>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExCategory_GetVolumeById),
             this.patterns.CriAtomExCategory_GetVolumeById,
             (hooks, result) => this.getVolumeById = hooks.CreateFunction<criAtomExCategory_GetVolumeById>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetVolume),
             this.patterns.criAtomExPlayer_SetVolume,
             (hooks, result) => this.setVolume = hooks.CreateFunction<criAtomExPlayer_SetVolume>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetCategoryById),
             this.patterns.criAtomExPlayer_SetCategoryById,
             (hooks, result) => this.setCategoryById = hooks.CreateFunction<criAtomExPlayer_SetCategoryById>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_GetLastPlaybackId),
             this.patterns.CriAtomExPlayer_GetLastPlaybackId,
             (hooks, result) => this.getLastPlaybackId = hooks.CreateFunction<criAtomExPlayer_GetLastPlaybackId>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetCategoryByName),
             this.patterns.CriAtomExPlayer_SetCategoryByName,
             (hooks, result) => this.setCategoryByName = hooks.CreateFunction<criAtomExPlayer_SetCategoryByName>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_GetCategoryInfo),
             this.patterns.CriAtomExPlayer_GetCategoryInfo,
             (hooks, result) => this.getCategoryInfo = hooks.CreateFunction<criAtomExPlayer_GetCategoryInfo>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetData),
             this.patterns.criAtomExPlayer_SetData,
             (hooks, result) => this.setData = hooks.CreateFunction<criAtomExPlayer_SetData>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExCategory_SetVolumeById),
             this.patterns.criAtomExCategory_SetVolumeById,
             (hooks, result) => this.setVolumeById = hooks.CreateFunction<criAtomExCategory_SetVolumeById>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_UpdateAll),
             this.patterns.criAtomExPlayer_UpdateAll,
             (hooks, result) => this.updateAll = hooks.CreateFunction<criAtomExPlayer_UpdateAll>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_LimitLoopCount),
             this.patterns.criAtomExPlayer_LimitLoopCount,
             (hooks, result) => this.limitLoopCount = hooks.CreateFunction<criAtomExPlayer_LimitLoopCount>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_GetStatus),
             this.patterns.criAtomExPlayer_GetStatus,
             (hooks, result) => this.getStatus = hooks.CreateFunction<criAtomExPlayer_GetStatus>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_Stop),
             this.patterns.criAtomExPlayer_Stop,
             (hooks, result) => this.stop = hooks.CreateFunction<criAtomExPlayer_Stop>(result));
 
-        this.AddHookScan(
+        ScanHooks.Add(
             nameof(criAtomExPlayer_SetAisacControlByName),
             this.patterns.criAtomExPlayer_SetAisacControlByName,
             (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
-    }
-
-    public void Initialize(IStartupScanner scanner, IReloadedHooks hooks)
-    {
-        foreach (var scan in this.scans)
-        {
-            if (string.IsNullOrEmpty(scan.Pattern))
-            {
-                Log.Verbose($"{scan.Name}: No pattern given.");
-                continue;
-            }
-
-            scanner.Scan(scan.Name, scan.Pattern, result => scan.Success(hooks, result));
-        }
     }
 
     public void SetDevMode(bool devMode)
@@ -393,23 +377,4 @@ internal unsafe partial class CriAtomEx : ObservableObject, IGameHook, ICriAtomE
         Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)}: {acbPath} || {acbHn:X}");
         return acbHn;
     }
-
-    private void AddHookScan(string name, string? pattern, Action<IReloadedHooks, nint> success)
-        => this.scans.Add(new(name, pattern, success));
 }
-
-internal class ScanHook
-{
-    public ScanHook(string name, string? pattern, Action<IReloadedHooks, nint> success)
-    {
-        this.Name = name;
-        this.Pattern = pattern;
-        this.Success = success;
-    }
-
-    public string Name { get; }
-
-    public string? Pattern { get; }
-
-    public Action<IReloadedHooks, nint> Success { get; }
-};
