@@ -22,10 +22,13 @@ internal class MovieRegistry
         }
     }
 
-    public bool TryGetMovie(string originalFile, [NotNullWhen(true)] out MovieContainer? container)
+    public void AddMovieBind(string moviePath, string bindPath)
+        => this.CreateOrGetMovie(moviePath).AddFile(bindPath);
+
+    public bool TryGetMovie(string originalFile, [NotNullWhen(true)] out MovieContainer? movie)
     {
-        container = this.movies.FirstOrDefault(x => x.MatchesPath(originalFile));
-        return container != null;
+        movie = this.movies.FirstOrDefault(x => x.MatchesPath(originalFile));
+        return movie != null;
     }
 
     private void AddMovieFolder(string folder)
@@ -33,13 +36,7 @@ internal class MovieRegistry
         // Folder named as the movie to add files to.
         if (folder.EndsWith(".usm", StringComparison.OrdinalIgnoreCase))
         {
-            var movie = this.movies.FirstOrDefault(x => x.MatchesPath(folder));
-            if (movie == null)
-            {
-                movie = new(folder);
-                this.movies.Add(movie);
-            }
-
+            var movie = this.CreateOrGetMovie(folder);
             foreach (var file in Directory.EnumerateFiles(folder, "*.usm"))
             {
                 movie.AddFile(file);
@@ -61,20 +58,18 @@ internal class MovieRegistry
         }
     }
 
-    private void AddMovieFile(string fileToAdd)
-    {
-        var fileName = Path.GetFileName(fileToAdd);
-        var existingMovie = this.movies.FirstOrDefault(x => x.MatchesPath(fileName));
-        if (existingMovie != null)
-        {
-            existingMovie.AddFile(fileToAdd);
-        }
-        else
-        {
-            var newMovie = new MovieContainer(fileToAdd);
-            newMovie.AddFile(fileToAdd);
+    private void AddMovieFile(string file)
+        => this.CreateOrGetMovie(file).AddFile(file);
 
-            this.movies.Add(newMovie);
+    private MovieContainer CreateOrGetMovie(string moviePath)
+    {
+        var movie = this.movies.FirstOrDefault(x => x.MatchesPath(moviePath));
+        if (movie == null)
+        {
+            movie = new(moviePath);
+            this.movies.Add(movie);
         }
+
+        return movie;
     }
 }

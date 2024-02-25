@@ -19,4 +19,11 @@ public interface IRyoApi
     /// </summary>
     /// <param name="path">Movies path, file or folder.</param>
     void AddMoviePath(string path);
+
+    /// <summary>
+    /// Bind a movie path to a custom path.
+    /// </summary>
+    /// <param name="moviePath">Movie path to bind.</param>
+    /// <param name="bindPath">Custom path.</param>
+    void AddMovieBind(string moviePath, string bindPath);
 }

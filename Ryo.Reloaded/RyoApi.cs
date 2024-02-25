@@ -21,6 +21,9 @@ internal class RyoApi : IRyoApi
     public void AddAudioFolder(string dir)
         => this.audio.AddAudioFolder(dir);
 
+    public void AddMovieBind(string moviePath, string bindPath)
+        => this.movies.AddMovieBind(moviePath, bindPath);
+
     public void AddMoviePath(string path)
         => this.movies.AddMoviePath(path);
 }
