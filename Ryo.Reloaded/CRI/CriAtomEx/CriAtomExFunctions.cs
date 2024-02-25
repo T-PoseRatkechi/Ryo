@@ -1,7 +1,7 @@
 ﻿using Reloaded.Hooks.Definitions.X64;
 using Ryo.Interfaces.Types;
 
-namespace Ryo.Reloaded.CRI;
+namespace Ryo.Reloaded.CRI.CriAtomEx;
 
 internal unsafe static class CriAtomExFunctions
 {

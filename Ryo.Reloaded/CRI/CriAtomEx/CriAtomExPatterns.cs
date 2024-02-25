@@ -1,4 +1,4 @@
-﻿namespace Ryo.Reloaded.CRI;
+﻿namespace Ryo.Reloaded.CRI.CriAtomEx;
 
 internal static class CriAtomExGames
 {

@@ -1,7 +1,7 @@
 ﻿using Reloaded.Hooks.Definitions.X64;
 using Ryo.Reloaded.Common;
 
-namespace Ryo.Reloaded.CRI;
+namespace Ryo.Reloaded.CRI.CriUnreal;
 
 internal static unsafe class CriUnrealFunctions
 {

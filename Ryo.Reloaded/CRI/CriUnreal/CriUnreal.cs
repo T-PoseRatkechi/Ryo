@@ -1,8 +1,8 @@
 ﻿using Reloaded.Hooks.Definitions;
 using Ryo.Reloaded.Audio;
-using static Ryo.Reloaded.CRI.CriUnrealFunctions;
+using static Ryo.Reloaded.CRI.CriUnreal.CriUnrealFunctions;
 
-namespace Ryo.Reloaded.CRI;
+namespace Ryo.Reloaded.CRI.CriUnreal;
 
 internal unsafe class CriUnreal
 {

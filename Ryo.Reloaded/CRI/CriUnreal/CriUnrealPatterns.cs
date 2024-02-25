@@ -1,4 +1,4 @@
-﻿namespace Ryo.Reloaded.CRI;
+﻿namespace Ryo.Reloaded.CRI.CriUnreal;
 
 internal static class CriUnrealGames
 {

@@ -1,11 +1,11 @@
-﻿using static Ryo.Reloaded.CRI.CriAtomExFunctions;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using CommunityToolkit.Mvvm.ComponentModel;
 using Ryo.Interfaces.Types;
 using Ryo.Interfaces;
+using static Ryo.Reloaded.CRI.CriAtomEx.CriAtomExFunctions;
 
-namespace Ryo.Reloaded.CRI;
+namespace Ryo.Reloaded.CRI.CriAtomEx;
 
 internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
 {
