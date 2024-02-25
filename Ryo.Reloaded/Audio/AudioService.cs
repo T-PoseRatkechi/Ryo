@@ -1,10 +1,10 @@
 ﻿using Reloaded.Hooks.Definitions;
 using Ryo.Interfaces.Types;
 using Ryo.Reloaded.Audio.Models;
-using Ryo.Reloaded.CRI;
+using Ryo.Reloaded.CRI.CriAtomEx;
 using Ryo.Reloaded.P3R;
 using System.Runtime.InteropServices;
-using static Ryo.Reloaded.CRI.CriAtomExFunctions;
+using static Ryo.Reloaded.CRI.CriAtomEx.CriAtomExFunctions;
 
 namespace Ryo.Reloaded.Audio;
 

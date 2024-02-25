@@ -2,13 +2,12 @@
 using YamlDotNet.Serialization;
 using System.Diagnostics.CodeAnalysis;
 using Ryo.Interfaces.Types;
-using Ryo.Interfaces;
 using System.Runtime.InteropServices;
 using Ryo.Reloaded.Audio.Models;
 
 namespace Ryo.Reloaded.Audio;
 
-internal class AudioRegistry : IRyoApi
+internal class AudioRegistry
 {
     private readonly IDeserializer deserializer = new DeserializerBuilder()
         .WithNamingConvention(UnderscoredNamingConvention.Instance)
