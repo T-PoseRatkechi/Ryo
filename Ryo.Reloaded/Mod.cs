@@ -5,7 +5,10 @@ using Reloaded.Mod.Interfaces.Internal;
 using Ryo.Interfaces;
 using Ryo.Reloaded.Audio;
 using Ryo.Reloaded.Configuration;
-using Ryo.Reloaded.CRI;
+using Ryo.Reloaded.CRI.CriAtomEx;
+using Ryo.Reloaded.CRI.CriUnreal;
+using Ryo.Reloaded.CRI.Mana;
+using Ryo.Reloaded.Movies;
 using Ryo.Reloaded.Template;
 using System.Diagnostics;
 using System.Drawing;
@@ -23,10 +26,18 @@ public class Mod : ModBase, IExports
     private readonly IModConfig modConfig;
 
     private readonly string game;
+
     private readonly CriAtomEx criAtomEx;
+    private readonly CriUnreal criUnreal;
+    private readonly CriMana criMana;
+
     private readonly AudioRegistry audioRegistry;
     private readonly AudioService audioService;
-    private readonly CriUnreal criUnreal;
+
+    private readonly MovieRegistry movieRegistry;
+    private readonly MovieService movieService;
+
+    private readonly RyoApi ryoApi;
 
     public Mod(ModContext context)
     {
@@ -52,10 +63,16 @@ public class Mod : ModBase, IExports
         this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
         this.criUnreal = new(this.game);
+        this.criMana = new(this.game);
 
         this.audioRegistry = new(this.game);
         this.audioService = new(this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
-        this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.audioRegistry);
+
+        this.movieRegistry = new();
+        this.movieService = new(this.criMana, this.movieRegistry);
+
+        this.ryoApi = new(this.audioRegistry, this.movieRegistry);
+        this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.ryoApi);
 
         ScanHooks.Initialize(scanner!, this.hooks);
 
@@ -82,10 +99,11 @@ public class Mod : ModBase, IExports
         }
 
         var modDir = this.modLoader.GetDirectoryForModId(config.ModId);
-        var modAudioDir = Path.Join(modDir, "ryo", this.game);
-        if (Directory.Exists(modAudioDir))
+        var ryoDir = Path.Join(modDir, "ryo", this.game);
+        if (Directory.Exists(ryoDir))
         {
-            this.audioRegistry.AddAudioFolder(modAudioDir);
+            this.audioRegistry.AddAudioFolder(ryoDir);
+            this.movieRegistry.AddMoviePath(ryoDir);
         }
     }
 
@@ -95,6 +113,7 @@ public class Mod : ModBase, IExports
         this.criAtomEx.SetDevMode(this.config.DevMode);
         this.criUnreal.SetDevMode(this.config.DevMode);
         this.audioService.SetDevMode(this.config.DevMode);
+        this.movieService.SetDevMode(this.config.DevMode);
     }
 
     #region Standard Overrides
