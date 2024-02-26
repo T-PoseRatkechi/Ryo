@@ -18,10 +18,6 @@ internal class MovieService
         this.mana = mana;
         this.movieRegistry = movieRegistry;
         this.setFileHook = scans.CreateHook<criManaPlayer_SetFile>(this.criManaPlayer_SetFile, Mod.NAME);
-
-        //ScanHooks.Listen(
-        //    nameof(CriManaFunctions.criManaPlayer_SetFile),
-        //    (hooks, result) => this.setFileHook = hooks.CreateHook<criManaPlayer_SetFile>(this.criManaPlayer_SetFile, result).Activate());
     }
 
     public void SetDevMode(bool devMode)
