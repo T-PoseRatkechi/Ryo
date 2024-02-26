@@ -10,6 +10,7 @@ using Ryo.Reloaded.CRI.CriUnreal;
 using Ryo.Reloaded.CRI.Mana;
 using Ryo.Reloaded.Movies;
 using Ryo.Reloaded.Template;
+using SharedScans.Interfaces;
 using System.Diagnostics;
 using System.Drawing;
 
@@ -17,6 +18,8 @@ namespace Ryo.Reloaded;
 
 public class Mod : ModBase, IExports
 {
+    public const string NAME = "Ryo";
+
     private readonly IModLoader modLoader;
     private readonly IReloadedHooks hooks;
     private readonly ILogger log;
@@ -58,18 +61,19 @@ public class Mod : ModBase, IExports
         Log.LogLevel = this.config.LogLevel;
 
         this.modLoader.GetController<IStartupScanner>().TryGetTarget(out var scanner);
+        this.modLoader.GetController<ISharedScans>().TryGetTarget(out var scans);
 
         this.criAtomEx = new(this.game);
         this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
         this.criUnreal = new(this.game);
-        this.criMana = new(this.game);
+        this.criMana = new(scans!, this.game);
 
         this.audioRegistry = new(this.game);
         this.audioService = new(this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
 
         this.movieRegistry = new();
-        this.movieService = new(this.criMana, this.movieRegistry);
+        this.movieService = new(scans!, this.criMana, this.movieRegistry);
 
         this.ryoApi = new(this.audioRegistry, this.movieRegistry);
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.ryoApi);
