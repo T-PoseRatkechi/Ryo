@@ -135,8 +135,8 @@ internal class AudioRegistry
 
     private static void ApplyUserConfig(AudioConfig config, UserAudioConfig? userConfig)
     {
-        config.CueName = userConfig?.CueName ?? string.Empty;
-        config.AcbName = userConfig?.AcbName ?? string.Empty;
+        config.CueName = userConfig?.CueName ?? config.CueName;
+        config.AcbName = userConfig?.AcbName ?? config.AcbName;
         config.PlayerId = userConfig?.PlayerId ?? config.PlayerId;
         config.CategoryIds = userConfig?.CategoryIds ?? config.CategoryIds;
         config.NumChannels = userConfig?.NumChannels ?? config.NumChannels;
