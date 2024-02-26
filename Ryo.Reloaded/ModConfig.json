@@ -2,7 +2,7 @@
   "ModId": "Ryo.Reloaded",
   "ModName": "Ryo Framework",
   "ModAuthor": "zutomayofan50",
-  "ModVersion": "1.2.10",
+  "ModVersion": "1.3.2",
   "ModDescription": "Ryo Framework adds the ability to add or replace game audio and movies with zero file editing.",
   "ModDll": "Ryo.Reloaded.dll",
   "ModIcon": "Preview.png",
@@ -41,12 +41,24 @@
     "GameBanana": {
       "ItemType": "Mod",
       "ItemId": 495507
+    },
+    "GameBananaDependencies": {
+      "IdToConfigMap": {
+        "SharedScans.Reloaded": {
+          "Config": {
+            "ItemType": "Mod",
+            "ItemId": 495507
+          },
+          "ReleaseMetadataName": "SharedScans.Reloaded.ReleaseMetadata.json"
+        }
+      }
     }
   },
   "IsUniversalMod": false,
   "ModDependencies": [
     "Reloaded.Memory.SigScan.ReloadedII",
-    "reloaded.sharedlib.hooks"
+    "reloaded.sharedlib.hooks",
+    "SharedScans.Reloaded"
   ],
   "OptionalDependencies": [],
   "SupportedAppId": [
