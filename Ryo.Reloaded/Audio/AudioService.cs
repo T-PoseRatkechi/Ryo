@@ -52,7 +52,9 @@ internal unsafe class AudioService
         if (this.audioRegistry.TryGetAudio(cueNameStr, acbName, out var audio))
         {
             var manualStart = false;
-            if (player.Id != audio.PlayerId && this.criAtomEx.GetPlayerById(audio.PlayerId) is PlayerConfig newPlayer)
+            if (audio.PlayerId != -1
+                && player.Id != audio.PlayerId
+                && this.criAtomEx.GetPlayerById(audio.PlayerId) is PlayerConfig newPlayer)
             {
                 player = newPlayer;
                 manualStart = true;

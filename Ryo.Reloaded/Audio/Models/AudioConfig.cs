@@ -14,7 +14,7 @@ internal class AudioConfig
 
     public int NumChannels { get; set; } = 2;
 
-    public int PlayerId { get; set; }
+    public int PlayerId { get; set; } = -1;
 
     public int[] CategoryIds { get; set; } = Array.Empty<int>();
 
