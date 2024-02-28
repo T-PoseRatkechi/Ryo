@@ -1,6 +1,7 @@
 ﻿using Reloaded.Hooks.Definitions;
+using Ryo.Definitions.Structs;
 using Ryo.Reloaded.Audio;
-using static Ryo.Reloaded.CRI.CriUnreal.CriUnrealFunctions;
+using static Ryo.Definitions.Functions.CriUnrealFunctions;
 
 namespace Ryo.Reloaded.CRI.CriUnreal;
 

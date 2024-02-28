@@ -1,4 +1,4 @@
-﻿using Ryo.Interfaces.Types;
+﻿using Ryo.Definitions.Enums;
 using Ryo.Reloaded.Audio.Models;
 
 namespace Ryo.Reloaded.Audio;
@@ -10,7 +10,7 @@ internal static class GameDefaults
         ["p3r"] = () => new()
         {
             AcbName = "bgm",
-            Format = CriAtom_Format.HCA,
+            Format = CriAtomFormat.HCA,
             NumChannels = 2,
             SampleRate = 44100,
             CategoryIds = new int[] { 0, 13 },

@@ -1,6 +1,6 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Ryo.Reloaded.Common;
+namespace Ryo.Definitions.Structs;
 
 [StructLayout(LayoutKind.Sequential, Size = 0x10)]
 public unsafe struct TArray<T> where T : unmanaged

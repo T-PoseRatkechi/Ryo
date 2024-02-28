@@ -1,7 +1,6 @@
-﻿using Ryo.Reloaded.Common;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 
-namespace Ryo.Reloaded.CRI.CriUnreal;
+namespace Ryo.Definitions.Structs;
 
 [StructLayout(LayoutKind.Explicit, Size = 0x118)]
 public unsafe struct USoundAtomCueSheet

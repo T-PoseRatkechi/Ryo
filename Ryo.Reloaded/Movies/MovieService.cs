@@ -1,7 +1,7 @@
 ﻿using Ryo.Reloaded.CRI.Mana;
 using SharedScans.Interfaces;
 using System.Runtime.InteropServices;
-using static Ryo.Reloaded.CRI.Mana.CriManaFunctions;
+using static Ryo.Definitions.Functions.CriManaFunctions;
 
 namespace Ryo.Reloaded.Movies;
 

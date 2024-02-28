@@ -1,4 +1,4 @@
-﻿namespace Ryo.Interfaces.Types;
+﻿namespace Ryo.Definitions.Enums;
 
 public enum CriBool
 {

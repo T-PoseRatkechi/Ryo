@@ -1,9 +1,10 @@
 ﻿using Reloaded.Hooks.Definitions.X64;
-using Ryo.Interfaces.Types;
+using Ryo.Definitions.Enums;
+using Ryo.Definitions.Structs;
 
-namespace Ryo.Reloaded.CRI.CriAtomEx;
+namespace Ryo.Definitions.Functions;
 
-internal unsafe static class CriAtomExFunctions
+public unsafe static class CriAtomExFunctions
 {
     [Function(CallingConventions.Microsoft)]
     public delegate CriBool criAtomExPlayer_GetNumPlayedSamples(uint playbackId, ulong* numSamples, uint* samplingRate);
@@ -21,7 +22,7 @@ internal unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetFile(nint playerHn, nint criBinderHn, byte* path);
 
     [Function(CallingConventions.Microsoft)]
-    public delegate void criAtomExPlayer_SetFormat(nint playerHn, CriAtom_Format format);
+    public delegate void criAtomExPlayer_SetFormat(nint playerHn, CriAtomFormat format);
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetSamplingRate(nint playerHn, int samplingRate);

@@ -1,4 +1,6 @@
-﻿using Ryo.Interfaces.Types;
+﻿using Ryo.Definitions.Classes;
+using Ryo.Definitions.Enums;
+using Ryo.Definitions.Structs;
 
 namespace Ryo.Interfaces;
 
@@ -30,7 +32,7 @@ public interface ICriAtomEx
 
     unsafe void Player_SetFile(nint playerHn, nint criBinderHn, byte* path);
 
-    void Player_SetFormat(nint playerHn, CriAtom_Format format);
+    void Player_SetFormat(nint playerHn, CriAtomFormat format);
 
     void Player_SetNumChannels(nint playerHn, int numChannels);
 

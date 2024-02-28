@@ -1,9 +1,9 @@
 ﻿using Reloaded.Hooks.Definitions.X64;
-using Ryo.Reloaded.Common;
+using Ryo.Definitions.Structs;
 
-namespace Ryo.Reloaded.CRI.CriUnreal;
+namespace Ryo.Definitions.Functions;
 
-internal static unsafe class CriUnrealFunctions
+public static unsafe class CriUnrealFunctions
 {
     [Function(CallingConventions.Microsoft)]
     public delegate int PlayAdxControl_RequestLoadAcb(UPlayAdxControl* instance, FString filename);

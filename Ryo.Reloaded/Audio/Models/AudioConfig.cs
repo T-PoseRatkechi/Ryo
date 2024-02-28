@@ -1,4 +1,4 @@
-﻿using Ryo.Interfaces.Types;
+﻿using Ryo.Definitions.Enums;
 
 namespace Ryo.Reloaded.Audio.Models;
 
@@ -10,7 +10,7 @@ internal class AudioConfig
 
     public int SampleRate { get; set; } = 44100;
 
-    public CriAtom_Format Format { get; set; } = CriAtom_Format.HCA;
+    public CriAtomFormat Format { get; set; } = CriAtomFormat.HCA;
 
     public int NumChannels { get; set; } = 2;
 

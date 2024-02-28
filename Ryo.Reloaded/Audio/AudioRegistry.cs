@@ -1,9 +1,9 @@
 ﻿using YamlDotNet.Serialization.NamingConventions;
 using YamlDotNet.Serialization;
 using System.Diagnostics.CodeAnalysis;
-using Ryo.Interfaces.Types;
 using System.Runtime.InteropServices;
 using Ryo.Reloaded.Audio.Models;
+using Ryo.Definitions.Enums;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -144,11 +144,11 @@ internal class AudioRegistry
         config.Volume = userConfig?.Volume ?? config.Volume;
     }
 
-    private static CriAtom_Format GetAudioFormat(string file)
+    private static CriAtomFormat GetAudioFormat(string file)
         => Path.GetExtension(file).ToLower() switch
         {
-            ".hca" => CriAtom_Format.HCA,
-            ".adx" => CriAtom_Format.ADX,
+            ".hca" => CriAtomFormat.HCA,
+            ".adx" => CriAtomFormat.ADX,
             _ => throw new Exception("Unknown audio format.")
         };
 

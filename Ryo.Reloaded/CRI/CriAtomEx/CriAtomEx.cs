@@ -1,9 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
 using CommunityToolkit.Mvvm.ComponentModel;
-using Ryo.Interfaces.Types;
 using Ryo.Interfaces;
-using static Ryo.Reloaded.CRI.CriAtomEx.CriAtomExFunctions;
+using Ryo.Definitions.Structs;
+using Ryo.Definitions.Classes;
+using static Ryo.Definitions.Functions.CriAtomExFunctions;
+using Ryo.Definitions.Enums;
 
 namespace Ryo.Reloaded.CRI.CriAtomEx;
 
@@ -290,7 +292,7 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
     public void Player_SetFile(nint playerHn, nint criBinderHn, byte* path)
         => this.setFile!.GetWrapper()(playerHn, criBinderHn, path);
 
-    public void Player_SetFormat(nint playerHn, CriAtom_Format format)
+    public void Player_SetFormat(nint playerHn, CriAtomFormat format)
         => this.setFormat!.GetWrapper()(playerHn, format);
 
     public void Player_SetNumChannels(nint playerHn, int numChannels)

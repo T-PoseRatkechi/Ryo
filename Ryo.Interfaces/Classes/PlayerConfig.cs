@@ -1,4 +1,4 @@
-﻿namespace Ryo.Interfaces.Types;
+﻿namespace Ryo.Definitions.Classes;
 
 public class PlayerConfig
 {

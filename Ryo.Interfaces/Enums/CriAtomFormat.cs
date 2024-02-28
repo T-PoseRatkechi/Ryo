@@ -1,6 +1,6 @@
-﻿namespace Ryo.Interfaces.Types;
+﻿namespace Ryo.Definitions.Enums;
 
-public enum CriAtom_Format
+public enum CriAtomFormat
     : uint
 {
     NONE,

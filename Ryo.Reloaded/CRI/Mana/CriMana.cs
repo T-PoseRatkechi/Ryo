@@ -1,6 +1,6 @@
 ﻿using Ryo.Reloaded.CRI.CriUnreal;
 using SharedScans.Interfaces;
-using static Ryo.Reloaded.CRI.Mana.CriManaFunctions;
+using static Ryo.Definitions.Functions.CriManaFunctions;
 
 namespace Ryo.Reloaded.CRI.Mana;
 

@@ -1,6 +1,16 @@
 ﻿using System.Runtime.InteropServices;
 
-namespace Ryo.Interfaces.Types;
+namespace Ryo.Definitions.Structs;
+
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct CriAtomExCategoryInfo
+{
+    public uint groupNo;
+    public uint id;
+    public byte* name;
+    public uint numCueLimits;
+    public float volume;
+}
 
 [StructLayout(LayoutKind.Sequential)]
 public struct CriAtomExPlayerConfigTag
