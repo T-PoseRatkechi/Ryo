@@ -15,6 +15,8 @@ internal class RyoApi : IRyoApi
         this.movies = movies;
     }
 
+    public IRyoUtils Utilities { get; } = new RyoUtils();
+
     public void AddAudioFile(string file)
         => this.audio.AddAudioFile(file);
 
