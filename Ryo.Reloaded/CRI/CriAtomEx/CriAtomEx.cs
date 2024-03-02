@@ -1,15 +1,15 @@
 ﻿using System.Runtime.InteropServices;
 using Reloaded.Hooks.Definitions;
-using CommunityToolkit.Mvvm.ComponentModel;
 using Ryo.Interfaces;
 using Ryo.Definitions.Structs;
 using Ryo.Definitions.Classes;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
 using Ryo.Definitions.Enums;
+using SharedScans.Interfaces;
 
 namespace Ryo.Reloaded.CRI.CriAtomEx;
 
-internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
+internal unsafe class CriAtomEx : ICriAtomEx
 {
     private readonly string game;
     private readonly CriAtomExPatterns patterns;
@@ -37,27 +37,28 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
     private IFunction<criAtomExPlayer_SetData>? setData;
     private IFunction<criAtomExCategory_SetVolumeById>? setVolumeById;
     private IFunction<criAtomExPlayer_UpdateAll>? updateAll;
-
-    [ObservableProperty]
-    private IFunction<criAtomExPlayer_SetCueName>? setCueName;
-
-    [ObservableProperty]
-    private IFunction<criAtomExPlayer_SetCueId>? setCueId;
+    private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
+    private IFunction<criAtomExPlayer_GetStatus>? getStatus;
+    private IFunction<criAtomExPlayer_Stop>? stop;
+    private IFunction<criAtomExPlayer_SetAisacControlByName>? setAisacControlByName;
 
     private IHook<criAtomExPlayer_Create>? createHook;
     private IHook<criAtomExAcb_LoadAcbFile>? loadAcbFileHook;
-    private IHook<criAtomExPlayer_SetCueId>? setCueIdHook;
-    private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
 
     private bool devMode;
-    private IFunction<criAtomExPlayer_GetStatus> getStatus;
-    private IFunction<criAtomExPlayer_Stop> stop;
-    private IFunction<criAtomExPlayer_SetAisacControlByName> setAisacControlByName;
+    private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
+    private readonly WrapperContainer<criAtomExPlayer_SetCueName> setCueName;
 
-    public CriAtomEx(string game)
+    public CriAtomEx(string game, ISharedScans scans)
     {
         this.game = game;
         this.patterns = CriAtomExGames.GetGamePatterns(game);
+
+        scans.AddScan<criAtomExPlayer_SetCueId>(this.patterns.CriAtomExPlayer_SetCueId);
+        this.setCueId = scans.CreateHook<criAtomExPlayer_SetCueId>(this.Player_SetCueId, Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_SetCueName>(this.patterns.criAtomExPlayer_SetCueName);
+        this.setCueName = scans.CreateWrapper<criAtomExPlayer_SetCueName>(Mod.NAME);
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_Create),
@@ -75,20 +76,6 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
             {
                 this.loadAcbFile = hooks.CreateFunction<criAtomExAcb_LoadAcbFile>(result);
                 this.loadAcbFileHook = this.loadAcbFile.Hook(this.Acb_LoadAcbFile).Activate();
-            });
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_SetCueName),
-            this.patterns.criAtomExPlayer_SetCueName,
-            (hooks, result) => this.SetCueName = hooks.CreateFunction<criAtomExPlayer_SetCueName>(result));
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_SetCueId),
-            this.patterns.CriAtomExPlayer_SetCueId,
-            (hooks, result) =>
-            {
-                this.SetCueId = hooks.CreateFunction<criAtomExPlayer_SetCueId>(result);
-                this.setCueIdHook = this.SetCueId.Hook(this.Player_SetCueId).Activate();
             });
 
         ScanHooks.Add(
@@ -218,44 +205,16 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
         => this.players.FirstOrDefault(x => x.Id == playerId);
 
     public CriAtomExPlayerStatusTag Player_GetStatus(nint playerHn)
-        => this.getStatus.GetWrapper()(playerHn);
+        => this.getStatus!.GetWrapper()(playerHn);
 
     public void Player_LimitLoopCount(nint playerHn, int count)
         => this.limitLoopCount!.GetWrapper()(playerHn, count);
 
     public void Player_Stop(nint playerHn)
-        => this.stop.GetWrapper()(playerHn);
+        => this.stop!.GetWrapper()(playerHn);
 
     public void Player_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue)
-        => this.setAisacControlByName.GetWrapper()(playerHn, controlName, controlValue);
-
-    public Task Player_StopAsync(nint playerHn)
-    {
-        var task = Task.Run(() =>
-        {
-            Log.Debug("Stopping player.");
-            this.Player_Stop(playerHn);
-            while (true)
-            {
-                var currentStatus = this.Player_GetStatus(playerHn);
-                if (currentStatus == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_STOP)
-                {
-                    Log.Debug("Player stopped.");
-                    return;
-                }
-
-                if (currentStatus == CriAtomExPlayerStatusTag.CRIATOMEXPLAYER_STATUS_ERROR)
-                {
-                    Log.Debug("Player errored while stopping.");
-                    return;
-                }
-
-                Thread.Sleep(500);
-            }
-        });
-
-        return task;
-    }
+        => this.setAisacControlByName!.GetWrapper()(playerHn, controlName, controlValue);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
@@ -271,11 +230,11 @@ internal unsafe partial class CriAtomEx : ObservableObject, ICriAtomEx
             Log.Debug($"Unknown ACB Hn: {acbHn}");
         }
 
-        this.setCueIdHook!.OriginalFunction(playerHn, acbHn, cueId);
+        this.setCueId.Hook!.OriginalFunction(playerHn, acbHn, cueId);
     }
 
     public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)
-        => this.SetCueName!.GetWrapper()(playerHn, acbHn, cueName);
+        => this.setCueName.Wrapper(playerHn, acbHn, cueName);
 
     public void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config)
         => this.playerConfigs[id] = config;

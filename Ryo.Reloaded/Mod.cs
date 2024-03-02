@@ -63,14 +63,14 @@ public class Mod : ModBase, IExports
         this.modLoader.GetController<IStartupScanner>().TryGetTarget(out var scanner);
         this.modLoader.GetController<ISharedScans>().TryGetTarget(out var scans);
 
-        this.criAtomEx = new(this.game);
+        this.criAtomEx = new(this.game, scans!);
         this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
         this.criUnreal = new(this.game);
         this.criMana = new(scans!, this.game);
 
         this.audioRegistry = new(this.game);
-        this.audioService = new(this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
+        this.audioService = new(scans!, this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
 
         this.movieRegistry = new();
         this.movieService = new(scans!, this.criMana, this.movieRegistry);

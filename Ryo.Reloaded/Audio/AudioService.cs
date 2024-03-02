@@ -1,8 +1,8 @@
-﻿using Reloaded.Hooks.Definitions;
-using Ryo.Definitions.Classes;
+﻿using Ryo.Definitions.Classes;
 using Ryo.Reloaded.Audio.Models;
 using Ryo.Reloaded.CRI.CriAtomEx;
 using Ryo.Reloaded.P3R;
+using SharedScans.Interfaces;
 using System.Runtime.InteropServices;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
 
@@ -14,25 +14,19 @@ internal unsafe class AudioService
     private readonly AudioRegistry audioRegistry;
     private readonly AudioConfig defaultAudio;
     private readonly VolumeGetterAlt volume;
-    private IHook<criAtomExPlayer_SetCueName>? setCueNameHook;
 
-    private bool devMode;
+    private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
+    private bool devMode;
 
-    public AudioService(CriAtomEx criAtomEx, AudioRegistry audioRegistry, AudioConfig defaultAudio)
+    public AudioService(ISharedScans scans, CriAtomEx criAtomEx, AudioRegistry audioRegistry, AudioConfig defaultAudio)
     {
         this.criAtomEx = criAtomEx;
         this.audioRegistry = audioRegistry;
         this.defaultAudio = defaultAudio;
         this.volume = new();
 
-        criAtomEx.PropertyChanged += (sender, args) =>
-        {
-            if (args.PropertyName == nameof(criAtomEx.SetCueName))
-            {
-                this.setCueNameHook = this.criAtomEx.SetCueName!.Hook(this.CriAtomExPlayer_SetCueName).Activate();
-            }
-        };
+        this.setCueName = scans.CreateHook<criAtomExPlayer_SetCueName>(this.CriAtomExPlayer_SetCueName, Mod.NAME);
     }
 
     public void SetDevMode(bool devMode)
@@ -93,7 +87,7 @@ internal unsafe class AudioService
         else
         {
             this.ResetPlayerVolume(playerHn);
-            this.setCueNameHook!.OriginalFunction(playerHn, acbHn, cueName);
+            this.setCueName.Hook!.OriginalFunction(playerHn, acbHn, cueName);
         }
     }
 
