@@ -11,13 +11,13 @@ internal class MovieService
     private readonly MovieRegistry movieRegistry;
     private bool devMode;
 
-    private readonly HookContainer<criManaPlayer_SetFile> setFileHook;
+    private readonly HookContainer<criManaPlayer_SetFile> setFile;
 
     public MovieService(ISharedScans scans, CriMana mana, MovieRegistry movieRegistry)
     {
         this.mana = mana;
         this.movieRegistry = movieRegistry;
-        this.setFileHook = scans.CreateHook<criManaPlayer_SetFile>(this.criManaPlayer_SetFile, Mod.NAME);
+        this.setFile = scans.CreateHook<criManaPlayer_SetFile>(this.criManaPlayer_SetFile, Mod.NAME);
     }
 
     public void SetDevMode(bool devMode)
@@ -42,18 +42,18 @@ internal class MovieService
             {
                 var movieFile = movie.GetMovieFile();
                 var movieFilePtr = StringsCache.GetStringPtr(movieFile);
-                this.setFileHook.OriginalFunction(player, binder, movieFilePtr);
+                this.setFile.Hook!.OriginalFunction(player, binder, movieFilePtr);
                 Log.Debug($"Redirected movie file.\nOriginal: {file}\nNew: {movieFile}");
             }
             catch (Exception ex)
             {
-                this.setFileHook.OriginalFunction(player, binder, path);
+                this.setFile.Hook!.OriginalFunction(player, binder, path);
                 Log.Error(ex, $"Failed to redirect movie file.\nFile: {file}");
             }
         }
         else
         {
-            this.setFileHook!.OriginalFunction(player, binder, path);
+            this.setFile.Hook!.OriginalFunction(player, binder, path);
         }
     }
 }
