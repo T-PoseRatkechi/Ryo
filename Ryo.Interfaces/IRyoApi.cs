@@ -1,4 +1,6 @@
-﻿namespace Ryo.Interfaces;
+﻿using Ryo.Interfaces.Structs;
+
+namespace Ryo.Interfaces;
 
 public interface IRyoApi
 {
@@ -15,6 +17,13 @@ public interface IRyoApi
     void AddAudioFolder(string dir);
 
     /// <summary>
+    /// Add an audio preprocessor.
+    /// </summary>
+    /// <param name="name">Process name.</param>
+    /// <param name="process">Process callback.</param>
+    void AddAudioPreprocessor(string name, Func<AudioInfo, AudioInfo> process);
+
+    /// <summary>
     /// Add a path to add movies from.
     /// </summary>
     /// <param name="path">Movies path, file or folder.</param>
@@ -27,5 +36,8 @@ public interface IRyoApi
     /// <param name="bindPath">Custom path.</param>
     void AddMovieBind(string moviePath, string bindPath);
 
+    /// <summary>
+    /// Utility functions.
+    /// </summary>
     IRyoUtils Utilities { get; }
 }
