@@ -30,4 +30,16 @@ internal static class AcbRegistry
         Log.Debug($"Unknown ACB Hn: {acbHn:X}");
         return null;
     }
+
+    public static nint GetAcbHn(string acbName)
+    {
+        if (acbs.ContainsValue(acbName))
+        {
+            var acb = acbs.First(x => x.Value == acbName);
+            return acb.Key;
+        }
+
+        Log.Warning($"Unknown ACB: {acbName}");
+        return IntPtr.Zero;
+    }
 }
