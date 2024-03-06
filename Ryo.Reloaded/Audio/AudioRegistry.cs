@@ -14,12 +14,14 @@ internal class AudioRegistry
         .Build();
 
     private readonly string game;
+    private readonly AudioPreprocessor preprocessor;
     private readonly Dictionary<Cue, AudioConfig> assignedCues = new(CueComparer.Instance);
     private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
 
-    public AudioRegistry(string game)
+    public AudioRegistry(string game, AudioPreprocessor preprocessor)
     {
         this.game = game;
+        this.preprocessor = preprocessor;
     }
 
     public void AddAudioFolder(string dir)
@@ -55,6 +57,8 @@ internal class AudioRegistry
     {
         var audio = this.GetAudioConfig(file, folderConfig);
         if (string.IsNullOrEmpty(audio.CueName) || string.IsNullOrEmpty(audio.AcbName)) throw new Exception("Missing cue or ACB name.");
+
+        this.preprocessor.Preprocess(audio);
 
         var cue = new Cue(audio.CueName, audio.AcbName);
         this.assignedCues[cue] = audio;
@@ -142,6 +146,8 @@ internal class AudioRegistry
         config.NumChannels = userConfig?.NumChannels ?? config.NumChannels;
         config.SampleRate = userConfig?.SampleRate ?? config.SampleRate;
         config.Volume = userConfig?.Volume ?? config.Volume;
+        config.Tags = userConfig?.Tags ?? config.Tags;
+        config.Key = userConfig?.Key ?? config.Key;
     }
 
     private static CriAtomFormat GetAudioFormat(string file)

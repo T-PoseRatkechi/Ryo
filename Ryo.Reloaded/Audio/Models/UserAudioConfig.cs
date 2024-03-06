@@ -22,4 +22,8 @@ internal class UserAudioConfig
     public int[]? CategoryIds { get; set; }
 
     public float? Volume { get; set; }
+
+    public string? Key { get; set; }
+
+    public string[]? Tags { get; set; }
 }

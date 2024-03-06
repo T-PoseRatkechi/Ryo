@@ -22,5 +22,7 @@ internal class AudioConfig
 
     public float Volume { get; set; } = -1f;
 
-    public bool ForceStop { get; set; }
+    public string? Key { get; set; }
+
+    public string[] Tags { get; set; } = Array.Empty<string>();
 }
