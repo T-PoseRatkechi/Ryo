@@ -6,6 +6,7 @@ using Ryo.Definitions.Classes;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
 using Ryo.Definitions.Enums;
 using SharedScans.Interfaces;
+using Ryo.Reloaded.Audio;
 
 namespace Ryo.Reloaded.CRI.CriAtomEx;
 
@@ -23,7 +24,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private IFunction<criAtomExPlayback_GetTimeSyncedWithAudio>? getTimeSyncedWithAudio;
     private IFunction<criAtomExPlayer_GetNumPlayedSamples>? getNumPlayedSamples;
     private IFunction<criAtomExAcb_LoadAcbFile>? loadAcbFile;
-    private IFunction<criAtomExPlayer_Start>? start;
     private IFunction<criAtomExPlayer_SetFile>? setFile;
     private IFunction<criAtomExPlayer_SetFormat>? setFormat;
     private IFunction<criAtomExPlayer_SetSamplingRate>? setSamplingRate;
@@ -48,6 +48,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private bool devMode;
     private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
     private readonly WrapperContainer<criAtomExPlayer_SetCueName> setCueName;
+    private readonly WrapperContainer<criAtomExPlayer_Start> start;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -59,6 +60,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         scans.AddScan<criAtomExPlayer_SetCueName>(this.patterns.criAtomExPlayer_SetCueName);
         this.setCueName = scans.CreateWrapper<criAtomExPlayer_SetCueName>(Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_Start>(this.patterns.criAtomExPlayer_Start);
+        this.start = scans.CreateWrapper<criAtomExPlayer_Start>(Mod.NAME);
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_Create),
@@ -92,11 +96,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
             nameof(criAtomExPlayer_GetNumPlayedSamples),
             this.patterns.CriAtomExPlayer_GetNumPlayedSamples,
             (hooks, result) => this.getNumPlayedSamples = hooks.CreateFunction<criAtomExPlayer_GetNumPlayedSamples>(result));
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_Start),
-            this.patterns.criAtomExPlayer_Start,
-            (hooks, result) => this.start = hooks.CreateFunction<criAtomExPlayer_Start>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetFile),
@@ -243,7 +242,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         => this.getTimeSyncedWithAudio!.GetWrapper()(playbackId);
 
     public uint Player_Start(nint playerHn)
-        => this.start!.GetWrapper()(playerHn);
+        => this.start.Wrapper(playerHn);
 
     public void Player_SetStartTime(nint playerHn, int currentBgmTime)
         => this.setStartTime!.GetWrapper()(playerHn, currentBgmTime);
@@ -305,6 +304,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         var playerHn = this.createHook!.OriginalFunction(currentConfigPtr, work, workSize);
         this.players.Add(new(playerId, playerHn));
+        PlayerRegistry.RegisterPlayer(playerHn);
 
         Log.Debug($"Player: {playerHn:X} || ID: {playerId}");
         return playerHn;
