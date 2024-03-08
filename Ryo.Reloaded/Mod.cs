@@ -36,6 +36,7 @@ public class Mod : ModBase, IExports
 
     private readonly AudioRegistry audioRegistry;
     private readonly AudioService audioService;
+    private readonly AudioPreprocessor preprocessor = new();
 
     private readonly MovieRegistry movieRegistry;
     private readonly MovieService movieService;
@@ -69,13 +70,13 @@ public class Mod : ModBase, IExports
         this.criUnreal = new(this.game);
         this.criMana = new(scans!, this.game);
 
-        this.audioRegistry = new(this.game);
+        this.audioRegistry = new(this.game, this.preprocessor);
         this.audioService = new(scans!, this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
 
         this.movieRegistry = new();
         this.movieService = new(scans!, this.criMana, this.movieRegistry);
 
-        this.ryoApi = new(this.audioRegistry, this.movieRegistry);
+        this.ryoApi = new(this.audioRegistry, this.preprocessor, this.movieRegistry);
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.ryoApi);
 
         ScanHooks.Initialize(scanner!, this.hooks);
