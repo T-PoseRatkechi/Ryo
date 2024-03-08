@@ -2,7 +2,7 @@
   "ModId": "Ryo.Reloaded",
   "ModName": "Ryo Framework",
   "ModAuthor": "zutomayofan50",
-  "ModVersion": "1.3.3",
+  "ModVersion": "1.3.5",
   "ModDescription": "Ryo Framework adds the ability to add or replace game audio and movies with zero file editing.",
   "ModDll": "Ryo.Reloaded.dll",
   "ModIcon": "Preview.png",
