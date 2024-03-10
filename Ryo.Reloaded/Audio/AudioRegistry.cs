@@ -1,18 +1,13 @@
-﻿using YamlDotNet.Serialization.NamingConventions;
-using YamlDotNet.Serialization;
-using System.Diagnostics.CodeAnalysis;
+﻿using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using Ryo.Reloaded.Audio.Models;
 using Ryo.Definitions.Enums;
+using Ryo.Reloaded.Common;
 
 namespace Ryo.Reloaded.Audio;
 
 internal class AudioRegistry
 {
-    private readonly IDeserializer deserializer = new DeserializerBuilder()
-        .WithNamingConvention(UnderscoredNamingConvention.Instance)
-        .Build();
-
     private readonly string game;
     private readonly AudioPreprocessor preprocessor;
     private readonly Dictionary<Cue, AudioConfig> assignedCues = new(CueComparer.Instance);
@@ -127,7 +122,7 @@ internal class AudioRegistry
         try
         {
             Log.Debug($"Loading user config: {configFile}");
-            var config = this.deserializer.Deserialize<UserAudioConfig>(File.ReadAllText(configFile)) ?? throw new Exception();
+            var config = YamlSerializer.DeserializeFile<UserAudioConfig>(configFile);
             return config;
         }
         catch (Exception ex)

@@ -1,4 +1,5 @@
-﻿using System.Diagnostics.CodeAnalysis;
+﻿using Ryo.Reloaded.Common;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Ryo.Reloaded.Movies;
 
@@ -50,11 +51,31 @@ internal class MovieRegistry
                 this.AddMovieFile(file);
             }
 
+            // Add movie configs.
+            foreach (var file in Directory.EnumerateFiles(folder, "*.usm.yaml"))
+            {
+                this.AddMovieConfig(file);
+            }
+
             // Recursively add folders.
             foreach (var dir in Directory.EnumerateDirectories(folder))
             {
                 this.AddMoviePath(dir);
             }
+        }
+    }
+
+    private void AddMovieConfig(string configFile)
+    {
+        try
+        {
+            var config = YamlSerializer.DeserializeFile<MovieConfig>(configFile);
+            this.AddMovieBind(Path.GetFileNameWithoutExtension(configFile), config.BindPath);
+
+        }
+        catch (Exception ex)
+        {
+            Log.Error(ex, $"Failed to add movie config file.\nFile: {configFile}");
         }
     }
 
@@ -72,4 +93,9 @@ internal class MovieRegistry
 
         return movie;
     }
+}
+
+public class MovieConfig
+{
+    public string BindPath { get; set; } = string.Empty;
 }
