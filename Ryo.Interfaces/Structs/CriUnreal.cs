@@ -28,6 +28,12 @@ public unsafe struct LoadTaskParameter
     [FieldOffset(0x0018)] public USoundAtomCueSheet* CueSheet;
 };
 
+[StructLayout(LayoutKind.Explicit)]
+public unsafe struct LoadTaskParameterSmtV
+{
+    [FieldOffset(0x00B8)] public nint _acbHn;
+};
+
 public enum EPlayerType
 {
     BGM = 0,
