@@ -14,6 +14,7 @@ internal unsafe class CriUnreal
     private IFunction<PlayAdxControl_CreatePlayerBank> createPlayerBank;
     private IFunction<USoundAtomCueSheet_GetAtomCueById> getAtomCueById;
     private IFunction<USoundAtomCueSheet_LoadAtomCueSheet> loadAtomCueSheet;
+    private IHook<USoundAtomCueSheet_LoadAtomCueSheet> loadAtomCueSheetHook;
     private IFunction<PlayAdxControl_SetPlayerAcbBank> setPlayerAcbBank;
     private IFunction<PlayAdxControl_RequestSound> requestSound;
     private IFunction<PlayAdxControl_RequestLoadAcb> requestLoadAcb;
@@ -57,12 +58,22 @@ internal unsafe class CriUnreal
         ScanHooks.Add(
             nameof(USoundAtomCueSheet_LoadAtomCueSheet),
             this.patterns.USoundAtomCueSheet_LoadAtomCueSheet,
-            (hooks, result) => this.loadAtomCueSheet = hooks.CreateFunction<USoundAtomCueSheet_LoadAtomCueSheet>(result));
+            (hooks, result) =>
+            {
+                this.loadAtomCueSheet = hooks.CreateFunction<USoundAtomCueSheet_LoadAtomCueSheet>(result);
+                this.loadAtomCueSheetHook = this.loadAtomCueSheet.Hook(this.USoundAtomCueSheet_LoadAtomCueSheet).Activate();
+            });
 
         ScanHooks.Add(
             nameof(PlayAdxControl_CreatePlayerBank),
             this.patterns.PlayAdxControl_CreatePlayerBank,
             (hooks, result) => this.createPlayerBank = hooks.CreateFunction<PlayAdxControl_CreatePlayerBank>(result));
+    }
+
+    private USoundAtomCueSheet* USoundAtomCueSheet_LoadAtomCueSheet(USoundAtomCueSheet* instance, bool bAddToLevel)
+    {
+        Log.Debug($"Loaded AtomCueSheet: {instance->CueSheetName.GetString()} || {(nint)instance->_AcbHn:X}");
+        return this.loadAtomCueSheetHook.OriginalFunction(instance, bAddToLevel);
     }
 
     public void SetDevMode(bool devMode)

@@ -62,7 +62,8 @@
   ],
   "OptionalDependencies": [],
   "SupportedAppId": [
-    "p3r.exe"
+    "p3r.exe",
+    "SMT5V-Win64-Shipping"
   ],
   "ProjectUrl": ""
 }

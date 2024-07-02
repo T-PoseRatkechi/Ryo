@@ -13,6 +13,10 @@ internal static class CriUnrealGames
             //PlayAdxControl_SetPlayerAcbBank = "48 89 5C 24 ?? 8B 5C 24 ?? 48 8D 41",
             //USoundAtomCueSheet_LoadAtomCueSheet = "40 56 48 83 EC 60 48 89 CE 84 D2",
             //PlayAdxControl_CreatePlayerBank = "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 31 FF 4C 8D 51",
+        },
+        new("SMT5V-Win64-Shipping")
+        {
+            USoundAtomCueSheet_LoadAtomCueSheet = "40 56 48 83 EC 60 48 89 CE 84 D2",
         }
     };
 
