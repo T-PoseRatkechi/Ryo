@@ -40,6 +40,9 @@ public unsafe static class CriAtomExFunctions
     public delegate void criAtomExCategory_SetVolumeById(uint id, float volume);
 
     [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExCategory_SetVolume(uint index, float volume);
+
+    [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetCategoryById(nint playerHn, uint id);
 
     [Function(CallingConventions.Microsoft)]
@@ -80,4 +83,10 @@ public unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate ushort criAtomConfig_GetCategoryIndexById(uint id);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate float criAtomExCategory_GetVolume(ushort index);
 }

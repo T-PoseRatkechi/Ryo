@@ -1,7 +1,6 @@
 ﻿using Ryo.Definitions.Classes;
 using Ryo.Reloaded.Audio.Models;
 using Ryo.Reloaded.CRI.CriAtomEx;
-using Ryo.Reloaded.P3R;
 using SharedScans.Interfaces;
 using System.Runtime.InteropServices;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
@@ -13,7 +12,6 @@ internal unsafe class AudioService
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
     private readonly AudioConfig defaultAudio;
-    private readonly VolumeGetterAlt volume;
 
     private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
@@ -24,7 +22,6 @@ internal unsafe class AudioService
         this.criAtomEx = criAtomEx;
         this.audioRegistry = audioRegistry;
         this.defaultAudio = defaultAudio;
-        this.volume = new();
 
         this.setCueName = scans.CreateHook<criAtomExPlayer_SetCueName>(this.CriAtomExPlayer_SetCueName, Mod.NAME);
     }
@@ -61,14 +58,14 @@ internal unsafe class AudioService
             this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
 
             // Use first category for setting custom volume.
-            //int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
-            //if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
-            //{
-            //    var currentVolume = this.volume.CriAtomExCategory_GetVolumeById((uint)volumeCategory);
-            //    this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
-            //    this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
-            //    Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {audio.Volume}");
-            //}
+            int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
+            if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
+            {
+                var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
+                this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
+                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
+                Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {audio.Volume}");
+            }
 
             // Apply categories.
             foreach (var id in audio.CategoryIds)
