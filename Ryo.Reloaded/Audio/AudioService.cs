@@ -61,14 +61,14 @@ internal unsafe class AudioService
             this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
 
             // Use first category for setting custom volume.
-            int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
-            if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
-            {
-                var currentVolume = this.volume.CriAtomExCategory_GetVolumeById((uint)volumeCategory);
-                this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
-                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
-                Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {audio.Volume}");
-            }
+            //int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
+            //if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
+            //{
+            //    var currentVolume = this.volume.CriAtomExCategory_GetVolumeById((uint)volumeCategory);
+            //    this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
+            //    this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
+            //    Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {audio.Volume}");
+            //}
 
             // Apply categories.
             foreach (var id in audio.CategoryIds)
