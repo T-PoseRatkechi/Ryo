@@ -24,7 +24,7 @@ internal static class GameDefaults
             NumChannels = 2,
             SampleRate = 44100,
             CategoryIds = new int[] { 0, 4, 9, 40, 24, 11, 43, 51 },
-            PlayerId = 0,
+            PlayerId = -1,
             Volume = 0.15f,
         },
     };
