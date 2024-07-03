@@ -18,6 +18,7 @@ internal unsafe class CriUnreal
     private IFunction<PlayAdxControl_SetPlayerAcbBank> setPlayerAcbBank;
     private IFunction<PlayAdxControl_RequestSound> requestSound;
     private IFunction<PlayAdxControl_RequestLoadAcb> requestLoadAcb;
+    private IHook<USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV> asyncLoadCueSheetTask_SMTV;
     private bool devMode;
 
 #pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
@@ -34,6 +35,11 @@ internal unsafe class CriUnreal
                 this.asyncLoadCueSheetTask = hooks.CreateFunction<USoundAtomCueSheet_AsyncLoadCueSheetTask>(result);
                 this.asyncLoadCueSheetTaskHook = this.asyncLoadCueSheetTask.Hook(this.USoundAtomCueSheet_AsyncLoadCueSheetTask).Activate();
             });
+
+        ScanHooks.Add(
+            nameof(USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV),
+            this.patterns.USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV,
+            (hooks, result) => this.asyncLoadCueSheetTask_SMTV = hooks.CreateHook<USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV>(this.AsyncLoadCueSheetTask_SMTV, result).Activate());
 
         ScanHooks.Add(
             nameof(USoundAtomCueSheet_GetAtomCueById),
@@ -56,24 +62,9 @@ internal unsafe class CriUnreal
             (hooks, result) => this.setPlayerAcbBank = hooks.CreateFunction<PlayAdxControl_SetPlayerAcbBank>(result));
 
         ScanHooks.Add(
-            nameof(USoundAtomCueSheet_LoadAtomCueSheet),
-            this.patterns.USoundAtomCueSheet_LoadAtomCueSheet,
-            (hooks, result) =>
-            {
-                this.loadAtomCueSheet = hooks.CreateFunction<USoundAtomCueSheet_LoadAtomCueSheet>(result);
-                this.loadAtomCueSheetHook = this.loadAtomCueSheet.Hook(this.USoundAtomCueSheet_LoadAtomCueSheet).Activate();
-            });
-
-        ScanHooks.Add(
             nameof(PlayAdxControl_CreatePlayerBank),
             this.patterns.PlayAdxControl_CreatePlayerBank,
             (hooks, result) => this.createPlayerBank = hooks.CreateFunction<PlayAdxControl_CreatePlayerBank>(result));
-    }
-
-    private USoundAtomCueSheet* USoundAtomCueSheet_LoadAtomCueSheet(USoundAtomCueSheet* instance, bool bAddToLevel)
-    {
-        Log.Debug($"Loaded AtomCueSheet: {instance->CueSheetName.GetString()} || {(nint)instance->_AcbHn:X}");
-        return this.loadAtomCueSheetHook.OriginalFunction(instance, bAddToLevel);
     }
 
     public void SetDevMode(bool devMode)
@@ -89,5 +80,11 @@ internal unsafe class CriUnreal
         var acbHn = *taskParams->CueSheet->_AcbHn;
 
         AcbRegistry.Register(acbName, acbHn);
+    }
+
+    private void AsyncLoadCueSheetTask_SMTV(USoundAtomCueSheetSMTV* cueSheet)
+    {
+        this.asyncLoadCueSheetTask_SMTV.OriginalFunction(cueSheet);
+        AcbRegistry.Register(cueSheet->CueSheetName.GetString()!, cueSheet->_acbHn);
     }
 }

@@ -25,4 +25,7 @@ public static unsafe class CriUnrealFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void USoundAtomCueSheet_AsyncLoadCueSheetTask(LoadTaskParameter* taskParams);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV(USoundAtomCueSheetSMTV* cueSheet);
 }

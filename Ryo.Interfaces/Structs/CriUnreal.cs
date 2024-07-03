@@ -9,6 +9,13 @@ public unsafe struct USoundAtomCueSheet
     [FieldOffset(0x0040)] public FString CueSheetName;
 }
 
+[StructLayout(LayoutKind.Explicit, Size = 0x240)]
+public unsafe struct USoundAtomCueSheetSMTV
+{
+    [FieldOffset(0x00B8)] public nint _acbHn;
+    [FieldOffset(0x0080)] public FString CueSheetName;
+}
+
 [StructLayout(LayoutKind.Explicit, Size = 0xA98)]
 public unsafe struct UPlayAdxControl
 {
@@ -26,12 +33,6 @@ public unsafe struct LoadTaskParameter
 {
     [FieldOffset(0x0018)] public nint Field11;
     [FieldOffset(0x0018)] public USoundAtomCueSheet* CueSheet;
-};
-
-[StructLayout(LayoutKind.Explicit)]
-public unsafe struct LoadTaskParameterSmtV
-{
-    [FieldOffset(0x00B8)] public nint _acbHn;
 };
 
 public enum EPlayerType

@@ -16,8 +16,7 @@ internal static class CriUnrealGames
         },
         new("SMT5V-Win64-Shipping")
         {
-            //USoundAtomCueSheet_LoadAtomCueSheet = "40 56 48 83 EC 60 48 89 CE 84 D2",
-            USoundAtomCueSheet_AsyncLoadCueSheetTask = "40 55 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC D8 01 00 00",
+            USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV = "40 55 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC D8 01 00 00",
         }
     };
 
@@ -41,4 +40,5 @@ internal class CriUnrealPatterns
     public string USoundAtomCueSheet_GetAtomCueById { get; internal set; }
     public string PlayAdxControl_CreatePlayerBank { get; internal set; }
     public string USoundAtomCueSheet_AsyncLoadCueSheetTask { get; internal set; }
+    public string USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV { get; internal set; }
 }
