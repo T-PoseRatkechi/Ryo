@@ -5,7 +5,7 @@ namespace Ryo.Reloaded.Audio;
 
 internal static class GameDefaults
 {
-    private static readonly Dictionary<string, Func<AudioConfig>> defaults = new()
+    private static readonly Dictionary<string, Func<AudioConfig>> defaults = new(StringComparer.OrdinalIgnoreCase)
     {
         ["p3r"] = () => new()
         {
@@ -14,6 +14,16 @@ internal static class GameDefaults
             NumChannels = 2,
             SampleRate = 44100,
             CategoryIds = new int[] { 0, 13 },
+            PlayerId = 0,
+            Volume = 0.15f,
+        },
+        ["SMT5V-Win64-Shipping"] = () => new()
+        {
+            AcbName = "bgm",
+            Format = CriAtomFormat.HCA,
+            NumChannels = 2,
+            SampleRate = 44100,
+            CategoryIds = new int[] { 0, 4, 9, 40, 24, 11, 43, 51 },
             PlayerId = 0,
             Volume = 0.15f,
         },
