@@ -11,17 +11,18 @@ internal unsafe class AudioService
 {
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
-    private readonly AudioConfig defaultAudio;
 
     private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
     private bool devMode;
 
-    public AudioService(ISharedScans scans, CriAtomEx criAtomEx, AudioRegistry audioRegistry, AudioConfig defaultAudio)
+    public AudioService(
+        ISharedScans scans,
+        CriAtomEx criAtomEx,
+        AudioRegistry audioRegistry)
     {
         this.criAtomEx = criAtomEx;
         this.audioRegistry = audioRegistry;
-        this.defaultAudio = defaultAudio;
 
         this.setCueName = scans.CreateHook<criAtomExPlayer_SetCueName>(this.CriAtomExPlayer_SetCueName, Mod.NAME);
     }
@@ -33,7 +34,7 @@ internal unsafe class AudioService
     {
         var player = this.criAtomEx.GetPlayerByHn(playerHn)!;
         var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName)!;
-        var acbName = AcbRegistry.GetAcbName(acbHn) ?? this.defaultAudio.AcbName;
+        var acbName = AcbRegistry.GetAcbName(acbHn) ?? "Unknown ACB";
 
         if (this.devMode)
         {
@@ -51,7 +52,8 @@ internal unsafe class AudioService
                 manualStart = true;
             }
 
-            var audioData = this.audioRegistry.GetAudioData(audio.AudioFile);
+            var audioFile = audio.GetAudioFile();
+            var audioData = AudioCache.GetAudioData(audioFile);
             this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
             this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
@@ -79,7 +81,7 @@ internal unsafe class AudioService
                 Log.Debug($"Manually started player with ID: {player.Id}");
             }
 
-            Log.Debug($"Redirected Cue Name: {cueNameStr}\nFile: {audio.AudioFile}");
+            Log.Debug($"Redirected Cue Name: {cueNameStr}\nFile: {audioFile}");
         }
         else
         {

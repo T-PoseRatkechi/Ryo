@@ -1,5 +1,4 @@
 ﻿using System.Diagnostics.CodeAnalysis;
-using System.Runtime.InteropServices;
 using Ryo.Reloaded.Audio.Models;
 using Ryo.Definitions.Enums;
 using Ryo.Reloaded.Common;
@@ -9,120 +8,154 @@ namespace Ryo.Reloaded.Audio;
 internal class AudioRegistry
 {
     private readonly string game;
+    private readonly AudioConfig defaultConfig;
     private readonly AudioPreprocessor preprocessor;
-    private readonly Dictionary<Cue, AudioConfig> assignedCues = new(CueComparer.Instance);
-    private readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<Cue, AudioContainer> cues = new(CueComparer.Instance);
 
     public AudioRegistry(string game, AudioPreprocessor preprocessor)
     {
         this.game = game;
+        this.defaultConfig = GameDefaults.CreateDefaultConfig(game);
         this.preprocessor = preprocessor;
     }
 
-    public void AddAudioFolder(string dir)
+    public void AddAudioFolder(string dir, AudioConfig? preConfig = null)
     {
         Log.Information($"Adding folder: {dir}");
 
+        // Audio config for folder items.
+        var currentConfig = preConfig?.Clone() ?? this.defaultConfig.Clone();
+
+        // Apply config from a folder config file.
         var dirConfigFile = Path.Join(dir, "config.yaml");
-        var dirConfig = File.Exists(dirConfigFile) ? this.GetUserConfig(dirConfigFile) : null;
-        if (dirConfig != null)
+        if (File.Exists(dirConfigFile) && ParseConfigFile(dirConfigFile) is AudioConfig dirConfig)
         {
-            PrintUserConfig(dirConfig);
+            ApplyUserConfig(currentConfig, dirConfig);
         }
 
+        // Folder sets the ACB name for items.
+        // Ex: A folder named "Voices.acb" indicates to use "Voice" for the ACB Name.
+        var folderName = Path.GetFileName(dir);
+        if (folderName.EndsWith(".acb", StringComparison.OrdinalIgnoreCase))
+        {
+            currentConfig.AcbName = Path.GetFileNameWithoutExtension(folderName);
+        }
+
+        // Folder is a Cue Folder, all audio files get added to the same
+        // audio container
+        else if (folderName.EndsWith(".cue", StringComparison.OrdinalIgnoreCase))
+        {
+            // Set cue name.
+            currentConfig.CueName = Path.GetFileNameWithoutExtension(folderName);
+
+            // Create new audio container.
+            var cueAudio = new AudioContainer(currentConfig);
+
+            // Add all audio files (hca/adx) in folder to container.
+            // TODO: Create general function to handle adding files appropriately
+            //       to audio containers.
+            foreach (var file in Directory.EnumerateFiles(dir))
+            {
+                var ext = Path.GetExtension(file).ToLower();
+                if (ext == ".hca" || ext == ".adx")
+                {
+                    cueAudio.AddFile(file);
+                }
+            }
+
+            this.RegisterCue(cueAudio);
+            return;
+        }
+
+        PrintUserConfig(currentConfig);
+
+        // Folder is a normal folder.
+
+        // For files in normal folders, match existing Ryo
+        // functionality.
+
+        // Files in normal folders create audio containers
+        // per file.
         foreach (var file in Directory.EnumerateFiles(dir))
         {
             var ext = Path.GetExtension(file).ToLower();
             if (ext == ".hca" || ext == ".adx")
             {
-                this.AddAudioFile(file, dirConfig);
+                this.AddAudioFile(file, currentConfig);
             }
         }
 
         foreach (var folder in Directory.EnumerateDirectories(dir))
         {
-            this.AddAudioFolder(folder);
+            this.AddAudioFolder(folder, currentConfig);
         }
     }
 
     public void AddAudioFile(string file)
-        => this.AddAudioFile(file, null);
+        => this.AddAudioFile(file, this.defaultConfig.Clone());
 
-    public void AddAudioFile(string file, UserAudioConfig? folderConfig = null)
+    public void AddAudioFile(string file, AudioConfig preConfig)
     {
-        var audio = this.GetAudioConfig(file, folderConfig);
+        var audio = CreateContainerFromFile(file, preConfig);
         if (string.IsNullOrEmpty(audio.CueName) || string.IsNullOrEmpty(audio.AcbName)) throw new Exception("Missing cue or ACB name.");
 
-        this.preprocessor.Preprocess(audio);
+        // TODO: Rework audio preprocessing.
+        //this.preprocessor.Preprocess(audio);
 
-        var cue = new Cue(audio.CueName, audio.AcbName);
-        this.assignedCues[cue] = audio;
-
-        Log.Information($"Assigned Cue: {cue.CueName} || ACB: {cue.AcbName}\nFile: {audio.AudioFile}");
+        this.RegisterCue(audio);
     }
 
-    public bool TryGetAudio(string cueName, string acbName, [NotNullWhen(true)] out AudioConfig? audio)
-        => this.assignedCues.TryGetValue(new(cueName, acbName), out audio);
-
-    public record AudioData(nint Buffer, int Size);
-
-    public AudioData GetAudioData(string audioFile)
+    private void RegisterCue(AudioContainer audio)
     {
-        if (this.cachedAudioData.TryGetValue(audioFile, out var existingData))
-        {
-            return existingData;
-        }
-
-        var data = File.ReadAllBytes(audioFile);
-        var buffer = Marshal.AllocHGlobal(data.Length);
-        Marshal.Copy(data, 0, buffer, data.Length);
-        this.cachedAudioData[audioFile] = new(buffer, data.Length);
-
-        Log.Debug($"Loading audio: {audioFile}");
-        return this.cachedAudioData[audioFile];
+        var cue = new Cue(audio.CueName, audio.AcbName);
+        this.cues[cue] = audio;
     }
+
+    public bool TryGetAudio(string cueName, string acbName, [NotNullWhen(true)] out AudioContainer? audio)
+        => this.cues.TryGetValue(new(cueName, acbName), out audio);
 
     public void PreloadAudio()
     {
-        foreach (var cue in this.assignedCues)
+        var allFiles = this.cues.Values.Select(x => x.GetContainerFiles()).SelectMany(x => x).ToArray();
+        foreach (var file in allFiles)
         {
-            this.GetAudioData(cue.Value.AudioFile);
+            AudioCache.GetAudioData(file);
         }
     }
 
-    private AudioConfig GetAudioConfig(string file, UserAudioConfig? folderConfig = null)
+    private static AudioContainer CreateContainerFromFile(string file, AudioConfig preConfig)
     {
-        var config = GameDefaults.CreateDefaultConfig(this.game);
-        if (folderConfig != null)
-        {
-            ApplyUserConfig(config, folderConfig);
-        }
+        var currentConfig = preConfig.Clone();
 
         // Load file config.
         var configFile = Path.ChangeExtension(file, ".yaml");
-        if (File.Exists(configFile))
+        if (File.Exists(configFile) && ParseConfigFile(configFile) is AudioConfig fileConfig)
         {
-            var fileConfig = this.GetUserConfig(configFile);
-            ApplyUserConfig(config, fileConfig);
+            ApplyUserConfig(currentConfig, fileConfig);
         }
 
-        // Use file name for cue data if none set.
-        if (string.IsNullOrEmpty(config.CueName))
+        // Use file name for cue name if none set.
+        if (string.IsNullOrEmpty(currentConfig.CueName))
         {
-            config.CueName = GetCueName(file);
+            currentConfig.CueName = GetCueName(file);
         }
 
-        config.AudioFile = file;
-        config.Format = GetAudioFormat(file);
-        return config;
+        // Get format from ext.
+        currentConfig.Format = GetAudioFormat(file);
+
+        // Create container and add file.
+        var audioContainer = new AudioContainer(currentConfig);
+        audioContainer.AddFile(file);
+
+        return audioContainer;
     }
 
-    private UserAudioConfig? GetUserConfig(string configFile)
+    private static AudioConfig? ParseConfigFile(string configFile)
     {
         try
         {
             Log.Debug($"Loading user config: {configFile}");
-            var config = YamlSerializer.DeserializeFile<UserAudioConfig>(configFile);
+            var config = YamlSerializer.DeserializeFile<AudioConfig>(configFile);
             return config;
         }
         catch (Exception ex)
@@ -132,17 +165,22 @@ internal class AudioRegistry
         }
     }
 
-    private static void ApplyUserConfig(AudioConfig config, UserAudioConfig? userConfig)
+    /// <summary>
+    /// Applies defined settings in <paramref name="newConfig"/> to <paramref name="mainConfig"/>.
+    /// </summary>
+    /// <param name="mainConfig">Config to apply new settings to.</param>
+    /// <param name="newConfig">Config containing the settings to apply.</param>
+    private static void ApplyUserConfig(AudioConfig mainConfig, AudioConfig newConfig)
     {
-        config.CueName = userConfig?.CueName ?? config.CueName;
-        config.AcbName = userConfig?.AcbName ?? config.AcbName;
-        config.PlayerId = userConfig?.PlayerId ?? config.PlayerId;
-        config.CategoryIds = userConfig?.CategoryIds ?? config.CategoryIds;
-        config.NumChannels = userConfig?.NumChannels ?? config.NumChannels;
-        config.SampleRate = userConfig?.SampleRate ?? config.SampleRate;
-        config.Volume = userConfig?.Volume ?? config.Volume;
-        config.Tags = userConfig?.Tags ?? config.Tags;
-        config.Key = userConfig?.Key ?? config.Key;
+        mainConfig.CueName = newConfig.CueName ?? mainConfig.CueName;
+        mainConfig.AcbName = newConfig.AcbName ?? mainConfig.AcbName;
+        mainConfig.PlayerId = newConfig.PlayerId ?? mainConfig.PlayerId;
+        mainConfig.CategoryIds = newConfig.CategoryIds ?? mainConfig.CategoryIds;
+        mainConfig.NumChannels = newConfig.NumChannels ?? mainConfig.NumChannels;
+        mainConfig.SampleRate = newConfig.SampleRate ?? mainConfig.SampleRate;
+        mainConfig.Volume = newConfig.Volume ?? mainConfig.Volume;
+        mainConfig.Tags = newConfig.Tags ?? mainConfig.Tags;
+        mainConfig.Key = newConfig.Key ?? mainConfig.Key;
     }
 
     private static CriAtomFormat GetAudioFormat(string file)
@@ -164,10 +202,10 @@ internal class AudioRegistry
         return Path.GetFileNameWithoutExtension(file);
     }
 
-    private static void PrintUserConfig(UserAudioConfig config)
+    private static void PrintUserConfig(AudioConfig config)
     {
         var categories = (config.CategoryIds != null) ? string.Join(',', config.CategoryIds.Select(x => x.ToString())) : "Not Set";
-        Log.Debug(
+        Log.Verbose(
             $"User Config\n" +
             $"Cue Name: {config.CueName ?? "Not Set"}\n" +
             $"ACB Name: {config.AcbName ?? "Not Set"}\n" +

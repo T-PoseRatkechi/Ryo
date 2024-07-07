@@ -71,7 +71,7 @@ public class Mod : ModBase, IExports
         this.criMana = new(scans!, this.game);
 
         this.audioRegistry = new(this.game, this.preprocessor);
-        this.audioService = new(scans!, this.criAtomEx, this.audioRegistry, GameDefaults.CreateDefaultConfig(game));
+        this.audioService = new(scans!, this.criAtomEx, this.audioRegistry);
 
         this.movieRegistry = new();
         this.movieService = new(scans!, this.criMana, this.movieRegistry);
