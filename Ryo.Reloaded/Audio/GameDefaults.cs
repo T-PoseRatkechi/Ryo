@@ -5,9 +5,9 @@ namespace Ryo.Reloaded.Audio;
 
 internal static class GameDefaults
 {
-    private static readonly Dictionary<string, Func<AudioConfig>> defaults = new(StringComparer.OrdinalIgnoreCase)
+    private static readonly Dictionary<string, AudioConfig> defaults = new(StringComparer.OrdinalIgnoreCase)
     {
-        ["p3r"] = () => new()
+        ["p3r"] = new()
         {
             AcbName = "bgm",
             Format = CriAtomFormat.HCA,
@@ -17,7 +17,7 @@ internal static class GameDefaults
             PlayerId = 0,
             Volume = 0.15f,
         },
-        ["SMT5V-Win64-Shipping"] = () => new()
+        ["SMT5V-Win64-Shipping"] = new()
         {
             AcbName = "bgm",
             Format = CriAtomFormat.HCA,
@@ -33,7 +33,7 @@ internal static class GameDefaults
     {
         if (defaults.TryGetValue(game, out var defaultConfig))
         {
-            return defaultConfig();
+            return defaultConfig.Clone();
         }
 
         return new();
