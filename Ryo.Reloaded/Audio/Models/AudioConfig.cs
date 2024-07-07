@@ -2,27 +2,30 @@
 
 namespace Ryo.Reloaded.Audio.Models;
 
+/// <summary>
+/// User defined audio settings.
+/// </summary>
 internal class AudioConfig
 {
-    public string CueName { get; set; } = string.Empty;
+    public string? CueName { get; set; }
 
-    public string AcbName { get; set; } = string.Empty;
+    public string? AcbName { get; set; }
 
-    public int SampleRate { get; set; } = 44100;
+    public int? SampleRate { get; set; }
 
-    public CriAtomFormat Format { get; set; } = CriAtomFormat.HCA;
+    public CriAtomFormat? Format { get; set; }
 
-    public int NumChannels { get; set; } = 2;
+    public int? NumChannels { get; set; }
 
-    public int PlayerId { get; set; } = -1;
+    public int? PlayerId { get; set; }
 
-    public int[] CategoryIds { get; set; } = Array.Empty<int>();
+    public int[]? CategoryIds { get; set; }
 
-    public string AudioFile { get; set; } = string.Empty;
-
-    public float Volume { get; set; } = -1f;
+    public float? Volume { get; set; }
 
     public string? Key { get; set; }
 
-    public string[] Tags { get; set; } = Array.Empty<string>();
+    public string[]? Tags { get; set; }
+
+    public AudioConfig Clone() => (AudioConfig)this.MemberwiseClone();
 }
