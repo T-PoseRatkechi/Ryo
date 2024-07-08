@@ -109,7 +109,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
             });
 
         ScanHooks.Add(
-            nameof(criAtomExAcb_LoadAcbFile),
+            nameof(criAtomExAcb_LoadAcbData),
             this.patterns.criAtomExAcb_LoadAcbData,
             (hooks, result) => this.loadAcbDataHook = hooks.CreateHook<criAtomExAcb_LoadAcbData>(this.Acb_LoadAcbData, result).Activate());
 
