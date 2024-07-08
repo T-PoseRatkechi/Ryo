@@ -19,7 +19,7 @@ internal static class AcbRegistry
     /// Get the name associated with the ACB handle.
     /// </summary>
     /// <param name="acbHn">ACB handle.</param>
-    /// <returns>ACB name, either the cue sheet name or file.</returns>
+    /// <returns>ACB name of the given handle.</returns>
     public static string? GetAcbName(nint acbHn)
     {
         if (acbs.TryGetValue(acbHn, out var acbName))

@@ -1,5 +1,4 @@
 ﻿using Ryo.Definitions.Classes;
-using Ryo.Reloaded.Audio.Models;
 using Ryo.Reloaded.CRI.CriAtomEx;
 using SharedScans.Interfaces;
 using System.Runtime.InteropServices;
@@ -12,11 +11,14 @@ internal unsafe class AudioService
     private readonly CriAtomEx criAtomEx;
     private readonly AudioRegistry audioRegistry;
 
-    private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
-    private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
     private bool devMode;
+    private readonly bool useSetFile;
+    private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
+    private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
+    private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
 
     public AudioService(
+        string game,
         ISharedScans scans,
         CriAtomEx criAtomEx,
         AudioRegistry audioRegistry)
@@ -24,24 +26,36 @@ internal unsafe class AudioService
         this.criAtomEx = criAtomEx;
         this.audioRegistry = audioRegistry;
 
+        GameDefaults.ConfigureCriAtom(game, criAtomEx);
+        var patterns = CriAtomExGames.GetGamePatterns(game);
+        if (patterns.criAtomExPlayer_SetFile != null)
+        {
+            Log.Debug($"New audio uses: {nameof(criAtomExPlayer_SetFile)}");
+            this.useSetFile = true;
+        }
+        else
+        {
+            Log.Debug($"New audio uses: {nameof(criAtomExPlayer_SetData)}");
+        }
+
         this.setCueName = scans.CreateHook<criAtomExPlayer_SetCueName>(this.CriAtomExPlayer_SetCueName, Mod.NAME);
+        this.setCueId = scans.CreateHook<criAtomExPlayer_SetCueId>(this.CriAtomExPlayer_SetCueId, Mod.NAME);
     }
 
     public void SetDevMode(bool devMode)
         => this.devMode = devMode;
 
-    private void CriAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueName)
+    private bool SetRyoAudio(nint playerHn, nint acbHn, string cueName)
     {
         var player = this.criAtomEx.GetPlayerByHn(playerHn)!;
-        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName)!;
-        var acbName = AcbRegistry.GetAcbName(acbHn) ?? "Unknown ACB";
+        var acbName = AcbRegistry.GetAcbName(acbHn) ?? "Unknown";
 
         if (this.devMode)
         {
-            Log.Information($"{nameof(CriAtomExPlayer_SetCueName)} || Cue: {cueNameStr} || ACB: {acbName}");
+            Log.Information($"SetCue || ACB: {acbName} || Cue: {cueName}");
         }
 
-        if (this.audioRegistry.TryGetAudio(cueNameStr, acbName, out var audio))
+        if (this.audioRegistry.TryGetAudio(cueName, acbName, out var audio))
         {
             var manualStart = false;
             if (audio.PlayerId != -1
@@ -53,8 +67,17 @@ internal unsafe class AudioService
             }
 
             var audioFile = audio.GetAudioFile();
-            var audioData = AudioCache.GetAudioData(audioFile);
-            this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
+
+            if (this.useSetFile)
+            {
+                this.criAtomEx.Player_SetFile(player.PlayerHn, IntPtr.Zero, (byte*)StringsCache.GetStringPtr(audioFile));
+            }
+            else
+            {
+                var audioData = AudioCache.GetAudioData(audioFile);
+                this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
+            }
+
             this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
             this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
             this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
@@ -81,12 +104,31 @@ internal unsafe class AudioService
                 Log.Debug($"Manually started player with ID: {player.Id}");
             }
 
-            Log.Debug($"Redirected Cue Name: {cueNameStr}\nFile: {audioFile}");
+            Log.Debug($"Redirected Cue: {cueName} / {acbName}\nFile: {audioFile}");
+            return true;
         }
         else
         {
             this.ResetPlayerVolume(playerHn);
+            return false;
+        }
+    }
+
+    private void CriAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueName)
+    {
+        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName)!;
+
+        if (this.SetRyoAudio(playerHn, acbHn, cueNameStr) == false)
+        {
             this.setCueName.Hook!.OriginalFunction(playerHn, acbHn, cueName);
+        }
+    }
+
+    private void CriAtomExPlayer_SetCueId(nint playerHn, nint acbHn, int cueId)
+    {
+        if (this.SetRyoAudio(playerHn, acbHn, cueId.ToString()) == false)
+        {
+            this.setCueId.Hook!.OriginalFunction(playerHn, acbHn, cueId);
         }
     }
 

@@ -1,5 +1,5 @@
-﻿using Ryo.Definitions.Enums;
-using Ryo.Reloaded.Audio.Models;
+﻿using Ryo.Reloaded.Audio.Models;
+using Ryo.Reloaded.CRI.CriAtomEx;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -7,12 +7,14 @@ internal static class GameDefaults
 {
     private static readonly Dictionary<string, AudioConfig> defaults = new(StringComparer.OrdinalIgnoreCase)
     {
+        ["p5r"] = new()
+        {
+            AcbName = "bgm",
+            CategoryIds = new int[] { 1, 8 },
+        },
         ["p3r"] = new()
         {
             AcbName = "bgm",
-            Format = CriAtomFormat.HCA,
-            NumChannels = 2,
-            SampleRate = 44100,
             CategoryIds = new int[] { 0, 13 },
             PlayerId = 0,
             Volume = 0.15f,
@@ -20,11 +22,7 @@ internal static class GameDefaults
         ["SMT5V-Win64-Shipping"] = new()
         {
             AcbName = "bgm",
-            Format = CriAtomFormat.HCA,
-            NumChannels = 2,
-            SampleRate = 44100,
             CategoryIds = new int[] { 0, 4, 9, 40, 24, 11, 43, 51 },
-            PlayerId = -1,
             Volume = 0.35f,
         },
     };
@@ -37,5 +35,23 @@ internal static class GameDefaults
         }
 
         return new();
+    }
+
+    public static void ConfigureCriAtom(string game, CriAtomEx criAtomEx)
+    {
+        var normalizedGame = game.ToLower();
+        switch (normalizedGame)
+        {
+            case "p5r":
+                criAtomEx.SetPlayerConfigById(255, new()
+                {
+                    maxPathStrings = 2,
+                    maxPath = 256,
+                    enableAudioSyncedTimer = true,
+                    updatesTime = true,
+                });
+                break;
+            default: break;
+        }
     }
 }

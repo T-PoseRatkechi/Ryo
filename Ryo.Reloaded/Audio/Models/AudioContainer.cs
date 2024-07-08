@@ -35,7 +35,7 @@ internal class AudioContainer
     public void AddFile(string filePath)
     {
         this.files.Add(filePath);
-        Log.Information($"Audio: {this.CueName} / {this.AcbName}\nFile added: {filePath}");
+        Log.Information($"Cue: {this.CueName} / {this.AcbName}\nFile added: {filePath}");
     }
 
     public string GetAudioFile()
@@ -43,7 +43,7 @@ internal class AudioContainer
         if (this.files.Count > 1)
         {
             var randomIndex = Random.Shared.Next(0, this.files.Count);
-            Log.Debug($"Audio: {this.CueName} / {this.AcbName} || Random Index: {randomIndex} || Total Files: {this.files.Count}");
+            Log.Debug($"Cue: {this.CueName} / {this.AcbName} || Random Index: {randomIndex} || Total Files: {this.files.Count}");
             return this.files[randomIndex];
         }
         else if (this.files.Count == 1)
