@@ -1,4 +1,7 @@
-﻿namespace Ryo.Reloaded.Audio;
+﻿using Ryo.Definitions.Structs;
+using System.Runtime.InteropServices;
+
+namespace Ryo.Reloaded.Audio;
 
 internal static class AcbRegistry
 {
@@ -13,6 +16,18 @@ internal static class AcbRegistry
     {
         acbs[acbHn] = acbName;
         Log.Debug($"Registered ACB: {acbName} || ACB Hn: {acbHn:X}");
+    }
+
+    /// <summary>
+    /// Register an ACB with its ACB handle.
+    /// </summary>
+    /// <param name="acbName">The name to associate the handle with, either cue sheet name or file.</param>
+    /// <param name="acbHn">ACB handle.</param>
+    public unsafe static void Register(AcbHn* acbHn)
+    {
+        var acbName = acbHn->GetAcbName();
+        acbs[(nint)acbHn] = acbName;
+        Log.Debug($"Registered ACB: {acbName} || ACB Hn: {(nint)acbHn:X}");
     }
 
     /// <summary>

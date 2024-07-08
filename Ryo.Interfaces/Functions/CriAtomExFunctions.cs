@@ -13,6 +13,9 @@ public unsafe static class CriAtomExFunctions
     public delegate nint criAtomExAcb_LoadAcbFile(nint acbBinder, byte* acbPathStr, nint awbBinder, byte* awbPathStr, void* work, int workSize);
 
     [Function(CallingConventions.Microsoft)]
+    public delegate nint criAtomExAcb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize);
+
+    [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetCueId(nint playerHn, nint acbHn, int cueId);
 
     [Function(CallingConventions.Microsoft)]

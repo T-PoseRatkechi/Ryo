@@ -22,3 +22,23 @@ public struct CriAtomExPlayerConfigTag
     public bool updatesTime;
     public bool enableAudioSyncedTimer;
 }
+
+[StructLayout(LayoutKind.Explicit)]
+public unsafe struct AcbHn
+{
+    [FieldOffset(0x10)]
+    public AcbObj* acb;
+
+    public readonly string GetAcbName()
+    {
+        var acbName = Marshal.PtrToStringAnsi(acb->name)!;
+        return acbName;
+    }
+}
+
+[StructLayout(LayoutKind.Explicit)]
+public unsafe struct AcbObj
+{
+    [FieldOffset(0x98)]
+    public nint name;
+}

@@ -42,6 +42,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private bool devMode;
     private IHook<criAtomExPlayer_Create>? createHook;
     private IHook<criAtomExAcb_LoadAcbFile>? loadAcbFileHook;
+    private IHook<criAtomExAcb_LoadAcbData>? loadAcbDataHook;
 
     // Private.
     private criAtomExCategory_SetVolumeById? setVolumeById;
@@ -106,6 +107,11 @@ internal unsafe class CriAtomEx : ICriAtomEx
                 this.loadAcbFile = hooks.CreateFunction<criAtomExAcb_LoadAcbFile>(result);
                 this.loadAcbFileHook = this.loadAcbFile.Hook(this.Acb_LoadAcbFile).Activate();
             });
+
+        ScanHooks.Add(
+            nameof(criAtomExAcb_LoadAcbFile),
+            this.patterns.criAtomExAcb_LoadAcbData,
+            (hooks, result) => this.loadAcbDataHook = hooks.CreateHook<criAtomExAcb_LoadAcbData>(this.Acb_LoadAcbData, result).Activate());
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetStartTime),
@@ -203,6 +209,13 @@ internal unsafe class CriAtomEx : ICriAtomEx
             (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
     }
 
+    private nint Acb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize)
+    {
+        var acbHn = (AcbHn*)this.loadAcbDataHook!.OriginalFunction(acbData, acbDataSize, awbBinder, awbPath, work, workSize);
+        AcbRegistry.Register(acbHn);
+        return (nint)acbHn;
+    }
+
     public void SetDevMode(bool devMode)
         => this.devMode = devMode;
 
@@ -244,6 +257,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         if (acb != null)
         {
             player.Acb = new() { AcbHn = acbHn, AcbPath = acb};
+            Log.Debug($"Player ID: {player.Id}");
         }
         else
         {
@@ -357,15 +371,12 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
     private nint Acb_LoadAcbFile(nint acbBinder, byte* acbPathStr, nint awbBinder, byte* awbPathStr, void* work, int workSize)
     {
-        var acbHn = this.loadAcbFileHook!.OriginalFunction(acbBinder, acbPathStr, awbBinder, awbPathStr, work, workSize);
+        var acbHn = (AcbHn*)this.loadAcbFileHook!.OriginalFunction(acbBinder, acbPathStr, awbBinder, awbPathStr, work, workSize);
         var acbPath = Marshal.PtrToStringAnsi((nint)acbPathStr)!;
 
-        // *Technically*, the ACB file name can be different than its actual name.
-        // But that's the default when creating them, so it's probably fine...
-        var acbName = Path.GetFileNameWithoutExtension(acbPath);
-        AcbRegistry.Register(acbName, acbHn);
+        AcbRegistry.Register(acbHn);
 
-        Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Name: {acbName} || Hn: {acbHn:X} ");
-        return acbHn;
+        Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Hn: {(nint)acbHn:X}");
+        return (nint)acbHn;
     }
 }

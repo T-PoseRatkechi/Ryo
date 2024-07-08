@@ -12,6 +12,12 @@ internal static class GameDefaults
             AcbName = "bgm",
             CategoryIds = new int[] { 1, 8 },
         },
+        ["p4g"] = new()
+        {
+            AcbName = "snd00_bgm",
+            CategoryIds = new int[] { 6, 13 },
+            Volume = 0.4f,
+        },
         ["p3r"] = new()
         {
             AcbName = "bgm",
@@ -44,6 +50,15 @@ internal static class GameDefaults
         {
             case "p5r":
                 criAtomEx.SetPlayerConfigById(255, new()
+                {
+                    maxPathStrings = 2,
+                    maxPath = 256,
+                    enableAudioSyncedTimer = true,
+                    updatesTime = true,
+                });
+                break;
+            case "p4g":
+                criAtomEx.SetPlayerConfigById(0, new()
                 {
                     maxPathStrings = 2,
                     maxPath = 256,
