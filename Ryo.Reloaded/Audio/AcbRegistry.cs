@@ -1,5 +1,4 @@
 ﻿using Ryo.Definitions.Structs;
-using System.Runtime.InteropServices;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -48,10 +47,10 @@ internal static class AcbRegistry
 
     public static nint GetAcbHn(string acbName)
     {
-        if (acbs.ContainsValue(acbName))
+        var existingAcb = acbs.Values.FirstOrDefault(x => x.Equals(acbName, StringComparison.OrdinalIgnoreCase));
+        if (existingAcb != null)
         {
-            var acb = acbs.First(x => x.Value == acbName);
-            return acb.Key;
+            return acbs.First(x => x.Value == existingAcb).Key;
         }
 
         Log.Warning($"Unknown ACB: {acbName}");
