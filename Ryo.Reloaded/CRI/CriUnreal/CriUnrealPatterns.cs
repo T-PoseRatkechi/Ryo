@@ -21,7 +21,7 @@ internal static class CriUnrealGames
     };
 
     public static CriUnrealPatterns GetGamePatterns(string game)
-        => patterns.First(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase));
+        => patterns.FirstOrDefault(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase)) ?? new();
 }
 
 internal class CriUnrealPatterns

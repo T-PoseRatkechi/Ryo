@@ -15,7 +15,7 @@ internal static class CriManaGames
     };
 
     public static CriManaPatterns GetGamePatterns(string game)
-        => patterns.First(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase));
+        => patterns.FirstOrDefault(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase)) ?? new();
 }
 
 internal class CriManaPatterns

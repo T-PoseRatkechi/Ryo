@@ -17,7 +17,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
     private readonly Dictionary<int, CriAtomExPlayerConfigTag> playerConfigs = new();
     private readonly List<PlayerConfig> players = new();
-    private readonly List<AcbConfig> acbs = new();
 
     private IFunction<criAtomExPlayer_Create>? create;
     private IFunction<criAtomExPlayer_SetStartTime>? setStartTime;
@@ -61,7 +60,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         this.game = game;
         this.patterns = CriAtomExGames.GetGamePatterns(game);
 
-        scans.AddScan<criAtomExPlayer_SetCueId>(this.patterns.CriAtomExPlayer_SetCueId);
+        scans.AddScan<criAtomExPlayer_SetCueId>(this.patterns.criAtomExPlayer_SetCueId);
         this.setCueId = scans.CreateHook<criAtomExPlayer_SetCueId>(this.Player_SetCueId, Mod.NAME);
 
         scans.AddScan<criAtomExPlayer_SetCueName>(this.patterns.criAtomExPlayer_SetCueName);
@@ -101,7 +100,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         ScanHooks.Add(
             nameof(criAtomExAcb_LoadAcbFile),
-            this.patterns.CriAtomExAcb_LoadAcbFile,
+            this.patterns.criAtomExAcb_LoadAcbFile,
             (hooks, result) =>
             {
                 this.loadAcbFile = hooks.CreateFunction<criAtomExAcb_LoadAcbFile>(result);
@@ -110,7 +109,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetStartTime),
-            this.patterns.CriAtomExPlayer_SetStartTime,
+            this.patterns.criAtomExPlayer_SetStartTime,
             (hooks, result) => this.setStartTime = hooks.CreateFunction<criAtomExPlayer_SetStartTime>(result));
 
         ScanHooks.Add(
@@ -120,12 +119,12 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_GetNumPlayedSamples),
-            this.patterns.CriAtomExPlayer_GetNumPlayedSamples,
+            this.patterns.criAtomExPlayer_GetNumPlayedSamples,
             (hooks, result) => this.getNumPlayedSamples = hooks.CreateFunction<criAtomExPlayer_GetNumPlayedSamples>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetFile),
-            this.patterns.CriAtomExPlayer_SetFile,
+            this.patterns.criAtomExPlayer_SetFile,
             (hooks, result) => this.setFile = hooks.CreateFunction<criAtomExPlayer_SetFile>(result));
 
         ScanHooks.Add(
@@ -160,17 +159,17 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_GetLastPlaybackId),
-            this.patterns.CriAtomExPlayer_GetLastPlaybackId,
+            this.patterns.criAtomExPlayer_GetLastPlaybackId,
             (hooks, result) => this.getLastPlaybackId = hooks.CreateFunction<criAtomExPlayer_GetLastPlaybackId>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_SetCategoryByName),
-            this.patterns.CriAtomExPlayer_SetCategoryByName,
+            this.patterns.criAtomExPlayer_SetCategoryByName,
             (hooks, result) => this.setCategoryByName = hooks.CreateFunction<criAtomExPlayer_SetCategoryByName>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_GetCategoryInfo),
-            this.patterns.CriAtomExPlayer_GetCategoryInfo,
+            this.patterns.criAtomExPlayer_GetCategoryInfo,
             (hooks, result) => this.getCategoryInfo = hooks.CreateFunction<criAtomExPlayer_GetCategoryInfo>(result));
 
         ScanHooks.Add(
@@ -239,11 +238,12 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
         // Update player ACB.
+        // TODO: Check if this code is even necessary.
         var player = this.players.First(x => x.PlayerHn == playerHn);
-        var acb = this.acbs.FirstOrDefault(x => x.AcbHn == acbHn);
+        var acb = AcbRegistry.GetAcbName(acbHn);
         if (acb != null)
         {
-            player.Acb = acb;
+            player.Acb = new() { AcbHn = acbHn, AcbPath = acb};
         }
         else
         {
@@ -360,13 +360,12 @@ internal unsafe class CriAtomEx : ICriAtomEx
         var acbHn = this.loadAcbFileHook!.OriginalFunction(acbBinder, acbPathStr, awbBinder, awbPathStr, work, workSize);
         var acbPath = Marshal.PtrToStringAnsi((nint)acbPathStr)!;
 
-        this.acbs.Add(new()
-        {
-            AcbHn = acbHn,
-            AcbPath = acbPath,
-        });
+        // *Technically*, the ACB file name can be different than its actual name.
+        // But that's the default when creating them, so it's probably fine...
+        var acbName = Path.GetFileNameWithoutExtension(acbPath);
+        AcbRegistry.Register(acbName, acbHn);
 
-        Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)}: {acbPath} || {acbHn:X}");
+        Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Name: {acbName} || Hn: {acbHn:X} ");
         return acbHn;
     }
 }

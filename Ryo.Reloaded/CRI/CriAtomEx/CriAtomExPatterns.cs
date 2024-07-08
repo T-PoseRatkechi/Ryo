@@ -1,6 +1,4 @@
-﻿using static Ryo.Definitions.Functions.CriAtomExFunctions;
-
-namespace Ryo.Reloaded.CRI.CriAtomEx;
+﻿namespace Ryo.Reloaded.CRI.CriAtomEx;
 
 internal static class CriAtomExGames
 {
@@ -35,7 +33,6 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetNumChannels = "48 89 5C 24 ?? 57 48 83 EC 20 89 D7 48 89 CB 48 85 C9 74 ?? 8D 42",
             criAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 89 D7 48 89 CB 48 85 C9 74 ?? 85 D2",
             criAtomExPlayer_SetCueName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 48 8B EA 48 8B D9 48 85 C9",
-            criAtomExPlayer_SetVolume = "48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? 33 D2",
             criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
@@ -43,15 +40,29 @@ internal static class CriAtomExGames
             criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
             criAtomExCategory_SetVolume = "40 53 48 83 EC 30 0F B7 D9",
         },
+        new("p5r")
+        {
+            criAtomExPlayer_Create = "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 45 33 ED",
+            criAtomExPlayer_Start = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C8 FF EB ?? E8 ?? ?? ?? ?? 33 D2",
+            criAtomExPlayer_SetFormat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 48 8D 15",
+            criAtomExPlayer_SetNumChannels = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 8D 42",
+            criAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 85 D2",
+            criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B EA 48 8B F9",
+            criAtomExPlayer_SetCueId = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 63 F8 48 8B F2 48 8B D9",
+            criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
+            criAtomExAcb_LoadAcbFile = "48 8B C4 48 89 58 ?? 48 89 68 ?? 48 89 70 ?? 48 89 78 ?? 41 54 41 56 41 57 48 83 EC 40 49 8B E9",
+
+            criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
+            criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
+        },
     };
 
     public static CriAtomExPatterns GetGamePatterns(string game)
-        => patterns.First(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase));
+        => patterns.FirstOrDefault(x => x.Games.Contains(game, StringComparer.OrdinalIgnoreCase)) ?? new();
 }
 
 internal class CriAtomExPatterns
 {
-#pragma warning disable CS8618 // Non-nullable field must contain a non-null value when exiting constructor. Consider declaring as nullable.
 #pragma warning disable IDE1006 // Naming Styles
     public CriAtomExPatterns(params string[] games)
     {
@@ -60,52 +71,33 @@ internal class CriAtomExPatterns
 
     public string[] Games { get; }
 
-    public string? CriAtomExPlayer_GetNumPlayedSamples { get; init; }
-
-    public string? CriAtomExAcb_LoadAcbFile { get; init; }
-
-    public string? CriAtomExPlayer_SetCueId { get; init; }
-
+    public string? criAtomExPlayer_GetNumPlayedSamples { get; init; }
+    public string? criAtomExAcb_LoadAcbFile { get; init; }
+    public string? criAtomExPlayer_SetCueId { get; init; }
     public string? criAtomExPlayer_Start { get; init; }
-
-    public string? CriAtomExPlayer_SetFile { get; init; }
-
+    public string? criAtomExPlayer_SetFile { get; init; }
     public string? criAtomExPlayer_SetFormat { get; init; }
-
     public string? criAtomExPlayer_SetSamplingRate { get; init; }
-
     public string? criAtomExPlayer_SetNumChannels { get; init; }
-
-    public string criAtomExCategory_GetVolumeById { get; internal set; }
-
+    public string? criAtomExCategory_GetVolumeById { get; init; }
     public string? criAtomExPlayer_SetVolume { get; init; }
-
     public string? criAtomExCategory_SetVolumeById { get; init; }
-
     public string? criAtomExPlayer_SetCategoryById { get; init; }
-
-    public string? CriAtomExPlayer_SetStartTime { get; init; }
-
+    public string? criAtomExPlayer_SetStartTime { get; init; }
     public string? CriAtomExPlayback_GetTimeSyncedWithAudio { get; init; }
-
     public string? criAtomExPlayer_Create { get; init; }
-
-    public string? CriAtomExPlayer_GetLastPlaybackId { get; init; }
-
-    public string? CriAtomExPlayer_SetCategoryByName { get; init; }
-
-    public string? CriAtomExPlayer_GetCategoryInfo { get; init; }
-
+    public string? criAtomExPlayer_GetLastPlaybackId { get; init; }
+    public string? criAtomExPlayer_SetCategoryByName { get; init; }
+    public string? criAtomExPlayer_GetCategoryInfo { get; init; }
     public string? criAtomExPlayer_SetData { get; init; }
-
     public string? criAtomExPlayer_SetCueName { get; init; }
-
     public string? criAtomExPlayer_UpdateAll { get; init; }
-    public string criAtomExPlayer_LimitLoopCount { get; internal set; }
-    public string criAtomExPlayer_GetStatus { get; internal set; }
-    public string criAtomExPlayer_Stop { get; internal set; }
-    public string criAtomExPlayer_SetAisacControlByName { get; internal set; }
-    public string criAtomExCategory_GetVolume { get; internal set; }
-    public string criAtomConfig_GetCategoryIndexById { get; internal set; }
-    public string criAtomExCategory_SetVolume { get; internal set; }
+    public string? criAtomExPlayer_LimitLoopCount { get; init; }
+    public string? criAtomExPlayer_GetStatus { get; init; }
+    public string? criAtomExPlayer_Stop { get; init; }
+    public string? criAtomExPlayer_SetAisacControlByName { get; init; }
+    public string? criAtomExCategory_GetVolume { get; init; }
+    public string? criAtomConfig_GetCategoryIndexById { get; init; }
+    public string? criAtomExCategory_SetVolume { get; init; }
+    public string? criAtomExAcb_ExistsId { get; init; }
 }
