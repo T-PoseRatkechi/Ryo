@@ -1,20 +1,16 @@
-﻿using Ryo.Interfaces.Structs;
+﻿using Ryo.Interfaces.Classes;
+using Ryo.Interfaces.Structs;
 
 namespace Ryo.Interfaces;
 
 public interface IRyoApi
 {
     /// <summary>
-    /// Register audio file.
+    /// Add a path to add audio from.
     /// </summary>
-    /// <param name="file">File path.</param>
-    void AddAudioFile(string file);
-
-    /// <summary>
-    /// Add folder to register audio from.
-    /// </summary>
-    /// <param name="dir">Folder path.</param>
-    void AddAudioFolder(string dir);
+    /// <param name="path">Audio path, file or folder.</param>
+    /// <param name="config">Audio config to apply, if any.</param>
+    void AddAudioPath(string path, AudioConfig? config);
 
     /// <summary>
     /// Add an audio preprocessor.
@@ -40,4 +36,18 @@ public interface IRyoApi
     /// Utility functions.
     /// </summary>
     IRyoUtils Utilities { get; }
+
+    /// <summary>
+    /// Register audio file.
+    /// </summary>
+    /// <param name="file">File path.</param>
+    [Obsolete("Use AddAudioPath(string path, AudioConfig? config)")]
+    void AddAudioFile(string file);
+
+    /// <summary>
+    /// Add folder to register audio from.
+    /// </summary>
+    /// <param name="dir">Folder path.</param>
+    [Obsolete("Use AddAudioPath(string path, AudioConfig? config)")]
+    void AddAudioFolder(string dir);
 }
