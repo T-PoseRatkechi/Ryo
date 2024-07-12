@@ -10,7 +10,7 @@ internal class AudioPreprocessor
     public void AddPreprocessor(string name, Func<AudioInfo, AudioInfo> func)
         => this.preprocessors.Add(new(name, func));
 
-    public void Preprocess(AudioContainer audio)
+    public void Preprocess(CueContainer audio)
     {
         // TODO: Rethink where preprocessing is handled since
         // audio containers should be immutable.

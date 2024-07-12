@@ -55,45 +55,45 @@ internal unsafe class AudioService
             Log.Information($"SetCue || Player: {player.Id} || ACB: {acbName} || Cue: {cueName}");
         }
 
-        if (this.audioRegistry.TryGetAudio(cueName, acbName, out var audio))
+        if (this.audioRegistry.TryGetCue(cueName, acbName, out var cue))
         {
             var manualStart = false;
-            if (audio.PlayerId != -1
-                && player.Id != audio.PlayerId
-                && this.criAtomEx.GetPlayerById(audio.PlayerId) is PlayerConfig newPlayer)
+            if (cue.PlayerId != -1
+                && player.Id != cue.PlayerId
+                && this.criAtomEx.GetPlayerById(cue.PlayerId) is PlayerConfig newPlayer)
             {
                 player = newPlayer;
                 manualStart = true;
             }
 
-            var audioFile = audio.GetAudioFile();
+            var newAudio = cue.GetAudio();
 
             if (this.useSetFile)
             {
-                this.criAtomEx.Player_SetFile(player.PlayerHn, IntPtr.Zero, (byte*)StringsCache.GetStringPtr(audioFile));
+                this.criAtomEx.Player_SetFile(player.PlayerHn, IntPtr.Zero, (byte*)StringsCache.GetStringPtr(newAudio.FilePath));
             }
             else
             {
-                var audioData = AudioCache.GetAudioData(audioFile);
+                var audioData = AudioCache.GetAudioData(newAudio.FilePath);
                 this.criAtomEx.Player_SetData(player.PlayerHn, (byte*)audioData.Buffer, audioData.Size);
             }
 
-            this.criAtomEx.Player_SetFormat(player.PlayerHn, audio.Format);
-            this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, audio.SampleRate);
-            this.criAtomEx.Player_SetNumChannels(player.PlayerHn, audio.NumChannels);
+            this.criAtomEx.Player_SetFormat(player.PlayerHn, newAudio.Format);
+            this.criAtomEx.Player_SetSamplingRate(player.PlayerHn, newAudio.SampleRate);
+            this.criAtomEx.Player_SetNumChannels(player.PlayerHn, newAudio.NumChannels);
 
             // Use first category for setting custom volume.
-            int volumeCategory = audio.CategoryIds.Length > 0 ? audio.CategoryIds[0] : -1;
-            if (volumeCategory > -1 && audio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
+            int volumeCategory = cue.CategoryIds.Length > 0 ? cue.CategoryIds[0] : -1;
+            if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(player.PlayerHn))
             {
                 var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
                 this.modifiedCategories[player.PlayerHn] = new CategoryVolume(player.Id, volumeCategory, currentVolume);
-                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
-                Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {audio.Volume}");
+                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, newAudio.Volume);
+                Log.Debug($"Modified volume. Player ID: {player.Id} || Category ID: {volumeCategory} || Volume: {newAudio.Volume}");
             }
 
             // Apply categories.
-            foreach (var id in audio.CategoryIds)
+            foreach (var id in cue.CategoryIds)
             {
                 this.criAtomEx.Player_SetCategoryById(player.PlayerHn, (uint)id);
             }
@@ -104,7 +104,7 @@ internal unsafe class AudioService
                 Log.Debug($"Manually started player with ID: {player.Id}");
             }
 
-            Log.Debug($"Redirected Cue: {cueName} / {acbName}\nFile: {audioFile}");
+            Log.Debug($"Redirected Cue: {cueName} / {acbName}\nFile: {newAudio.FilePath}");
             return true;
         }
         else

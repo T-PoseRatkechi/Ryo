@@ -1,4 +1,4 @@
-﻿using Ryo.Reloaded.Audio.Models;
+﻿using Ryo.Interfaces.Classes;
 using Ryo.Reloaded.CRI.CriAtomEx;
 
 namespace Ryo.Reloaded.Audio;

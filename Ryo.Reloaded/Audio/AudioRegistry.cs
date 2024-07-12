@@ -2,35 +2,104 @@
 using Ryo.Reloaded.Audio.Models;
 using Ryo.Definitions.Enums;
 using Ryo.Reloaded.Common;
+using Ryo.Interfaces.Classes;
 
 namespace Ryo.Reloaded.Audio;
 
 internal class AudioRegistry
 {
-    private readonly string game;
     private readonly AudioConfig defaultConfig;
     private readonly AudioPreprocessor preprocessor;
-    private readonly Dictionary<Cue, AudioContainer> cues = new(CueComparer.Instance);
+    private readonly Dictionary<CueKey, CueContainer> cues = new(CueComparer.Instance);
 
     public AudioRegistry(string game, AudioPreprocessor preprocessor)
     {
-        this.game = game;
         this.defaultConfig = GameDefaults.CreateDefaultConfig(game);
         this.preprocessor = preprocessor;
     }
+
+    public void AddAudioPath(string path, AudioConfig? config)
+    {
+        if (Directory.Exists(path))
+        {
+            this.AddAudioFolder(path, config);
+        }
+        else if (File.Exists(path))
+        {
+            this.AddAudioFile(path, config);
+        }
+        else
+        {
+            Log.Error($"Audio path was not found.\nPath: {path}");
+        }
+    }
+
+    public void AddAudioFile(string file, AudioConfig? preConfig)
+    {
+        // Start with the game default config.
+        var config = this.defaultConfig.Clone();
+
+        // Apply config settings from arg.
+        if (preConfig != null)
+        {
+            ApplyUserConfig(config, preConfig);
+        }
+
+        // Apply config settings from file config.
+        var configFile = Path.ChangeExtension(file, ".yaml");
+        if (File.Exists(configFile) && ParseConfigFile(configFile) is AudioConfig fileConfig)
+        {
+            ApplyUserConfig(config, fileConfig);
+        }
+
+        // Use file name for cue name if none set.
+        if (string.IsNullOrEmpty(config.CueName))
+        {
+            config.CueName = GetCueName(file);
+        }
+
+        // Get format from ext.
+        config.Format = GetAudioFormat(file);
+
+        // Create cue container.
+        var cue = new CueContainer(config.CueName, config.AcbName!, config);
+        var cueKey = new CueKey(cue.CueName, cue.AcbName);
+
+        // Use pre-existing cue container if shared ID is set and exists.
+        if (config.SharedContainerId != null)
+        {
+            if (this.cues.TryGetValue(cueKey, out var existingCue)
+                && existingCue.SharedContainerId?.Equals(config.SharedContainerId, StringComparison.OrdinalIgnoreCase) == true)
+            {
+                cue = existingCue;
+            }
+        }
+
+        var audio = new AudioContainer(file, config);
+        cue.AddAudio(audio);
+
+        // TODO: Rework audio preprocessing.
+        //this.preprocessor.Preprocess(audio);
+
+        // Register cue.
+        this.cues[cueKey] = cue;
+    }
+
+    public void AddAudioFile(string file)
+        => this.AddAudioFile(file, null);
 
     public void AddAudioFolder(string dir, AudioConfig? preConfig = null)
     {
         Log.Information($"Adding folder: {dir}");
 
         // Audio config for folder items.
-        var currentConfig = preConfig?.Clone() ?? this.defaultConfig.Clone();
+        var config = preConfig?.Clone() ?? new();
 
         // Apply config from a folder config file.
         var dirConfigFile = Path.Join(dir, "config.yaml");
         if (File.Exists(dirConfigFile) && ParseConfigFile(dirConfigFile) is AudioConfig dirConfig)
         {
-            ApplyUserConfig(currentConfig, dirConfig);
+            ApplyUserConfig(config, dirConfig);
         }
 
         // Folder sets the ACB name for items.
@@ -38,7 +107,7 @@ internal class AudioRegistry
         var folderName = Path.GetFileName(dir);
         if (folderName.EndsWith(".acb", StringComparison.OrdinalIgnoreCase))
         {
-            currentConfig.AcbName = Path.GetFileNameWithoutExtension(folderName);
+            config.AcbName = Path.GetFileNameWithoutExtension(folderName);
         }
 
         // Folder is a Cue Folder, all audio files get added to the same
@@ -46,73 +115,29 @@ internal class AudioRegistry
         else if (folderName.EndsWith(".cue", StringComparison.OrdinalIgnoreCase))
         {
             // Set cue name.
-            currentConfig.CueName = Path.GetFileNameWithoutExtension(folderName);
+            config.CueName = Path.GetFileNameWithoutExtension(folderName);
 
-            // Create new audio container.
-            var cueAudio = new AudioContainer(currentConfig);
-
-            // Add all audio files (hca/adx) in folder to container.
-            // TODO: Create general function to handle adding files appropriately
-            //       to audio containers.
-            foreach (var file in Directory.EnumerateFiles(dir))
-            {
-                var ext = Path.GetExtension(file).ToLower();
-                if (ext == ".hca" || ext == ".adx")
-                {
-                    cueAudio.AddFile(file);
-                }
-            }
-
-            this.RegisterCue(cueAudio);
-            return;
+            // Set shared container ID.
+            config.SharedContainerId = folderName;
         }
 
-        PrintUserConfig(currentConfig);
-
-        // Folder is a normal folder.
-
-        // For files in normal folders, match existing Ryo
-        // functionality.
-
-        // Files in normal folders create audio containers
-        // per file.
         foreach (var file in Directory.EnumerateFiles(dir))
         {
             var ext = Path.GetExtension(file).ToLower();
             if (ext == ".hca" || ext == ".adx")
             {
-                this.AddAudioFile(file, currentConfig);
+                this.AddAudioFile(file, config);
             }
         }
 
         foreach (var folder in Directory.EnumerateDirectories(dir))
         {
-            this.AddAudioFolder(folder, currentConfig);
+            this.AddAudioFolder(folder, config);
         }
     }
 
-    public void AddAudioFile(string file)
-        => this.AddAudioFile(file, this.defaultConfig.Clone());
-
-    public void AddAudioFile(string file, AudioConfig preConfig)
-    {
-        var audio = CreateContainerFromFile(file, preConfig);
-        if (string.IsNullOrEmpty(audio.CueName) || string.IsNullOrEmpty(audio.AcbName)) throw new Exception("Missing cue or ACB name.");
-
-        // TODO: Rework audio preprocessing.
-        //this.preprocessor.Preprocess(audio);
-
-        this.RegisterCue(audio);
-    }
-
-    private void RegisterCue(AudioContainer audio)
-    {
-        var cue = new Cue(audio.CueName, audio.AcbName);
-        this.cues[cue] = audio;
-    }
-
-    public bool TryGetAudio(string cueName, string acbName, [NotNullWhen(true)] out AudioContainer? audio)
-        => this.cues.TryGetValue(new(cueName, acbName), out audio);
+    public bool TryGetCue(string cueName, string acbName, [NotNullWhen(true)] out CueContainer? cue)
+        => this.cues.TryGetValue(new(cueName, acbName), out cue);
 
     public void PreloadAudio()
     {
@@ -121,33 +146,6 @@ internal class AudioRegistry
         {
             AudioCache.GetAudioData(file);
         }
-    }
-
-    private static AudioContainer CreateContainerFromFile(string file, AudioConfig preConfig)
-    {
-        var currentConfig = preConfig.Clone();
-
-        // Load file config.
-        var configFile = Path.ChangeExtension(file, ".yaml");
-        if (File.Exists(configFile) && ParseConfigFile(configFile) is AudioConfig fileConfig)
-        {
-            ApplyUserConfig(currentConfig, fileConfig);
-        }
-
-        // Use file name for cue name if none set.
-        if (string.IsNullOrEmpty(currentConfig.CueName))
-        {
-            currentConfig.CueName = GetCueName(file);
-        }
-
-        // Get format from ext.
-        currentConfig.Format = GetAudioFormat(file);
-
-        // Create container and add file.
-        var audioContainer = new AudioContainer(currentConfig);
-        audioContainer.AddFile(file);
-
-        return audioContainer;
     }
 
     private static AudioConfig? ParseConfigFile(string configFile)
@@ -188,7 +186,7 @@ internal class AudioRegistry
         {
             ".hca" => CriAtomFormat.HCA,
             ".adx" => CriAtomFormat.ADX,
-            _ => throw new Exception("Unknown audio format.")
+            _ => throw new Exception($"Unknown audio format.\nFile: {file}")
         };
 
     private static string GetCueName(string file)
