@@ -20,7 +20,6 @@ internal static class AcbRegistry
     /// <summary>
     /// Register an ACB with its ACB handle.
     /// </summary>
-    /// <param name="acbName">The name to associate the handle with, either cue sheet name or file.</param>
     /// <param name="acbHn">ACB handle.</param>
     public unsafe static void Register(AcbHn* acbHn)
     {

@@ -52,7 +52,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private criAtomExCategory_SetVolume? setVolumeByIndex;
 
     // Shared.
-    private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
+    private readonly WrapperContainer<criAtomExPlayer_SetCueId> setCueId;
     private readonly WrapperContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly WrapperContainer<criAtomExPlayer_Start> start;
 
@@ -62,7 +62,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         this.patterns = CriAtomExGames.GetGamePatterns(game);
 
         scans.AddScan<criAtomExPlayer_SetCueId>(this.patterns.criAtomExPlayer_SetCueId);
-        this.setCueId = scans.CreateHook<criAtomExPlayer_SetCueId>(this.Player_SetCueId, Mod.NAME);
+        this.setCueId = scans.CreateWrapper<criAtomExPlayer_SetCueId>(Mod.NAME);
 
         scans.AddScan<criAtomExPlayer_SetCueName>(this.patterns.criAtomExPlayer_SetCueName);
         this.setCueName = scans.CreateWrapper<criAtomExPlayer_SetCueName>(Mod.NAME);
@@ -249,23 +249,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         => this.setAisacControlByName!.GetWrapper()(playerHn, controlName, controlValue);
 
     public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
-    {
-        // Update player ACB.
-        // TODO: Check if this code is even necessary.
-        var player = this.players.First(x => x.PlayerHn == playerHn);
-        var acb = AcbRegistry.GetAcbName(acbHn);
-        if (acb != null)
-        {
-            player.Acb = new() { AcbHn = acbHn, AcbPath = acb};
-            Log.Debug($"Player ID: {player.Id}");
-        }
-        else
-        {
-            Log.Debug($"Unknown ACB Hn: {acbHn}");
-        }
-
-        this.setCueId.Hook!.OriginalFunction(playerHn, acbHn, cueId);
-    }
+        => this.setCueId.Wrapper(playerHn, acbHn, cueId);
 
     public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)
         => this.setCueName.Wrapper(playerHn, acbHn, cueName);
@@ -363,7 +347,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         var playerHn = this.createHook!.OriginalFunction(currentConfigPtr, work, workSize);
         this.players.Add(new(playerId, playerHn));
-        PlayerRegistry.RegisterPlayer(playerHn);
+        PlayerRegistry.Register(playerHn);
 
         Log.Debug($"Player: {playerHn:X} || ID: {playerId}");
         return playerHn;

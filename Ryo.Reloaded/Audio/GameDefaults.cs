@@ -16,7 +16,6 @@ internal static class GameDefaults
         {
             AcbName = "snd00_bgm",
             CategoryIds = new int[] { 6, 13 },
-            Volume = 0.4f,
         },
         ["p3r"] = new()
         {

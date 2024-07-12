@@ -52,7 +52,7 @@ internal unsafe class AudioService
 
         if (this.devMode)
         {
-            Log.Information($"SetCue || ACB: {acbName} || Cue: {cueName}");
+            Log.Information($"SetCue || Player: {player.Id} || ACB: {acbName} || Cue: {cueName}");
         }
 
         if (this.audioRegistry.TryGetAudio(cueName, acbName, out var audio))

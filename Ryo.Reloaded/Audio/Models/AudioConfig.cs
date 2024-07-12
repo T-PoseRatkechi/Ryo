@@ -3,7 +3,7 @@
 namespace Ryo.Reloaded.Audio.Models;
 
 /// <summary>
-/// User defined audio settings.
+/// Audio configuration.
 /// </summary>
 internal class AudioConfig
 {
