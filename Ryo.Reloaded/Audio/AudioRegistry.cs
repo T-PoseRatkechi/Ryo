@@ -118,7 +118,7 @@ internal class AudioRegistry
             config.CueName = Path.GetFileNameWithoutExtension(folderName);
 
             // Set shared container ID.
-            config.SharedContainerId = folderName;
+            config.SharedContainerId = Guid.NewGuid().ToString();
         }
 
         foreach (var file in Directory.EnumerateFiles(dir))
