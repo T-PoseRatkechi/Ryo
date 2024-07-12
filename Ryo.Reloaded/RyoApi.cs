@@ -1,4 +1,5 @@
 ﻿using Ryo.Interfaces;
+using Ryo.Interfaces.Classes;
 using Ryo.Interfaces.Structs;
 using Ryo.Reloaded.Audio;
 using Ryo.Reloaded.Movies;
@@ -23,18 +24,21 @@ internal class RyoApi : IRyoApi
 
     public IRyoUtils Utilities { get; } = new RyoUtils();
 
+    public void AddAudioPath(string path, AudioConfig? config)
+        => this.audio.AddAudioPath(path, config);
+
+    public void AddAudioPreprocessor(string name, Func<AudioInfo, AudioInfo> process)
+        => this.preprocessor.AddPreprocessor(name, process);
+
+    public void AddMoviePath(string path)
+        => this.movies.AddMoviePath(path);
+
+    public void AddMovieBind(string moviePath, string bindPath)
+        => this.movies.AddMovieBind(moviePath, bindPath);
+
     public void AddAudioFile(string file)
         => this.audio.AddAudioFile(file);
 
     public void AddAudioFolder(string dir)
         => this.audio.AddAudioFolder(dir);
-
-    public void AddAudioPreprocessor(string name, Func<AudioInfo, AudioInfo> process)
-        => this.preprocessor.AddPreprocessor(name, process);
-
-    public void AddMovieBind(string moviePath, string bindPath)
-        => this.movies.AddMovieBind(moviePath, bindPath);
-
-    public void AddMoviePath(string path)
-        => this.movies.AddMoviePath(path);
 }
