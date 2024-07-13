@@ -65,7 +65,10 @@
     "p5r.exe",
     "p4g.exe",
     "p3r.exe",
-    "smt5v-win64-shipping.exe"
+    "smt5v-win64-shipping.exe",
+    "likeadragon8.exe",
+    "likeadragongaiden.exe",
+    "LostJudgment.exe"
   ],
   "ProjectUrl": ""
 }
