@@ -179,6 +179,7 @@ internal class AudioRegistry
         mainConfig.Volume = newConfig.Volume ?? mainConfig.Volume;
         mainConfig.Tags = newConfig.Tags ?? mainConfig.Tags;
         mainConfig.Key = newConfig.Key ?? mainConfig.Key;
+        mainConfig.SharedContainerId = newConfig.SharedContainerId ?? mainConfig.SharedContainerId;
     }
 
     private static CriAtomFormat GetAudioFormat(string file)

@@ -8,12 +8,6 @@ public interface ICriAtomEx
 {
     float Category_GetVolumeById(uint id);
 
-    PlayerConfig? GetPlayerByAcbPath(string acbPath);
-
-    PlayerConfig? GetPlayerByHn(nint playerHn);
-
-    PlayerConfig? GetPlayerById(int playerId);
-
     int Playback_GetTimeSyncedWithAudio(uint playbackId);
 
     unsafe bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfo* info);
@@ -45,4 +39,13 @@ public interface ICriAtomEx
     uint Player_Start(nint playerHn);
 
     void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config);
+
+    [Obsolete("Use IRyoApi.Utilities")]
+    PlayerConfig? GetPlayerByAcbPath(string acbPath);
+
+    [Obsolete("Use IRyoApi.Utilities")]
+    PlayerConfig? GetPlayerByHn(nint playerHn);
+
+    [Obsolete("Use IRyoApi.Utilities")]
+    PlayerConfig? GetPlayerById(int playerId);
 }

@@ -16,7 +16,7 @@ internal static class CriUnrealGames
         },
         new("SMT5V-Win64-Shipping")
         {
-            USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV = "40 55 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC D8 01 00 00",
+            //USoundAtomCueSheet_AsyncLoadCueSheetTask_SMTV = "40 55 56 48 8D AC 24 ?? ?? ?? ?? 48 81 EC D8 01 00 00",
         }
     };
 

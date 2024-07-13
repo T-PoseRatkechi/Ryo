@@ -15,6 +15,9 @@ internal unsafe class AudioService
     private readonly bool useSetFile;
     private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
+    private readonly HookContainer<criAtomExPlayer_SetFile> setFile;
+    private readonly HookContainer<criAtomExPlayer_SetWaveId> setWaveId;
+    private readonly HookContainer<criAtomExPlayer_SetData> setData;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
 
     public AudioService(
@@ -40,6 +43,9 @@ internal unsafe class AudioService
 
         this.setCueName = scans.CreateHook<criAtomExPlayer_SetCueName>(this.CriAtomExPlayer_SetCueName, Mod.NAME);
         this.setCueId = scans.CreateHook<criAtomExPlayer_SetCueId>(this.CriAtomExPlayer_SetCueId, Mod.NAME);
+        this.setFile = scans.CreateHook<criAtomExPlayer_SetFile>(this.CriAtomExPlayer_SetFile, Mod.NAME);
+        this.setWaveId = scans.CreateHook<criAtomExPlayer_SetWaveId>(this.CriAtomExPlayer_SetWaveId, Mod.NAME);
+        this.setData = scans.CreateHook<criAtomExPlayer_SetData>(this.CriAtomExPlayer_SetData, Mod.NAME);
     }
 
     public void SetDevMode(bool devMode)
@@ -129,6 +135,32 @@ internal unsafe class AudioService
         if (this.SetRyoAudio(playerHn, acbHn, cueId.ToString()) == false)
         {
             this.setCueId.Hook!.OriginalFunction(playerHn, acbHn, cueId);
+        }
+    }
+
+    private void CriAtomExPlayer_SetWaveId(nint playerHn, nint awbHn, int waveId)
+    {
+        if (this.SetRyoAudio(playerHn, awbHn, waveId.ToString()) == false)
+        {
+            this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
+        }
+    }
+
+    private void CriAtomExPlayer_SetFile(nint playerHn, nint criBinderHn, byte* path)
+    {
+        var filePath = Marshal.PtrToStringAnsi((nint)path)!;
+
+        if (this.SetRyoAudio(playerHn, criBinderHn, filePath) == false)
+        {
+            this.setFile.Hook!.OriginalFunction(playerHn, criBinderHn, path);
+        }
+    }
+
+    private void CriAtomExPlayer_SetData(nint playerHn, byte* buffer, int size)
+    {
+        if (this.SetRyoAudio(playerHn, 0, $"{(nint)buffer:X}") == false)
+        {
+            this.setData.Hook!.OriginalFunction(playerHn, buffer, size);
         }
     }
 

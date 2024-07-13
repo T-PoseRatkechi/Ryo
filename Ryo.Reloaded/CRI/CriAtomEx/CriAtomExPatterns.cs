@@ -35,6 +35,8 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetCueName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 48 8B EA 48 8B D9 48 85 C9",
             criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
 
+            criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
+
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
             criAtomExCategory_GetVolume = "40 53 48 83 EC 20 83 64 24 ?? 00",
             criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
@@ -78,6 +80,29 @@ internal static class CriAtomExGames
 
             // Unused.
             //criAtomExAcb_LoadAcbFile = "48 89 5C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC D0 00 00 00",
+        },
+        new("p3p")
+        {
+            criAtomExPlayer_Create = "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 55 41 54 41 55 41 56 41 57 48 8B EC 48 83 EC 40 45 33 E4",
+            criAtomExPlayer_Start = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 C8 FF EB ?? E8 ?? ?? ?? ?? 33 D2",
+            criAtomExPlayer_SetFormat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 48 8D 15",
+            criAtomExPlayer_SetNumChannels = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 8D 42",
+            criAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 85 D2",
+
+            // P3P contains both SetFile and SetCueName which match each other's patterns.
+            // The last 4 bytes reference the error message "E2010021535", it might break if there's an update.
+            criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 48 8B EA 48 8B D9 48 85 C9 74 ?? 4D 85 C0 74 ?? E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 8B F0 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8B CB E8 ?? ?? ?? ?? 85 F6 74 ?? E8 ?? ?? ?? ?? EB ?? 41 B8 FE FF FF FF 48 8D 15 50 d2 23 00",
+            criAtomExPlayer_SetCueName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 48 8B EA 48 8B D9 48 85 C9 74 ?? 4D 85 C0 74 ?? E8 ?? ?? ?? ?? 4C 8B C7 48 8B D5 48 8B CB 8B F0 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8B CB E8 ?? ?? ?? ?? 85 F6 74 ?? E8 ?? ?? ?? ?? EB ?? 41 B8 FE FF FF FF 48 8D 15",
+            criAtomExPlayer_SetWaveId = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 41 8B F0 48 8B EA 48 8B F9 48 85 C9 74 ?? 48 85 D2 74 ?? 41 81 F8 FF FF 00 00 77 ?? E8 ?? ?? ?? ?? 48 8B CF 8B D8 E8 ?? ?? ?? ?? C7 87 ?? ?? ?? ?? 07 00 00 00",
+            criAtomExPlayer_SetData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 41 8B F0 48 8B EA 48 8B F9 48 85 C9 74 ?? 48 85 D2 74 ?? 45 85 C0",
+
+            criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
+
+            // Function used by LoadAcbData and LoadAcbDataById.
+            criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
+
+            criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
+            criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
         },
         new("likeadragon8")
         {
@@ -176,4 +201,5 @@ internal class CriAtomExPatterns
     public string? criAtomExCategory_SetVolume { get; init; }
     public string? criAtomExAcb_ExistsId { get; init; }
     public string? criAtomExAcb_LoadAcbData { get; init; }
+    public string? criAtomExPlayer_SetWaveId { get; init; }
 }

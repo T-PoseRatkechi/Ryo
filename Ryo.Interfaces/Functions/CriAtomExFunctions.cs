@@ -25,6 +25,9 @@ public unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetFile(nint playerHn, nint criBinderHn, byte* path);
 
     [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_SetWaveId(nint playerHn, nint awbHn, int waveId);
+
+    [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetFormat(nint playerHn, CriAtomFormat format);
 
     [Function(CallingConventions.Microsoft)]

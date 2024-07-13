@@ -23,7 +23,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private IFunction<criAtomExPlayback_GetTimeSyncedWithAudio>? getTimeSyncedWithAudio;
     private IFunction<criAtomExPlayer_GetNumPlayedSamples>? getNumPlayedSamples;
     private IFunction<criAtomExAcb_LoadAcbFile>? loadAcbFile;
-    private IFunction<criAtomExPlayer_SetFile>? setFile;
     private IFunction<criAtomExPlayer_SetFormat>? setFormat;
     private IFunction<criAtomExPlayer_SetSamplingRate>? setSamplingRate;
     private IFunction<criAtomExPlayer_SetNumChannels>? setNumChannels;
@@ -32,7 +31,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private IFunction<criAtomExPlayer_GetLastPlaybackId>? getLastPlaybackId;
     private IFunction<criAtomExPlayer_SetCategoryByName>? setCategoryByName;
     private IFunction<criAtomExPlayer_GetCategoryInfo>? getCategoryInfo;
-    private IFunction<criAtomExPlayer_SetData>? setData;
     private IFunction<criAtomExPlayer_UpdateAll>? updateAll;
     private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
     private IFunction<criAtomExPlayer_GetStatus>? getStatus;
@@ -54,7 +52,10 @@ internal unsafe class CriAtomEx : ICriAtomEx
     // Shared.
     private readonly WrapperContainer<criAtomExPlayer_SetCueId> setCueId;
     private readonly WrapperContainer<criAtomExPlayer_SetCueName> setCueName;
+    private readonly WrapperContainer<criAtomExPlayer_SetFile> setFile;
     private readonly WrapperContainer<criAtomExPlayer_Start> start;
+    private readonly WrapperContainer<criAtomExPlayer_SetWaveId> setWaveId;
+    private readonly WrapperContainer<criAtomExPlayer_SetData> setData;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -69,6 +70,15 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         scans.AddScan<criAtomExPlayer_Start>(this.patterns.criAtomExPlayer_Start);
         this.start = scans.CreateWrapper<criAtomExPlayer_Start>(Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_SetFile>(this.patterns.criAtomExPlayer_SetFile);
+        this.setFile = scans.CreateWrapper<criAtomExPlayer_SetFile>(Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_SetWaveId>(this.patterns.criAtomExPlayer_SetWaveId);
+        this.setWaveId = scans.CreateWrapper<criAtomExPlayer_SetWaveId>(Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_SetData>(this.patterns.criAtomExPlayer_SetData);
+        this.setData = scans.CreateWrapper<criAtomExPlayer_SetData>(Mod.NAME);
 
         ScanHooks.Add(
             nameof(criAtomExCategory_GetVolume),
@@ -129,11 +139,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
             (hooks, result) => this.getNumPlayedSamples = hooks.CreateFunction<criAtomExPlayer_GetNumPlayedSamples>(result));
 
         ScanHooks.Add(
-            nameof(criAtomExPlayer_SetFile),
-            this.patterns.criAtomExPlayer_SetFile,
-            (hooks, result) => this.setFile = hooks.CreateFunction<criAtomExPlayer_SetFile>(result));
-
-        ScanHooks.Add(
             nameof(criAtomExPlayer_SetFormat),
             this.patterns.criAtomExPlayer_SetFormat,
             (hooks, result) => this.setFormat = hooks.CreateFunction<criAtomExPlayer_SetFormat>(result));
@@ -177,11 +182,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
             nameof(criAtomExPlayer_GetCategoryInfo),
             this.patterns.criAtomExPlayer_GetCategoryInfo,
             (hooks, result) => this.getCategoryInfo = hooks.CreateFunction<criAtomExPlayer_GetCategoryInfo>(result));
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_SetData),
-            this.patterns.criAtomExPlayer_SetData,
-            (hooks, result) => this.setData = hooks.CreateFunction<criAtomExPlayer_SetData>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_UpdateAll),
@@ -267,7 +267,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         => this.setStartTime!.GetWrapper()(playerHn, currentBgmTime);
 
     public void Player_SetFile(nint playerHn, nint criBinderHn, byte* path)
-        => this.setFile!.GetWrapper()(playerHn, criBinderHn, path);
+        => this.setFile.Wrapper(playerHn, criBinderHn, path);
 
     public void Player_SetFormat(nint playerHn, CriAtomFormat format)
         => this.setFormat!.GetWrapper()(playerHn, format);
@@ -323,7 +323,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public float Category_GetVolume(ushort index) => this.getCategoryVolume!(index);
 
     public void Player_SetData(nint playerHn, byte* buffer, int size)
-        => this.setData!.GetWrapper()(playerHn, buffer, size);
+        => this.setData.Wrapper(playerHn, buffer, size);
 
     public void Player_UpdateAll(nint playerHn)
         => this.updateAll!.GetWrapper()(playerHn);
