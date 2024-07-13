@@ -30,6 +30,21 @@ internal static class GameDefaults
             CategoryIds = new int[] { 0, 4, 9, 40, 24, 11, 43, 51 },
             Volume = 0.35f,
         },
+        ["likeadragon8"] = new()
+        {
+            CategoryIds = new int[] { 11 },
+            Volume = 0.35f,
+        },
+        ["likeadragongaiden"] = new()
+        {
+            CategoryIds = new int[] { 11 },
+            Volume = 0.35f,
+        },
+        ["LostJudgment"] = new()
+        {
+            CategoryIds = new int[] { 11 },
+            Volume = 0.35f,
+        },
     };
 
     public static AudioConfig CreateDefaultConfig(string game)
