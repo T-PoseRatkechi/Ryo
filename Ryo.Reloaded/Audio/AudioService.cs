@@ -9,6 +9,7 @@ namespace Ryo.Reloaded.Audio;
 internal unsafe class AudioService
 {
     private readonly CriAtomEx criAtomEx;
+    private readonly CriAtomRegistry criAtomRegistry;
     private readonly AudioRegistry audioRegistry;
 
     private bool devMode;
@@ -24,9 +25,11 @@ internal unsafe class AudioService
         string game,
         ISharedScans scans,
         CriAtomEx criAtomEx,
+        CriAtomRegistry criAtomRegistry,
         AudioRegistry audioRegistry)
     {
         this.criAtomEx = criAtomEx;
+        this.criAtomRegistry = criAtomRegistry;
         this.audioRegistry = audioRegistry;
 
         GameDefaults.ConfigureCriAtom(game, criAtomEx);
@@ -54,7 +57,7 @@ internal unsafe class AudioService
     private bool SetRyoAudio(nint playerHn, nint acbHn, string cueName)
     {
         var player = this.criAtomEx.GetPlayerByHn(playerHn)!;
-        var acbName = AcbRegistry.GetAcbName(acbHn) ?? "Unknown";
+        var acbName = this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? "Unknown";
 
         if (this.devMode)
         {

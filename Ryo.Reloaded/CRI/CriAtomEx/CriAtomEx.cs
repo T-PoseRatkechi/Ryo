@@ -6,7 +6,6 @@ using Ryo.Definitions.Classes;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
 using Ryo.Definitions.Enums;
 using SharedScans.Interfaces;
-using Ryo.Reloaded.Audio;
 
 namespace Ryo.Reloaded.CRI.CriAtomEx;
 
@@ -212,7 +211,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private nint Acb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize)
     {
         var acbHn = (AcbHn*)this.loadAcbDataHook!.OriginalFunction(acbData, acbDataSize, awbBinder, awbPath, work, workSize);
-        AcbRegistry.Register(acbHn);
+        CriAtomRegistry.RegisterAcb(acbHn);
         return (nint)acbHn;
     }
 
@@ -347,9 +346,8 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         var playerHn = this.createHook!.OriginalFunction(currentConfigPtr, work, workSize);
         this.players.Add(new(playerId, playerHn));
-        PlayerRegistry.Register(playerHn);
+        CriAtomRegistry.RegisterPlayer(playerHn);
 
-        Log.Debug($"Player: {playerHn:X} || ID: {playerId}");
         return playerHn;
     }
 
@@ -357,10 +355,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
     {
         var acbHn = (AcbHn*)this.loadAcbFileHook!.OriginalFunction(acbBinder, acbPathStr, awbBinder, awbPathStr, work, workSize);
         var acbPath = Marshal.PtrToStringAnsi((nint)acbPathStr)!;
-
-        AcbRegistry.Register(acbHn);
-
         Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Hn: {(nint)acbHn:X}");
+        CriAtomRegistry.RegisterAcb(acbHn);
+
         return (nint)acbHn;
     }
 }
