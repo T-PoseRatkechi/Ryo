@@ -40,12 +40,12 @@ public interface ICriAtomEx
 
     void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config);
 
-    [Obsolete("Use IRyoApi.Utilities")]
+    [Obsolete("No alternative until needed.")]
     PlayerConfig? GetPlayerByAcbPath(string acbPath);
 
-    [Obsolete("Use IRyoApi.Utilities")]
+    [Obsolete("Use ICriAtomRegistry.GetPlayerByHn")]
     PlayerConfig? GetPlayerByHn(nint playerHn);
 
-    [Obsolete("Use IRyoApi.Utilities")]
+    [Obsolete("Use ICriAtomRegistry.GetPlayerById")]
     PlayerConfig? GetPlayerById(int playerId);
 }
