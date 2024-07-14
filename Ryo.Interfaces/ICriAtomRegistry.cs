@@ -32,7 +32,7 @@ public interface ICriAtomRegistry
     /// </summary>
     /// <param name="playerId">ID of player to get.</param>
     /// <returns>Player, if found.</returns>
-    Player? GetPlayerById(nint playerId);
+    Player? GetPlayerById(int playerId);
 
     /// <summary>
     /// Gets player by its handle.

@@ -48,7 +48,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
         return null;
     }
 
-    public Player? GetPlayerByHn(int playerHn)
+    public Player? GetPlayerByHn(nint playerHn)
     {
         if (players.TryGetValue(playerHn, out var player))
         {
@@ -59,7 +59,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
         return null;
     }
 
-    public Player? GetPlayerById(nint playerId)
+    public Player? GetPlayerById(int playerId)
     {
         var player = players.Values.FirstOrDefault(x => x.Id == playerId);
         if (player == null)
