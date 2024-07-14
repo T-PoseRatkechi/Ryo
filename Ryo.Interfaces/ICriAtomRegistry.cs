@@ -39,7 +39,7 @@ public interface ICriAtomRegistry
     /// </summary>
     /// <param name="playerHn">Handle of player to get.</param>
     /// <returns>Player, if found.</returns>
-    Player? GetPlayerByHn(int playerHn);
+    Player? GetPlayerByHn(nint playerHn);
 
     /// <summary>
     /// Gets ACB by its name.
