@@ -327,7 +327,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public void Player_UpdateAll(nint playerHn)
         => this.updateAll!.GetWrapper()(playerHn);
 
-    private nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize)
+    public nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize)
     {
         var playerId = this.players.Count;
         Log.Verbose($"{nameof(criAtomExPlayer_Create)} || Config: {(nint)config:X} || Work: {(nint)work:X} || WorkSize: {workSize}");

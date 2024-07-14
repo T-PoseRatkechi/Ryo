@@ -67,11 +67,16 @@ internal class CriAtomRegistry : ICriAtomRegistry
             Log.Debug($"Unknown Player ID: {playerId}");
         }
 
-        return null;
+        return player;
     }
 
     public void RegisterAudioData(nint address, string name)
     {
+        if (audioDatas.TryGetValue(address, out var prevData) && prevData.Name == name)
+        {
+            return;
+        }
+
         var audioData = new AudioData(name, address);
         audioDatas[address] = audioData;
         Log.Debug($"Registered Audio Data || Name: {name} || Address: {address:X}");
