@@ -13,10 +13,10 @@ internal class DataContainer : BaseContainer
         }
 
         this.DataName = audioDataName;
-        this.InternalName = $"Audio Data: {this.DataName}";
+        this.Name = $"Audio Data: {this.DataName}";
     }
 
     public string DataName { get; }
 
-    protected override string InternalName { get; }
+    public override string Name { get; }
 }

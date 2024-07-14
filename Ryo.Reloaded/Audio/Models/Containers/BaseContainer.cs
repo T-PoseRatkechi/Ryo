@@ -13,7 +13,7 @@ internal abstract class BaseContainer
         SharedContainerId = config?.SharedContainerId;
     }
 
-    protected abstract string InternalName { get; }
+    public abstract string Name { get; }
 
     public int PlayerId { get; }
 
@@ -24,7 +24,7 @@ internal abstract class BaseContainer
     public void AddAudio(RyoAudio audio)
     {
         audios.Add(audio);
-        Log.Information($"{InternalName}\nFile added: {audio.FilePath}");
+        Log.Information($"{Name}\nFile added: {audio.FilePath}");
     }
 
     public RyoAudio GetAudio()
@@ -32,7 +32,7 @@ internal abstract class BaseContainer
         if (audios.Count > 1)
         {
             var randomIndex = Random.Shared.Next(0, audios.Count);
-            Log.Debug($"{InternalName} || Random Index: {randomIndex} || Total Files: {audios.Count}");
+            Log.Debug($"{Name} || Random Index: {randomIndex} || Total Files: {audios.Count}");
             return audios[randomIndex];
         }
         else if (audios.Count == 1)
@@ -40,7 +40,7 @@ internal abstract class BaseContainer
             return audios[0];
         }
 
-        throw new Exception($"Audio had no files.\n{InternalName}");
+        throw new Exception($"Audio had no files.\n{Name}");
     }
 
     public string[] GetContainerFiles() => audios.Select(x => x.FilePath).ToArray();

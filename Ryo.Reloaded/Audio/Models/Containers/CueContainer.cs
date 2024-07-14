@@ -19,12 +19,12 @@ internal class CueContainer : BaseContainer
 
         CueName = cueName;
         AcbName = acbName;
-        InternalName = $"Cue: {CueName} / {AcbName}";
+        Name = $"Cue: {CueName} / {AcbName}";
     }
 
     public string CueName { get; }
 
     public string AcbName { get; }
 
-    protected override string InternalName { get; }
+    public override string Name { get; }
 }

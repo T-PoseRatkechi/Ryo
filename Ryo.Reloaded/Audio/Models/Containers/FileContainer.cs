@@ -13,10 +13,10 @@ internal class FileContainer : BaseContainer
         }
 
         this.FilePath = filePath;
-        this.InternalName = $"Audio File: {this.FilePath}";
+        this.Name = $"Audio File: {this.FilePath}";
     }
 
     public string FilePath { get; }
 
-    protected override string InternalName { get; }
+    public override string Name { get; }
 }
