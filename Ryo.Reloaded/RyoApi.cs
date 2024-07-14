@@ -2,6 +2,7 @@
 using Ryo.Interfaces.Classes;
 using Ryo.Interfaces.Structs;
 using Ryo.Reloaded.Audio;
+using Ryo.Reloaded.CRI.CriAtomEx;
 using Ryo.Reloaded.Movies;
 
 namespace Ryo.Reloaded;
@@ -13,6 +14,7 @@ internal class RyoApi : IRyoApi
     private readonly MovieRegistry movies;
 
     public RyoApi(
+        CriAtomRegistry criAtomRegistry,
         AudioRegistry audio,
         AudioPreprocessor preprocessor,
         MovieRegistry movies)
@@ -20,9 +22,10 @@ internal class RyoApi : IRyoApi
         this.audio = audio;
         this.preprocessor = preprocessor;
         this.movies = movies;
+        this.Utilities = new RyoUtils(criAtomRegistry);
     }
 
-    public IRyoUtils Utilities { get; } = new RyoUtils();
+    public IRyoUtils Utilities { get; }
 
     public void AddAudioPath(string path, AudioConfig? config)
         => this.audio.AddAudioPath(path, config);

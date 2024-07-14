@@ -31,6 +31,7 @@ public class Mod : ModBase, IExports
     private readonly string game;
 
     private readonly CriAtomEx criAtomEx;
+    private readonly CriAtomRegistry criAtomRegistry;
     private readonly CriUnreal criUnreal;
     private readonly CriMana criMana;
 
@@ -67,16 +68,19 @@ public class Mod : ModBase, IExports
         this.criAtomEx = new(this.game, scans!);
         this.modLoader.AddOrReplaceController<ICriAtomEx>(this.owner, this.criAtomEx);
 
+        this.criAtomRegistry = new();
+        this.modLoader.AddOrReplaceController<ICriAtomRegistry>(this.owner, this.criAtomRegistry);
+
         this.criUnreal = new(this.game);
         this.criMana = new(scans!, this.game);
 
         this.audioRegistry = new(this.game, this.preprocessor);
-        this.audioService = new(this.game, scans!, this.criAtomEx, this.audioRegistry);
+        this.audioService = new(this.game, scans!, this.criAtomEx, this.criAtomRegistry, this.audioRegistry);
 
         this.movieRegistry = new();
         this.movieService = new(scans!, this.criMana, this.movieRegistry);
 
-        this.ryoApi = new(this.audioRegistry, this.preprocessor, this.movieRegistry);
+        this.ryoApi = new(this.criAtomRegistry, this.audioRegistry, this.preprocessor, this.movieRegistry);
         this.modLoader.AddOrReplaceController<IRyoApi>(this.owner, this.ryoApi);
 
         ScanHooks.Initialize(scanner!, this.hooks);
@@ -131,7 +135,7 @@ public class Mod : ModBase, IExports
         this.ApplyConfig();
     }
 
-    public Type[] GetTypes() => new[] { typeof(ICriAtomEx), typeof(IRyoApi) };
+    public Type[] GetTypes() => new[] { typeof(ICriAtomEx), typeof(IRyoApi), typeof(ICriAtomRegistry) };
 
     #endregion
 

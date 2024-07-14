@@ -1,16 +1,19 @@
 ﻿using Ryo.Interfaces;
-using Ryo.Reloaded.Audio;
 
 namespace Ryo.Reloaded;
 
 internal class RyoUtils : IRyoUtils
 {
+    private readonly ICriAtomRegistry registry;
+
+    public RyoUtils(ICriAtomRegistry criAtomRegistry)
+    {
+        this.registry = criAtomRegistry;
+    }
+
     public nint GetAcbHn(string acbName)
-        => AcbRegistry.GetAcbHn(acbName);
+        => this.registry.GetAcbByName(acbName)?.Handle ?? 0;
 
     public string? GetAcbName(nint acbHn)
-        => AcbRegistry.GetAcbName(acbHn);
-
-    public PlayerInfo GetPlayerInfo(nint playerHn)
-        => throw new NotImplementedException();
+        => this.registry.GetAcbByHn(acbHn)?.Name;
 }
