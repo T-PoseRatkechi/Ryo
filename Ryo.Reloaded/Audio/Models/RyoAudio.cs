@@ -3,11 +3,11 @@ using Ryo.Interfaces.Classes;
 
 namespace Ryo.Reloaded.Audio.Models;
 
-internal class AudioContainer
+internal class RyoAudio
 {
     private readonly AudioConfig config;
 
-    public AudioContainer(string filePath, AudioConfig? config = null)
+    public RyoAudio(string filePath, AudioConfig? config = null)
     {
         this.FilePath = filePath;
         this.config = config ?? new();
