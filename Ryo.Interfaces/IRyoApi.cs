@@ -33,8 +33,29 @@ public interface IRyoApi
     void AddMovieBind(string moviePath, string bindPath);
 
     /// <summary>
+    /// Checks whether a cue container with the given cue name and ACB name exists.
+    /// </summary>
+    /// <param name="cueName">Cue name.</param>
+    /// <param name="acbName">ACB name.</param>
+    bool HasCueContainer(string cueName, string acbName);
+
+    /// <summary>
+    /// Checks whether a data container with the given name exists.
+    /// </summary>
+    /// <param name="dataName"></param>
+    bool HasDataContainer(string dataName);
+
+    /// <summary>
+    /// Checks whether a file container with the given file path exists.
+    /// </summary>
+    /// <param name="filePath">Audio file path.</param>
+    /// <returns></returns>
+    bool HasFileContainer(string filePath);
+
+    /// <summary>
     /// Utility functions.
     /// </summary>
+    [Obsolete("Use ICriAtomRegistry")]
     IRyoUtils Utilities { get; }
 
     /// <summary>

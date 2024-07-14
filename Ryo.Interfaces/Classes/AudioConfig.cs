@@ -18,6 +18,10 @@ public class AudioConfig
 
     public string? AcbName { get; set; }
 
+    public string? AudioDataName { get; set; }
+
+    public string? AudioFilePath { get; set; }
+
     public int? SampleRate { get; set; }
 
     public CriAtomFormat? Format { get; set; }
