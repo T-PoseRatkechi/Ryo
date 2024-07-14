@@ -42,12 +42,12 @@ internal unsafe class CriUnreal
         var acbName = taskParams->CueSheet->CueSheetName.GetString()!;
         var acbHn = *taskParams->CueSheet->_AcbHn;
 
-        AcbRegistry.Register(acbName, acbHn);
+        //AcbRegistry.Register(acbName, acbHn);
     }
 
     private void AsyncLoadCueSheetTask_SMTV(USoundAtomCueSheetSMTV* cueSheet)
     {
         this.asyncLoadCueSheetTaskHook_SMTV.OriginalFunction(cueSheet);
-        AcbRegistry.Register(cueSheet->CueSheetName.GetString()!, cueSheet->_acbHn);
+        //AcbRegistry.Register(cueSheet->CueSheetName.GetString()!, cueSheet->_acbHn);
     }
 }

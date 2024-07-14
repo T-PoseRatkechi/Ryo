@@ -23,6 +23,8 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetAisacControlByName = "48 89 5C 24 ?? 57 48 83 EC 30 48 8B F9 0F 29 74 24 ?? 33 C9",
             criAtomExCategory_GetVolume = "40 53 48 83 EC 20 83 64 24 ?? 00",
             criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
+
+            criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
         },
         new("SMT5V-Win64-Shipping")
         {

@@ -6,7 +6,7 @@ internal static class CriUnrealGames
     {
         new("p3r")
         {
-            USoundAtomCueSheet_AsyncLoadCueSheetTask = "4C 8B DC 55 53 49 8D AB ?? ?? ?? ?? 48 81 EC B8 04 00 00",
+            //USoundAtomCueSheet_AsyncLoadCueSheetTask = "4C 8B DC 55 53 49 8D AB ?? ?? ?? ?? 48 81 EC B8 04 00 00",
             //USoundAtomCueSheet_GetAtomCueById = "40 55 41 56 48 81 EC 58 02 00 00 48 8B 05 ?? ?? ?? ?? 48 31 E0",
             //PlayAdxControl_RequestLoadAcb = "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 41 56 48 83 EC 20 48 8D B9 ?? ?? ?? ?? 49 89 D6",
             //PlayAdxControl_RequestSound = "48 89 5C 24 ?? 48 89 74 24 ?? 48 89 7C 24 ?? 45 31 D2",
