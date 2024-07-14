@@ -38,6 +38,8 @@ public interface ICriAtomEx
 
     uint Player_Start(nint playerHn);
 
+    unsafe nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize);
+
     void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config);
 
     [Obsolete("No alternative until needed.")]
