@@ -5,9 +5,9 @@ namespace Ryo.Reloaded.Audio;
 
 internal static class AudioCache
 {
-    private static readonly Dictionary<string, AudioData> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
+    private static readonly Dictionary<string, AudioBuffer> cachedAudioData = new(StringComparer.OrdinalIgnoreCase);
 
-    public static AudioData GetAudioData(string audioFile)
+    public static AudioBuffer GetAudioData(string audioFile)
     {
         if (cachedAudioData.TryGetValue(audioFile, out var existingData))
         {

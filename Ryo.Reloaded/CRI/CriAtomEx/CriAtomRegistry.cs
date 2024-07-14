@@ -7,6 +7,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
 {
     private static readonly Dictionary<nint, Player> players = new();
     private static readonly Dictionary<nint, Acb> acbs = new();
+    private static readonly Dictionary<nint, AudioData> audioDatas = new();
 
     public static Player RegisterPlayer(nint playerHn)
     {
@@ -31,7 +32,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
             return acbName;
         }
 
-        Log.Warning($"Unknown ACB Hn: {acbHn:X}");
+        Log.Debug($"Unknown ACB Hn: {acbHn:X}");
         return null;
     }
 
@@ -43,7 +44,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
             return existingAcb;
         }
 
-        Log.Warning($"Unknown ACB: {acbName}");
+        Log.Debug($"Unknown ACB: {acbName}");
         return null;
     }
 
@@ -54,7 +55,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
             return player;
         }
 
-        Log.Warning($"Unknown Player Hn: {playerHn:X}");
+        Log.Debug($"Unknown Player Hn: {playerHn:X}");
         return null;
     }
 
@@ -63,9 +64,38 @@ internal class CriAtomRegistry : ICriAtomRegistry
         var player = players.Values.FirstOrDefault(x => x.Id == playerId);
         if (player == null)
         {
-            Log.Warning($"Unknown Player ID: {playerId}");
+            Log.Debug($"Unknown Player ID: {playerId}");
         }
 
         return null;
+    }
+
+    public void RegisterAudioData(nint address, string name)
+    {
+        var audioData = new AudioData(name, address);
+        audioDatas[address] = audioData;
+        Log.Debug($"Registered Audio Data || Name: {name} || Address: {address:X}");
+    }
+
+    public AudioData? GetAudioDataByAddress(nint address)
+    {
+        if (audioDatas.TryGetValue(address, out var audioData))
+        {
+            return audioData;
+        }
+
+        Log.Debug($"Unknown Audio Data: {address:X}");
+        return null;
+    }
+
+    public AudioData? GetAudioDataByName(string name)
+    {
+        var audioData = audioDatas.Values.FirstOrDefault(x => x.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
+        if (audioData == null)
+        {
+            Log.Debug($"Unknown Audio Data: {name}");
+        }
+
+        return audioData;
     }
 }
