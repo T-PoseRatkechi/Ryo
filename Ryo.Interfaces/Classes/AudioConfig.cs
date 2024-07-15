@@ -1,4 +1,5 @@
 ﻿using Ryo.Definitions.Enums;
+using Ryo.Interfaces.Enums;
 
 namespace Ryo.Interfaces.Classes;
 
@@ -38,6 +39,8 @@ public class AudioConfig
 
     public string[]? Tags { get; set; }
 
+    public PlaybackMode? PlaybackMode { get; set; }
+
     public AudioConfig Clone() => (AudioConfig)this.MemberwiseClone();
 
     /// <summary>
@@ -58,5 +61,6 @@ public class AudioConfig
         this.SharedContainerId = newConfig.SharedContainerId ?? this.SharedContainerId;
         this.AudioDataName = newConfig.AudioDataName ?? this.AudioDataName;
         this.AudioFilePath = newConfig.AudioFilePath ?? this.AudioFilePath;
+        this.PlaybackMode = newConfig.PlaybackMode ?? this.PlaybackMode;
     }
 }
