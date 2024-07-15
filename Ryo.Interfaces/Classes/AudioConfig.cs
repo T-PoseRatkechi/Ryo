@@ -39,4 +39,24 @@ public class AudioConfig
     public string[]? Tags { get; set; }
 
     public AudioConfig Clone() => (AudioConfig)this.MemberwiseClone();
+
+    /// <summary>
+    /// Applies defined settings from <paramref name="newConfig"/>.
+    /// </summary>
+    /// <param name="newConfig">Config containing the settings to apply.</param>
+    public void Apply(AudioConfig newConfig)
+    {
+        this.CueName = newConfig.CueName ?? this.CueName;
+        this.AcbName = newConfig.AcbName ?? this.AcbName;
+        this.PlayerId = newConfig.PlayerId ?? this.PlayerId;
+        this.CategoryIds = newConfig.CategoryIds ?? this.CategoryIds;
+        this.NumChannels = newConfig.NumChannels ?? this.NumChannels;
+        this.SampleRate = newConfig.SampleRate ?? this.SampleRate;
+        this.Volume = newConfig.Volume ?? this.Volume;
+        this.Tags = newConfig.Tags ?? this.Tags;
+        this.Key = newConfig.Key ?? this.Key;
+        this.SharedContainerId = newConfig.SharedContainerId ?? this.SharedContainerId;
+        this.AudioDataName = newConfig.AudioDataName ?? this.AudioDataName;
+        this.AudioFilePath = newConfig.AudioFilePath ?? this.AudioFilePath;
+    }
 }
