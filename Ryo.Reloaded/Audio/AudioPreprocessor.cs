@@ -1,5 +1,5 @@
-﻿using Ryo.Reloaded.Audio.Models;
-using Ryo.Interfaces.Structs;
+﻿using Ryo.Interfaces.Structs;
+using Ryo.Reloaded.Audio.Models.Containers;
 
 namespace Ryo.Reloaded.Audio;
 

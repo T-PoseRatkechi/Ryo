@@ -3,14 +3,20 @@ using Ryo.Reloaded.Audio.Models;
 using Ryo.Definitions.Enums;
 using Ryo.Reloaded.Common;
 using Ryo.Interfaces.Classes;
+using Ryo.Reloaded.Audio.Models.Containers;
 
 namespace Ryo.Reloaded.Audio;
 
 internal class AudioRegistry
 {
+    private const string RYO_DATA_DIR_NAME = "DATA.ryo";
+    private const string RYO_FILE_DIR_NAME = "FILE.ryo";
+
     private readonly AudioConfig defaultConfig;
     private readonly AudioPreprocessor preprocessor;
-    private readonly Dictionary<CueKey, CueContainer> cues = new(CueComparer.Instance);
+    private readonly Dictionary<CueKey, BaseContainer> cueContainers = new(CueComparer.Instance);
+    private readonly Dictionary<string, BaseContainer> dataContainers = new(StringComparer.OrdinalIgnoreCase);
+    private readonly Dictionary<string, BaseContainer> fileContainers = new(StringComparer.OrdinalIgnoreCase);
 
     public AudioRegistry(string game, AudioPreprocessor preprocessor)
     {
@@ -42,47 +48,118 @@ internal class AudioRegistry
         // Apply config settings from arg.
         if (preConfig != null)
         {
-            ApplyUserConfig(config, preConfig);
+            config.Apply(preConfig);
         }
 
         // Apply config settings from file config.
         var configFile = Path.ChangeExtension(file, ".yaml");
         if (File.Exists(configFile) && ParseConfigFile(configFile) is AudioConfig fileConfig)
         {
-            ApplyUserConfig(config, fileConfig);
-        }
-
-        // Use file name for cue name if none set.
-        if (string.IsNullOrEmpty(config.CueName))
-        {
-            config.CueName = GetCueName(file);
+            config.Apply(fileConfig);
         }
 
         // Get format from ext.
         config.Format = GetAudioFormat(file);
 
-        // Create cue container.
-        var cue = new CueContainer(config.CueName, config.AcbName!, config);
-        var cueKey = new CueKey(cue.CueName, cue.AcbName);
-
-        // Use pre-existing cue container if shared ID is set and exists.
-        if (config.SharedContainerId != null)
+        var parentDir = Path.GetDirectoryName(file)!;
+        if (parentDir.Contains(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase))
         {
-            if (this.cues.TryGetValue(cueKey, out var existingCue)
-                && existingCue.SharedContainerId?.Equals(config.SharedContainerId, StringComparison.OrdinalIgnoreCase) == true)
-            {
-                cue = existingCue;
-            }
+            var fileDirIndex = parentDir.IndexOf(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioFilePath = parentDir[(fileDirIndex + RYO_FILE_DIR_NAME.Length + 1)..].Replace('\\', '/');
+        }
+        else if (parentDir.Contains(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase))
+        {
+            var dataDirIndex = parentDir.IndexOf(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioDataName = parentDir[(dataDirIndex + RYO_DATA_DIR_NAME.Length + 1)..];
         }
 
-        var audio = new AudioContainer(file, config);
-        cue.AddAudio(audio);
+        BaseContainer? container;
+        var audio = new RyoAudio(file, config);
 
-        // TODO: Rework audio preprocessing.
-        //this.preprocessor.Preprocess(audio);
+        // Create audio file container.
+        if (config.AudioFilePath != null)
+        {
+            container = this.CreateOrGetContainer(ContainerType.File, config);
+        }
 
-        // Register cue.
-        this.cues[cueKey] = cue;
+        // Create audio data container.
+        else if (config.AudioDataName != null)
+        {
+            container = this.CreateOrGetContainer(ContainerType.Data, config);
+        }
+
+        // Default to cue container.
+        else
+        {
+            // Use file name for cue name if none set.
+            if (string.IsNullOrEmpty(config.CueName))
+            {
+                config.CueName = GetCueName(file);
+            }
+
+            container = this.CreateOrGetContainer(ContainerType.Cue, config);
+        }
+
+        container.AddAudio(audio);
+    }
+
+    private BaseContainer CreateOrGetContainer(ContainerType type, AudioConfig config)
+    {
+        // Create container.
+        BaseContainer? container;
+
+        switch (type)
+        {
+            case ContainerType.Cue:
+                container = new CueContainer(config.CueName!, config.AcbName!, config);
+                var cueKey = new CueKey(config.CueName!, config.AcbName!);
+
+                // Use pre-existing cue container if shared ID is set and exists.
+                if (config.SharedContainerId != null)
+                {
+                    if (this.cueContainers.TryGetValue(cueKey, out var existingCue)
+                        && existingCue.SharedContainerId?.Equals(config.SharedContainerId, StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        container = existingCue;
+                    }
+                }
+
+                this.cueContainers[cueKey] = container;
+                break;
+            case ContainerType.File:
+                container = new FileContainer(config.AudioFilePath!, config);
+
+                // Use pre-existing cue container if shared ID is set and exists.
+                if (config.SharedContainerId != null)
+                {
+                    if (this.fileContainers.TryGetValue(config.AudioFilePath!, out var existingFile)
+                        && existingFile.SharedContainerId?.Equals(config.SharedContainerId, StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        container = existingFile;
+                    }
+                }
+
+                this.fileContainers[config.AudioFilePath!] = container;
+                break;
+            case ContainerType.Data:
+                container = new DataContainer(config.AudioDataName!, config);
+
+                // Use pre-existing cue container if shared ID is set and exists.
+                if (config.SharedContainerId != null)
+                {
+                    if (this.dataContainers.TryGetValue(config.AudioFilePath!, out var existingData)
+                        && existingData.SharedContainerId?.Equals(config.SharedContainerId, StringComparison.OrdinalIgnoreCase) == true)
+                    {
+                        container = existingData;
+                    }
+                }
+
+                this.dataContainers[config.AudioDataName!] = container;
+                break;
+            default: throw new Exception("Unknown container.");
+        }
+
+        return container;
     }
 
     public void AddAudioFile(string file)
@@ -99,7 +176,7 @@ internal class AudioRegistry
         var dirConfigFile = Path.Join(dir, "config.yaml");
         if (File.Exists(dirConfigFile) && ParseConfigFile(dirConfigFile) is AudioConfig dirConfig)
         {
-            ApplyUserConfig(config, dirConfig);
+            config.Apply(dirConfig);
         }
 
         // Folder sets the ACB name for items.
@@ -136,12 +213,18 @@ internal class AudioRegistry
         }
     }
 
-    public bool TryGetCue(string cueName, string acbName, [NotNullWhen(true)] out CueContainer? cue)
-        => this.cues.TryGetValue(new(cueName, acbName), out cue);
+    public bool TryGetCueContainer(string cueName, string acbName, [NotNullWhen(true)] out BaseContainer? container)
+        => this.cueContainers.TryGetValue(new(cueName, acbName), out container);
+
+    public bool TryGetDataContainer(string dataName, [NotNullWhen(true)] out BaseContainer? container)
+        => this.dataContainers.TryGetValue(dataName, out container);
+
+    public bool TryGetFileContainer(string filePath, [NotNullWhen(true)] out BaseContainer? container)
+        => this.fileContainers.TryGetValue(filePath, out container);
 
     public void PreloadAudio()
     {
-        var allFiles = this.cues.Values.Select(x => x.GetContainerFiles()).SelectMany(x => x).ToArray();
+        var allFiles = this.cueContainers.Values.Select(x => x.GetContainerFiles()).SelectMany(x => x).ToArray();
         foreach (var file in allFiles)
         {
             AudioCache.GetAudioData(file);
@@ -161,25 +244,6 @@ internal class AudioRegistry
             Log.Error(ex, $"Failed to parse user config.\nFile: {configFile}");
             return null;
         }
-    }
-
-    /// <summary>
-    /// Applies defined settings in <paramref name="newConfig"/> to <paramref name="mainConfig"/>.
-    /// </summary>
-    /// <param name="mainConfig">Config to apply new settings to.</param>
-    /// <param name="newConfig">Config containing the settings to apply.</param>
-    private static void ApplyUserConfig(AudioConfig mainConfig, AudioConfig newConfig)
-    {
-        mainConfig.CueName = newConfig.CueName ?? mainConfig.CueName;
-        mainConfig.AcbName = newConfig.AcbName ?? mainConfig.AcbName;
-        mainConfig.PlayerId = newConfig.PlayerId ?? mainConfig.PlayerId;
-        mainConfig.CategoryIds = newConfig.CategoryIds ?? mainConfig.CategoryIds;
-        mainConfig.NumChannels = newConfig.NumChannels ?? mainConfig.NumChannels;
-        mainConfig.SampleRate = newConfig.SampleRate ?? mainConfig.SampleRate;
-        mainConfig.Volume = newConfig.Volume ?? mainConfig.Volume;
-        mainConfig.Tags = newConfig.Tags ?? mainConfig.Tags;
-        mainConfig.Key = newConfig.Key ?? mainConfig.Key;
-        mainConfig.SharedContainerId = newConfig.SharedContainerId ?? mainConfig.SharedContainerId;
     }
 
     private static CriAtomFormat GetAudioFormat(string file)
@@ -213,5 +277,12 @@ internal class AudioRegistry
             $"Volume: {config.Volume?.ToString() ?? "Not Set"}\n" +
             $"Sample Rate: {config.SampleRate?.ToString() ?? "Not Set"}\n" +
             $"Channels: {config.NumChannels?.ToString() ?? "Not Set"}");
+    }
+
+    private enum ContainerType
+    {
+        Cue,
+        File,
+        Data,
     }
 }
