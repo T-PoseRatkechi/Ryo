@@ -179,23 +179,29 @@ internal class AudioRegistry
             config.Apply(dirConfig);
         }
 
+        var folderExt = Path.GetExtension(dir);
+
+        // Folder likely contains items for a single item/file,
+        // and thus items should be added to a single container.
+        if (string.IsNullOrEmpty(folderExt) == false)
+        {
+            // Set shared container ID.
+            config.SharedContainerId = Guid.NewGuid().ToString();
+        }
+
         // Folder sets the ACB name for items.
         // Ex: A folder named "Voices.acb" indicates to use "Voice" for the ACB Name.
-        var folderName = Path.GetFileName(dir);
-        if (folderName.EndsWith(".acb", StringComparison.OrdinalIgnoreCase))
+        if (folderExt.Equals(".acb", StringComparison.OrdinalIgnoreCase))
         {
-            config.AcbName = Path.GetFileNameWithoutExtension(folderName);
+            config.AcbName = Path.GetFileNameWithoutExtension(dir);
         }
 
         // Folder is a Cue Folder, all audio files get added to the same
         // audio container
-        else if (folderName.EndsWith(".cue", StringComparison.OrdinalIgnoreCase))
+        else if (folderExt.Equals(".cue", StringComparison.OrdinalIgnoreCase))
         {
             // Set cue name.
-            config.CueName = Path.GetFileNameWithoutExtension(folderName);
-
-            // Set shared container ID.
-            config.SharedContainerId = Guid.NewGuid().ToString();
+            config.CueName = Path.GetFileNameWithoutExtension(dir);
         }
 
         foreach (var file in Directory.EnumerateFiles(dir))
