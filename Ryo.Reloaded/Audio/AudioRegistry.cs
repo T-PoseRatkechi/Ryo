@@ -61,16 +61,15 @@ internal class AudioRegistry
         // Get format from ext.
         config.Format = GetAudioFormat(file);
 
-        var parentDir = Path.GetDirectoryName(file)!;
-        if (parentDir.Contains(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase))
+        if (file.Contains(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase))
         {
-            var fileDirIndex = parentDir.IndexOf(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase);
-            config.AudioFilePath = parentDir[(fileDirIndex + RYO_FILE_DIR_NAME.Length + 1)..].Replace('\\', '/');
+            var fileDirIndex = file.IndexOf(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioFilePath = file[(fileDirIndex + RYO_FILE_DIR_NAME.Length + 1)..].Replace('\\', '/');
         }
-        else if (parentDir.Contains(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase))
+        else if (file.Contains(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase))
         {
-            var dataDirIndex = parentDir.IndexOf(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase);
-            config.AudioDataName = parentDir[(dataDirIndex + RYO_DATA_DIR_NAME.Length + 1)..];
+            var dataDirIndex = file.IndexOf(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioDataName = file[(dataDirIndex + RYO_DATA_DIR_NAME.Length + 1)..];
         }
 
         BaseContainer? container;
