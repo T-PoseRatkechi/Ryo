@@ -207,7 +207,7 @@ internal class AudioRegistry
         foreach (var file in Directory.EnumerateFiles(dir))
         {
             var ext = Path.GetExtension(file).ToLower();
-            if (ext == ".hca" || ext == ".adx")
+            if (ext == ".hca" || ext == ".adx" || ext == ".vag")
             {
                 this.AddAudioFile(file, config);
             }
@@ -257,7 +257,7 @@ internal class AudioRegistry
         {
             ".hca" => CriAtomFormat.HCA,
             ".adx" => CriAtomFormat.ADX,
-            _ => throw new Exception($"Unknown audio format.\nFile: {file}")
+            _ => CriAtomFormat.RAW_PCM,
         };
 
     private static string GetCueName(string file)
