@@ -61,15 +61,19 @@ internal class AudioRegistry
         // Get format from ext.
         config.Format = GetAudioFormat(file);
 
+        // Using parent directory forces replacement files to be
+        // in a sub-folder of the actual file path. Basically a requirement since
+        // new files can be different format.
+        var parentDir = Path.GetDirectoryName(file)!;
         if (file.Contains(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase))
         {
-            var fileDirIndex = file.IndexOf(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase);
-            config.AudioFilePath = file[(fileDirIndex + RYO_FILE_DIR_NAME.Length + 1)..].Replace('\\', '/');
+            var fileDirIndex = parentDir.IndexOf(RYO_FILE_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioFilePath = parentDir[(fileDirIndex + RYO_FILE_DIR_NAME.Length + 1)..].Replace('\\', '/');
         }
         else if (file.Contains(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase))
         {
-            var dataDirIndex = file.IndexOf(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase);
-            config.AudioDataName = file[(dataDirIndex + RYO_DATA_DIR_NAME.Length + 1)..];
+            var dataDirIndex = parentDir.IndexOf(RYO_DATA_DIR_NAME, StringComparison.OrdinalIgnoreCase);
+            config.AudioDataName = parentDir[(dataDirIndex + RYO_DATA_DIR_NAME.Length + 1)..].Replace('\\', '/');
         }
 
         BaseContainer? container;
@@ -206,7 +210,7 @@ internal class AudioRegistry
         foreach (var file in Directory.EnumerateFiles(dir))
         {
             var ext = Path.GetExtension(file).ToLower();
-            if (ext == ".hca" || ext == ".adx" || ext == ".vag")
+            if (ext == ".hca" || ext == ".adx" || ext == ".wav")
             {
                 this.AddAudioFile(file, config);
             }
@@ -256,7 +260,8 @@ internal class AudioRegistry
         {
             ".hca" => CriAtomFormat.HCA,
             ".adx" => CriAtomFormat.ADX,
-            _ => CriAtomFormat.RAW_PCM,
+            ".wav" => CriAtomFormat.WAVE,
+            _ => throw new Exception($"Unknown format: {file}"),
         };
 
     private static string GetCueName(string file)
