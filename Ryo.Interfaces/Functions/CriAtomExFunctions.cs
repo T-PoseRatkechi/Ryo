@@ -95,4 +95,13 @@ public unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate float criAtomExCategory_GetVolume(ushort index);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate bool criAtomExAcb_GetCueInfoByName(nint acbHn, nint nameStr, CriAtomExCueInfoTag* info);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate bool criAtomExAcb_GetCueInfoById(nint acbHn, int id, CriAtomExCueInfoTag* info);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate bool criAtomExAcb_ExistsName(nint acbHn, nint nameStr);
 }

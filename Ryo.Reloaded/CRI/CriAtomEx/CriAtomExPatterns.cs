@@ -25,6 +25,10 @@ internal static class CriAtomExGames
             criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
 
             criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
+
+            //criAtomExAcb_ExistsName = "48 89 5C 24 ?? 57 48 83 EC 20 33 DB 48 8B FA 48 8B C1",
+            criAtomExAcb_GetCueInfoByName = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B FA 48 8B D9 48 85 D2 75",
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0",
         },
         new("SMT5V-Win64-Shipping")
         {
@@ -205,4 +209,7 @@ internal class CriAtomExPatterns
     public string? criAtomExAcb_ExistsId { get; init; }
     public string? criAtomExAcb_LoadAcbData { get; init; }
     public string? criAtomExPlayer_SetWaveId { get; init; }
+    public string? criAtomExAcb_GetCueInfoByName { get; init; }
+    public string? criAtomExAcb_ExistsName { get; init; }
+    public string? criAtomExAcb_GetCueInfoById { get; init; }
 }

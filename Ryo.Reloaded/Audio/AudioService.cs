@@ -1,4 +1,5 @@
-﻿using Ryo.Interfaces;
+﻿using Ryo.Definitions.Structs;
+using Ryo.Interfaces;
 using Ryo.Reloaded.Audio.Models.Containers;
 using Ryo.Reloaded.CRI.CriAtomEx;
 using SharedScans.Interfaces;
@@ -19,6 +20,8 @@ internal unsafe class AudioService
     private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
     private readonly HookContainer<criAtomExPlayer_SetFile> setFile;
     private readonly HookContainer<criAtomExPlayer_SetWaveId> setWaveId;
+    private readonly HookContainer<criAtomExAcb_GetCueInfoById> getCueInfoById;
+    private readonly HookContainer<criAtomExAcb_GetCueInfoByName> getCueInfoByName;
     private readonly HookContainer<criAtomExPlayer_SetData> setData;
     private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
 
@@ -50,6 +53,9 @@ internal unsafe class AudioService
         this.setFile = scans.CreateHook<criAtomExPlayer_SetFile>(this.CriAtomExPlayer_SetFile, Mod.NAME);
         this.setData = scans.CreateHook<criAtomExPlayer_SetData>(this.CriAtomExPlayer_SetData, Mod.NAME);
         this.setWaveId = scans.CreateHook<criAtomExPlayer_SetWaveId>(this.CriAtomExPlayer_SetWaveId, Mod.NAME);
+
+        this.getCueInfoById = scans.CreateHook<criAtomExAcb_GetCueInfoById>(this.CriAtomExAcb_GetCueInfoById, Mod.NAME);
+        this.getCueInfoByName = scans.CreateHook<criAtomExAcb_GetCueInfoByName>(this.CriAtomExAcb_GetCueInfoByName, Mod.NAME);
     }
 
     public void SetDevMode(bool devMode)
@@ -116,7 +122,7 @@ internal unsafe class AudioService
 
         if (this.devMode)
         {
-            Log.Information($"SetCue || Player: {player.Id} || ACB: {acbName} || Cue: {cueName}");
+            Log.Information($"{nameof(SetCue)} || Player: {player.Id} || ACB: {acbName} || Cue: {cueName}");
         }
 
         if (this.audioRegistry.TryGetCueContainer(cueName, acbName, out var cue))
@@ -209,6 +215,53 @@ internal unsafe class AudioService
             this.criAtomEx.Category_SetVolumeById((uint)modifiedVolume.CategoryId, modifiedVolume.OriginalVolume);
             this.modifiedCategories.Remove(playerHn);
         }
+    }
+
+    private bool GetCueInfo(string acb, string cue, CriAtomExCueInfoTag* info)
+    {
+        // Ryo has audio registered for a "new" cue.
+        if (this.audioRegistry.TryGetCueContainer(cue, acb, out _))
+        {
+            // Hopefully null/zero values doesn't crash...
+            // Might be better to use GetCueInfoByIndex with index 0 and use that
+            // cue info as a shell.
+            _ = int.TryParse(cue, out int id);
+            var fakeCue = new CriAtomExCueInfoTag
+            {
+                id = id,
+                name = StringsCache.GetStringPtr(cue),
+            };
+
+            *info = fakeCue;
+            Log.Debug($"{nameof(GetCueInfo)} || Faked Cue: {cue} / {acb}");
+            return true;
+        }
+
+        return false;
+    }
+
+    private bool CriAtomExAcb_GetCueInfoByName(nint acbHn, nint nameStr, CriAtomExCueInfoTag* info)
+    {
+        // Cue by name exists in original ACB.
+        var result = this.getCueInfoByName.Hook!.OriginalFunction(acbHn, nameStr, info);
+        if (result)
+        {
+            return true;
+        }
+
+        return this.GetCueInfo(this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? string.Empty, Marshal.PtrToStringAnsi(nameStr)!, info);
+    }
+
+    private bool CriAtomExAcb_GetCueInfoById(nint acbHn, int id, CriAtomExCueInfoTag* info)
+    {
+        // Cue by ID exists in original ACB.
+        var result = this.getCueInfoById.Hook!.OriginalFunction(acbHn, id, info);
+        if (result)
+        {
+            return true;
+        }
+
+        return this.GetCueInfo(this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? string.Empty, id.ToString(), info);
     }
 
     private record CategoryVolume(int PlayerId, int CategoryId, float OriginalVolume);

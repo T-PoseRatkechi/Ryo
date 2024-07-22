@@ -1,13 +1,14 @@
 ﻿using Ryo.Definitions.Structs;
 using Ryo.Interfaces;
+using System.Collections.Concurrent;
 
 namespace Ryo.Reloaded.CRI.CriAtomEx;
 
 internal class CriAtomRegistry : ICriAtomRegistry
 {
-    private static readonly Dictionary<nint, Player> players = new();
-    private static readonly Dictionary<nint, Acb> acbs = new();
-    private static readonly Dictionary<nint, AudioData> audioDatas = new();
+    private static readonly ConcurrentDictionary<nint, Player> players = new();
+    private static readonly ConcurrentDictionary<nint, Acb> acbs = new();
+    private static readonly ConcurrentDictionary<nint, AudioData> audioDatas = new();
 
     public static Player RegisterPlayer(nint playerHn)
     {

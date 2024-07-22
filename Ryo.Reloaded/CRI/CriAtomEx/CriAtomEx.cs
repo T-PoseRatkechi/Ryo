@@ -79,6 +79,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
         scans.AddScan<criAtomExPlayer_SetData>(this.patterns.criAtomExPlayer_SetData);
         this.setData = scans.CreateWrapper<criAtomExPlayer_SetData>(Mod.NAME);
 
+        scans.AddScan<criAtomExAcb_GetCueInfoById>(this.patterns.criAtomExAcb_GetCueInfoById);
+        scans.AddScan<criAtomExAcb_GetCueInfoByName>(this.patterns.criAtomExAcb_GetCueInfoByName);
+
         ScanHooks.Add(
             nameof(criAtomExCategory_GetVolume),
             this.patterns.criAtomExCategory_GetVolume,
@@ -208,15 +211,15 @@ internal unsafe class CriAtomEx : ICriAtomEx
             (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
     }
 
+    public void SetDevMode(bool devMode)
+        => this.devMode = devMode;
+
     private nint Acb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize)
     {
         var acbHn = (AcbHn*)this.loadAcbDataHook!.OriginalFunction(acbData, acbDataSize, awbBinder, awbPath, work, workSize);
         CriAtomRegistry.RegisterAcb(acbHn);
         return (nint)acbHn;
     }
-
-    public void SetDevMode(bool devMode)
-        => this.devMode = devMode;
 
     public PlayerConfig? GetPlayerByAcbPath(string acbPath)
     {
