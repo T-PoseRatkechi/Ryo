@@ -61,7 +61,7 @@ internal unsafe class AudioService
     public void SetDevMode(bool devMode)
         => this.devMode = devMode;
 
-    private void SetRyoAudio(Player player, BaseContainer container)
+    private void SetRyoAudio(Player player, BaseContainer container, int[]? categories)
     {
         var currentPlayer = player;
         
@@ -91,19 +91,23 @@ internal unsafe class AudioService
         this.criAtomEx.Player_SetNumChannels(currentPlayer.Handle, newAudio.NumChannels);
 
         // Use first category for setting custom volume.
-        int volumeCategory = container.CategoryIds.Length > 0 ? container.CategoryIds[0] : -1;
-        if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(currentPlayer.Handle))
+        if (categories != null)
         {
-            var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
-            this.modifiedCategories[currentPlayer.Handle] = new CategoryVolume(currentPlayer.Id, volumeCategory, currentVolume);
-            this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, newAudio.Volume);
-            Log.Debug($"Modified volume. Player ID: {currentPlayer.Id} || Category ID: {volumeCategory} || Volume: {newAudio.Volume}");
-        }
+            Log.Debug($"Categories: {string.Join(", ", categories.Select(x => $"{x}"))}");
+            int volumeCategory = categories.Length > 0 ? categories[0] : -1;
+            if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(currentPlayer.Handle))
+            {
+                var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
+                this.modifiedCategories[currentPlayer.Handle] = new CategoryVolume(currentPlayer.Id, volumeCategory, currentVolume);
+                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, newAudio.Volume);
+                Log.Debug($"Modified volume. Player ID: {currentPlayer.Id} || Category ID: {volumeCategory} || Volume: {newAudio.Volume}");
+            }
 
-        // Apply categories.
-        foreach (var id in container.CategoryIds)
-        {
-            this.criAtomEx.Player_SetCategoryById(currentPlayer.Handle, (uint)id);
+            // Apply categories.
+            foreach (var id in categories)
+            {
+                this.criAtomEx.Player_SetCategoryById(currentPlayer.Handle, (uint)id);
+            }
         }
 
         if (manualStart)
@@ -115,19 +119,27 @@ internal unsafe class AudioService
         Log.Debug($"Redirected {container.Name}\nFile: {newAudio.FilePath}");
     }
 
-    private bool SetCue(nint playerHn, nint acbHn, string cueName)
+    private bool SetCue(nint playerHn, nint acbHn, Cue cue)
     {
         var player = this.criAtomRegistry.GetPlayerByHn(playerHn)!;
         var acbName = this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? "Unknown";
 
         if (this.devMode)
         {
-            Log.Information($"{nameof(SetCue)} || Player: {player.Id} || ACB: {acbName} || Cue: {cueName}");
+            var cueIdString = cue.Id == -1 ? "(N/A)" : cue.Id.ToString();
+            var cueNameString = cue.Name ?? "(N/A)";
+
+            Log.Information($"{nameof(SetCue)} || Player: {player.Id} || ACB: {acbName} || Cue: {cueIdString} / {cueNameString}");
         }
 
-        if (this.audioRegistry.TryGetCueContainer(cueName, acbName, out var cue))
+        if (cue.Id != -1 && this.audioRegistry.TryGetCueContainer(cue.Id.ToString(), acbName, out var idContainer))
         {
-            this.SetRyoAudio(player, cue);
+            this.SetRyoAudio(player, idContainer, idContainer.CategoryIds ?? cue.Categories);
+            return true;
+        }
+        else if (cue.Name != null && this.audioRegistry.TryGetCueContainer(cue.Name, acbName, out var nameContainer))
+        {
+            this.SetRyoAudio(player, nameContainer, nameContainer.CategoryIds ?? cue.Categories);
             return true;
         }
         else
@@ -137,22 +149,48 @@ internal unsafe class AudioService
         }
     }
 
-    private void CriAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueName)
+    private void CriAtomExPlayer_SetCueName(nint playerHn, nint acbHn, byte* cueNameStr)
     {
-        var cueNameStr = Marshal.PtrToStringAnsi((nint)cueName)!;
+        var cueInfo = (CriAtomExCueInfoTag*)Marshal.AllocHGlobal(sizeof(CriAtomExCueInfoTag));
 
-        if (this.SetCue(playerHn, acbHn, cueNameStr) == false)
+        var cueName = Marshal.PtrToStringAnsi((nint)cueNameStr)!;
+        var cueId = -1;
+        int[]? categories = null;
+        
+        if (this.CriAtomExAcb_GetCueInfoByName(acbHn, (nint)cueNameStr, cueInfo))
         {
-            this.setCueName.Hook!.OriginalFunction(playerHn, acbHn, cueName);
+            cueId = cueInfo->id;
+            categories = cueInfo->GetCategories();
         }
+
+        var cue = new Cue() { Name = cueName, Id = cueId, Categories = categories };
+        if (this.SetCue(playerHn, acbHn, cue) == false)
+        {
+            this.setCueName.Hook!.OriginalFunction(playerHn, acbHn, cueNameStr);
+        }
+
+        Marshal.FreeHGlobal((nint)cueInfo);
     }
 
     private void CriAtomExPlayer_SetCueId(nint playerHn, nint acbHn, int cueId)
     {
-        if (this.SetCue(playerHn, acbHn, cueId.ToString()) == false)
+        var cueInfo = (CriAtomExCueInfoTag*)Marshal.AllocHGlobal(sizeof(CriAtomExCueInfoTag));
+        string? cueName = null;
+        int[]? categories = null;
+
+        if (this.CriAtomExAcb_GetCueInfoById(acbHn, cueId, cueInfo))
+        {
+            cueName = Marshal.PtrToStringAnsi(cueInfo->name)!;
+            categories = cueInfo->GetCategories();
+        }
+
+        var cue = new Cue() { Name = cueName, Id = cueId, Categories = categories };
+        if (this.SetCue(playerHn, acbHn, cue) == false)
         {
             this.setCueId.Hook!.OriginalFunction(playerHn, acbHn, cueId);
         }
+
+        Marshal.FreeHGlobal((nint)cueInfo);
     }
 
     private void CriAtomExPlayer_SetFile(nint playerHn, nint criBinderHn, byte* path)
@@ -167,7 +205,7 @@ internal unsafe class AudioService
 
         if (filePath != null && this.audioRegistry.TryGetFileContainer(filePath, out var file))
         {
-            this.SetRyoAudio(player, file);
+            this.SetRyoAudio(player, file, file.CategoryIds);
         }
         else
         {
@@ -188,7 +226,7 @@ internal unsafe class AudioService
 
         if (audioData != null && this.audioRegistry.TryGetDataContainer(audioData.Name, out var data))
         {
-            this.SetRyoAudio(player, data);
+            this.SetRyoAudio(player, data, data.CategoryIds);
         }
         else
         {
@@ -199,10 +237,10 @@ internal unsafe class AudioService
 
     private void CriAtomExPlayer_SetWaveId(nint playerHn, nint awbHn, int waveId)
     {
-        if (this.SetCue(playerHn, awbHn, waveId.ToString()) == false)
-        {
-            this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
-        }
+        //if (this.SetCue(playerHn, awbHn, waveId.ToString()) == false)
+        //{
+        //    this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
+        //}
     }
 
     private void ResetPlayerVolume(nint playerHn)
@@ -217,23 +255,17 @@ internal unsafe class AudioService
         }
     }
 
-    private bool GetCueInfo(string acb, string cue, CriAtomExCueInfoTag* info)
+    private bool GetCueInfoByRyo(string acb, string cue, CriAtomExCueInfoTag* info)
     {
         // Ryo has audio registered for a "new" cue.
         if (this.audioRegistry.TryGetCueContainer(cue, acb, out _))
         {
-            // Hopefully null/zero values doesn't crash...
             // Might be better to use GetCueInfoByIndex with index 0 and use that
             // cue info as a shell.
             _ = int.TryParse(cue, out int id);
-            var fakeCue = new CriAtomExCueInfoTag
-            {
-                id = id,
-                name = StringsCache.GetStringPtr(cue),
-            };
-
-            *info = fakeCue;
-            Log.Debug($"{nameof(GetCueInfo)} || Faked Cue: {cue} / {acb}");
+            info->id = id;
+            info->name = StringsCache.GetStringPtr(cue);
+            Log.Debug($"{nameof(GetCueInfoByRyo)} || Faked Cue: {cue} / {acb}");
             return true;
         }
 
@@ -243,25 +275,44 @@ internal unsafe class AudioService
     private bool CriAtomExAcb_GetCueInfoByName(nint acbHn, nint nameStr, CriAtomExCueInfoTag* info)
     {
         // Cue by name exists in original ACB.
-        var result = this.getCueInfoByName.Hook!.OriginalFunction(acbHn, nameStr, info);
-        if (result)
+        if (this.getCueInfoByName.Hook?.OriginalFunction(acbHn, nameStr, info) == true)
         {
             return true;
         }
 
-        return this.GetCueInfo(this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? string.Empty, Marshal.PtrToStringAnsi(nameStr)!, info);
+        var acb = this.criAtomRegistry.GetAcbByHn(acbHn);
+        if (acb != null)
+        {
+            return this.GetCueInfoByRyo(acb.Name, Marshal.PtrToStringAnsi(nameStr)!, info);
+        }
+
+        return false;
     }
 
     private bool CriAtomExAcb_GetCueInfoById(nint acbHn, int id, CriAtomExCueInfoTag* info)
     {
         // Cue by ID exists in original ACB.
-        var result = this.getCueInfoById.Hook!.OriginalFunction(acbHn, id, info);
-        if (result)
+        if (this.getCueInfoById.Hook?.OriginalFunction(acbHn, id, info) == true)
         {
             return true;
         }
 
-        return this.GetCueInfo(this.criAtomRegistry.GetAcbByHn(acbHn)?.Name ?? string.Empty, id.ToString(), info);
+        var acb = this.criAtomRegistry.GetAcbByHn(acbHn);
+        if (acb != null)
+        {
+            return this.GetCueInfoByRyo(acb.Name, id.ToString(), info);
+        }
+
+        return false;
+    }
+
+    private class Cue
+    {
+        public int Id { get; init; } = -1;
+
+        public string? Name { get; init; }
+
+        public int[]? Categories { get; init; }
     }
 
     private record CategoryVolume(int PlayerId, int CategoryId, float OriginalVolume);

@@ -26,7 +26,6 @@ internal static class CriAtomExGames
 
             criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
 
-            //criAtomExAcb_ExistsName = "48 89 5C 24 ?? 57 48 83 EC 20 33 DB 48 8B FA 48 8B C1",
             criAtomExAcb_GetCueInfoByName = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B FA 48 8B D9 48 85 D2 75",
             criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0",
         },
@@ -62,6 +61,8 @@ internal static class CriAtomExGames
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
+
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 41 B8 FE FF FF FF 33 C9 E8 ?? ?? ?? ?? 33 C0",
         },
         new("p4g")
         {
@@ -74,19 +75,18 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
             criAtomExPlayer_SetCategoryByName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 48 8B F2",
 
-            // Pattern to actual function that handles loading ACB data, used by both loading functions (ID/non-ID).
-            // FUN_14061d260
-            criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
-
             // Uses same pattern as P5R but function is "simpler".
             criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B EA 48 8B F9",
             criAtomExPlayer_SetData = "48 8B C4 48 89 58 ?? 48 89 68 ?? 48 89 70 ?? 48 89 78 ?? 41 54 41 56 41 57 48 81 EC 80 00 00 00 45 8B F0",
 
+            // Pattern to actual function that handles loading ACB data, used by both loading functions (ID/non-ID).
+            // FUN_14061d260
+            criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
+
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
 
-            // Unused.
-            //criAtomExAcb_LoadAcbFile = "48 89 5C 24 ?? 48 89 4C 24 ?? 55 56 57 41 54 41 55 41 56 41 57 48 81 EC D0 00 00 00",
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 41 B8 FE FF FF FF 33 C9 E8 ?? ?? ?? ?? 33 C0",
         },
         new("p3p")
         {

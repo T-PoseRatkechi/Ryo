@@ -15,7 +15,7 @@ internal abstract class BaseContainer
         this.playMode = config?.PlaybackMode ?? PlaybackMode.Random;
 
         PlayerId = config?.PlayerId ?? -1;
-        CategoryIds = config?.CategoryIds ?? Array.Empty<int>();
+        CategoryIds = config?.CategoryIds;
         SharedContainerId = config?.SharedContainerId;
     }
 
@@ -23,7 +23,7 @@ internal abstract class BaseContainer
 
     public int PlayerId { get; }
 
-    public int[] CategoryIds { get; }
+    public int[]? CategoryIds { get; }
 
     public string? SharedContainerId { get; }
 

@@ -9,19 +9,18 @@ internal static class GameDefaults
     {
         ["p5r"] = new()
         {
-            AcbName = "bgm",
-            CategoryIds = new int[] { 1, 8 },
+            //AcbName = "bgm",
+            //CategoryIds = new int[] { 1, 8 },
         },
         ["p4g"] = new()
         {
-            AcbName = "snd00_bgm",
-            CategoryIds = new int[] { 6, 13 },
+            //AcbName = "snd00_bgm",
+            //CategoryIds = new int[] { 6, 13 },
         },
         ["p3r"] = new()
         {
             AcbName = "bgm",
-            CategoryIds = new int[] { 0, 13 },
-            PlayerId = 0,
+            //CategoryIds = new int[] { 0, 13 },
             Volume = 0.15f,
         },
         ["SMT5V-Win64-Shipping"] = new()
