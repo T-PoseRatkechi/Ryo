@@ -277,6 +277,7 @@ internal unsafe class AudioService
         // Cue by name exists in original ACB.
         if (this.getCueInfoByName.Hook?.OriginalFunction(acbHn, nameStr, info) == true)
         {
+            PrintCategories(info);
             return true;
         }
 
@@ -294,6 +295,7 @@ internal unsafe class AudioService
         // Cue by ID exists in original ACB.
         if (this.getCueInfoById.Hook?.OriginalFunction(acbHn, id, info) == true)
         {
+            PrintCategories(info);
             return true;
         }
 
@@ -305,6 +307,9 @@ internal unsafe class AudioService
 
         return false;
     }
+
+    private static void PrintCategories(CriAtomExCueInfoTag* info)
+        => Log.Debug($"Categories: {string.Join(", ", info->GetCategories().Select(x => x.ToString()))}");
 
     private class Cue
     {
