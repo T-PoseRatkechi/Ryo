@@ -46,6 +46,9 @@ internal static class CriAtomExGames
             criAtomExCategory_GetVolume = "40 53 48 83 EC 20 83 64 24 ?? 00",
             criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
             criAtomExCategory_SetVolume = "40 53 48 83 EC 30 0F B7 D9",
+
+            criAtomExAcb_GetCueInfoByName = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B FA 48 8B D9 48 85 D2 75 ??",
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0",
         },
         new("p5r")
         {
@@ -127,6 +130,8 @@ internal static class CriAtomExGames
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 83 64 24 ?? 00 0F B7 D9",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
+
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 89 C7 89 D6",
         },
         new("likeadragongaiden")
         {
@@ -144,6 +149,8 @@ internal static class CriAtomExGames
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 83 64 24 ?? 00 0F B7 D9",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
+
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 89 C7 89 D6",
         },
         new("LostJudgment")
         {
@@ -161,6 +168,8 @@ internal static class CriAtomExGames
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 83 64 24 ?? 00 0F B7 D9",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
+
+            criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 4C 89 C7 89 D6",
         },
     };
 
