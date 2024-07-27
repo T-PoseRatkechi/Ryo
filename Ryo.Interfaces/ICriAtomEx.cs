@@ -10,7 +10,7 @@ public interface ICriAtomEx
 
     int Playback_GetTimeSyncedWithAudio(uint playbackId);
 
-    unsafe bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfo* info);
+    unsafe bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfoTag* info);
 
     uint Player_GetLastPlaybackId(nint playerHn);
 

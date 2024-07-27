@@ -40,10 +40,11 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private IHook<criAtomExPlayer_Create>? createHook;
     private IHook<criAtomExAcb_LoadAcbFile>? loadAcbFileHook;
     private IHook<criAtomExAcb_LoadAcbData>? loadAcbDataHook;
+    private IHook<criAtomAwb_LoadToc>? loadToc;
+    private IHook<criAtomExAcf_GetCategoryInfoByIndex>? acfGetCategoryInfoByIdHook;
 
     // Private.
     private criAtomExCategory_SetVolumeById? setVolumeById;
-    private criAtomConfig_GetCategoryIndexById? getCategoryIndex;
     private criAtomExCategory_GetVolume? getCategoryVolume;
     private criAtomExCategory_GetVolumeById? getVolumeById;
     private criAtomExCategory_SetVolume? setVolumeByIndex;
@@ -55,6 +56,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly WrapperContainer<criAtomExPlayer_Start> start;
     private readonly WrapperContainer<criAtomExPlayer_SetWaveId> setWaveId;
     private readonly WrapperContainer<criAtomExPlayer_SetData> setData;
+    private readonly WrapperContainer<criAtomExAcf_GetCategoryIndexById> getCategoryIndex;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -82,15 +84,23 @@ internal unsafe class CriAtomEx : ICriAtomEx
         scans.AddScan<criAtomExAcb_GetCueInfoById>(this.patterns.criAtomExAcb_GetCueInfoById);
         scans.AddScan<criAtomExAcb_GetCueInfoByName>(this.patterns.criAtomExAcb_GetCueInfoByName);
 
+        scans.AddScan<criAtomExAcf_GetCategoryIndexById>(this.patterns.criAtomExAcf_GetCategoryIndexById);
+        this.getCategoryIndex = scans.CreateWrapper<criAtomExAcf_GetCategoryIndexById>(Mod.NAME);
+
+        scans.AddScan<criAtomExAcf_GetCategoryInfoByIndex>(this.patterns.criAtomExAcf_GetCategoryInfoByIndex);
+
+        ScanHooks.Add(
+            nameof(criAtomExAcf_GetCategoryInfoByIndex),
+            this.patterns.criAtomExAcf_GetCategoryInfoByIndex,
+            (hooks, result) =>
+            {
+                this.acfGetCategoryInfoByIdHook = hooks.CreateHook<criAtomExAcf_GetCategoryInfoByIndex>(this.Acf_GetCategoryInfoById, 0x140643f6c).Activate();
+            });
+
         ScanHooks.Add(
             nameof(criAtomExCategory_GetVolume),
             this.patterns.criAtomExCategory_GetVolume,
             (hooks, result) => this.getCategoryVolume = hooks.CreateWrapper<criAtomExCategory_GetVolume>(result, out _));
-
-        ScanHooks.Add(
-            nameof(criAtomConfig_GetCategoryIndexById),
-            this.patterns.criAtomConfig_GetCategoryIndexById,
-            (hooks, result) => this.getCategoryIndex = hooks.CreateWrapper<criAtomConfig_GetCategoryIndexById>(result, out _));
 
         ScanHooks.Add(
             nameof(criAtomExCategory_SetVolumeById),
@@ -118,6 +128,14 @@ internal unsafe class CriAtomEx : ICriAtomEx
             {
                 this.loadAcbFile = hooks.CreateFunction<criAtomExAcb_LoadAcbFile>(result);
                 this.loadAcbFileHook = this.loadAcbFile.Hook(this.Acb_LoadAcbFile).Activate();
+            });
+
+        ScanHooks.Add(
+            nameof(criAtomAwb_LoadToc),
+            this.patterns.criAtomAwb_LoadToc,
+            (hooks, result) =>
+            {
+                this.loadToc = hooks.CreateHook<criAtomAwb_LoadToc>(this.Awb_LoadToc, result).Activate();
             });
 
         ScanHooks.Add(
@@ -211,6 +229,12 @@ internal unsafe class CriAtomEx : ICriAtomEx
             (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
     }
 
+    private bool Acf_GetCategoryInfoById(ushort id, CriAtomExCategoryInfoTag* info)
+    {
+        var result = this.acfGetCategoryInfoByIdHook!.OriginalFunction(id, info);
+        return result;
+    }
+
     public void SetDevMode(bool devMode)
         => this.devMode = devMode;
 
@@ -288,7 +312,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public void Player_SetCategoryByName(nint playerHn, byte* name)
         => this.setCategoryByName!.GetWrapper()(playerHn, name);
 
-    public bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfo* info)
+    public bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfoTag* info)
         => this.getCategoryInfo!.GetWrapper()(playerHn, index, info);
 
     public float Category_GetVolumeById(uint id)
@@ -320,7 +344,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         this.setVolumeByIndex!(catIndex, volume);
     }
 
-    public ushort Config_GetCategoryIndexById(uint id) => this.getCategoryIndex!(id);
+    public ushort Config_GetCategoryIndexById(uint id) => this.getCategoryIndex.Wrapper(id);
 
     public float Category_GetVolume(ushort index) => this.getCategoryVolume!(index);
 
@@ -333,7 +357,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public nint Player_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize)
     {
         var playerId = this.players.Count;
-        Log.Verbose($"{nameof(criAtomExPlayer_Create)} || Config: {(nint)config:X} || Work: {(nint)work:X} || WorkSize: {workSize}");
+        //Log.Verbose($"{nameof(criAtomExPlayer_Create)} || Config: {(nint)config:X} || Work: {(nint)work:X} || WorkSize: {workSize}");
 
         CriAtomExPlayerConfigTag* currentConfigPtr;
         if (this.playerConfigs.TryGetValue(playerId, out var newConfig))
@@ -357,10 +381,17 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private nint Acb_LoadAcbFile(nint acbBinder, byte* acbPathStr, nint awbBinder, byte* awbPathStr, void* work, int workSize)
     {
         var acbHn = (AcbHn*)this.loadAcbFileHook!.OriginalFunction(acbBinder, acbPathStr, awbBinder, awbPathStr, work, workSize);
-        var acbPath = Marshal.PtrToStringAnsi((nint)acbPathStr)!;
-        Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Hn: {(nint)acbHn:X}");
+        //Log.Debug($"{nameof(criAtomExAcb_LoadAcbFile)} || Path: {acbPath} || Hn: {(nint)acbHn:X}");
         CriAtomRegistry.RegisterAcb(acbHn);
 
         return (nint)acbHn;
+    }
+
+    private nint Awb_LoadToc(nint binder, nint path, void* work, int workSize)
+    {
+        var awbHn = this.loadToc!.OriginalFunction(binder, path, work, workSize);
+        var awbPath = Marshal.PtrToStringAnsi(path)!;
+        CriAtomRegistry.RegisterAwb(awbPath, awbHn);
+        return awbHn;
     }
 }

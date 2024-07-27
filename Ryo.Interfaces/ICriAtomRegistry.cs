@@ -54,10 +54,26 @@ public interface ICriAtomRegistry
     /// <param name="acbHn">Handle of ACB to get.</param>
     /// <returns>The ACB, if found.</returns>
     Acb? GetAcbByHn(nint acbHn);
+
+    /// <summary>
+    /// Gets AWB by its file path.
+    /// </summary>
+    /// <param name="awbPath">AWB file path.</param>
+    /// <returns>The AWB, if found.</returns>
+    Awb? GetAwbByPath(string awbPath);
+
+    /// <summary>
+    /// Gets AWB by its handle.
+    /// </summary>
+    /// <param name="awbHn">Handle of AWB to get.</param>
+    /// <returns>The AWB, if found.</returns>
+    Awb? GetAwbByHn(nint awbHn);
 }
 
 public record Player(int Id, nint Handle);
 
 public record Acb(string Name, nint Handle);
+
+public record Awb(string Path,  nint Handle);
 
 public record AudioData(string Name, nint Address);

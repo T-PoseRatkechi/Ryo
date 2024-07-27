@@ -22,7 +22,7 @@ internal static class CriAtomExGames
             criAtomExPlayer_Stop = "40 53 48 83 EC 20 48 8B D9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? 48 83 C4 20 5B E9 ?? ?? ?? ?? E8 ?? ?? ?? ?? 85 C0 74 ?? 83 F8 03 75 ?? 48 8B 8B ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 63 ?? 00 83 A3 ?? ?? ?? ?? 00 C6 83 ?? ?? ?? ?? 00 48 83 C4 20 5B C3 E8 ?? ?? ?? ?? 48 8B CB",
             criAtomExPlayer_SetAisacControlByName = "48 89 5C 24 ?? 57 48 83 EC 30 48 8B F9 0F 29 74 24 ?? 33 C9",
             criAtomExCategory_GetVolume = "40 53 48 83 EC 20 83 64 24 ?? 00",
-            criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
+            criAtomExAcf_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
 
             criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
 
@@ -44,7 +44,7 @@ internal static class CriAtomExGames
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
             criAtomExCategory_GetVolume = "40 53 48 83 EC 20 83 64 24 ?? 00",
-            criAtomConfig_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
+            criAtomExAcf_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
             criAtomExCategory_SetVolume = "40 53 48 83 EC 30 0F B7 D9",
 
             criAtomExAcb_GetCueInfoByName = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B FA 48 8B D9 48 85 D2 75 ??",
@@ -74,22 +74,26 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetFormat = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 48 8D 15",
             criAtomExPlayer_SetNumChannels = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 8D 42",
             criAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 85 D2",
-            criAtomExPlayer_SetCueId = "48 8B C4 48 89 58 ?? 48 89 68 ?? 48 89 70 ?? 48 89 78 ?? 41 54 41 56 41 57 48 81 EC 80 00 00 00 4D 63 F0",
             criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
             criAtomExPlayer_SetCategoryByName = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 48 8B F2",
 
-            // Uses same pattern as P5R but function is "simpler".
-            criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B EA 48 8B F9",
+            criAtomExPlayer_SetCueId = "48 8B C4 48 89 58 ?? 48 89 68 ?? 48 89 70 ?? 48 89 78 ?? 41 54 41 56 41 57 48 81 EC 80 00 00 00 4D 63 F0",
+            criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B EA 48 8B F9", // Uses same pattern as P5R but function is "simpler".
             criAtomExPlayer_SetData = "48 8B C4 48 89 58 ?? 48 89 68 ?? 48 89 70 ?? 48 89 78 ?? 41 54 41 56 41 57 48 81 EC 80 00 00 00 45 8B F0",
+            criAtomExPlayer_SetWaveId = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 56 41 57 48 81 EC 80 00 00 00 45 8B F0 4C 8B FA 48 8B E9 E8 ?? ?? ?? ?? 48 8B F0 E8 ?? ?? ?? ?? B9 4D 00 00 00",
 
             // Pattern to actual function that handles loading ACB data, used by both loading functions (ID/non-ID).
             // FUN_14061d260
             criAtomExAcb_LoadAcbData = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 41 54 41 55 41 56 41 57 48 83 EC 50 33 F6",
+            criAtomAwb_LoadToc = "40 53 48 83 EC 20 83 25 ?? ?? ?? ?? 00",
 
             criAtomExCategory_GetVolumeById = "40 53 48 83 EC 20 8B D9 33 C9 E8 ?? ?? ?? ?? 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 33 C9 E8 ?? ?? ?? ?? F3 0F 10 05",
             criAtomExCategory_SetVolumeById = "40 53 48 83 EC 30 8B D9 0F 29 74 24 ?? 33 C9",
 
             criAtomExAcb_GetCueInfoById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F8 8B F2 48 8B D9 4D 85 C0 75 ?? 48 8D 15 ?? ?? ?? ?? 41 B8 FE FF FF FF 33 C9 E8 ?? ?? ?? ?? 33 C0",
+            
+            //criAtomExAcf_GetCategoryInfoByIndex = "48 89 5C 24 ?? 48 89 74 24 ?? 55 57 41 55 41 56 41 57 48 8D 6C 24",
+            //criAtomExAcf_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
         },
         new("p3p")
         {
@@ -213,7 +217,7 @@ internal class CriAtomExPatterns
     public string? criAtomExPlayer_Stop { get; init; }
     public string? criAtomExPlayer_SetAisacControlByName { get; init; }
     public string? criAtomExCategory_GetVolume { get; init; }
-    public string? criAtomConfig_GetCategoryIndexById { get; init; }
+    public string? criAtomExAcf_GetCategoryIndexById { get; init; }
     public string? criAtomExCategory_SetVolume { get; init; }
     public string? criAtomExAcb_ExistsId { get; init; }
     public string? criAtomExAcb_LoadAcbData { get; init; }
@@ -221,4 +225,6 @@ internal class CriAtomExPatterns
     public string? criAtomExAcb_GetCueInfoByName { get; init; }
     public string? criAtomExAcb_ExistsName { get; init; }
     public string? criAtomExAcb_GetCueInfoById { get; init; }
+    public string? criAtomAwb_LoadToc { get; init; }
+    public string? criAtomExAcf_GetCategoryInfoByIndex { get; init; }
 }

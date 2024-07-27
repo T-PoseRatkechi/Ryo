@@ -8,6 +8,7 @@ internal class CriAtomRegistry : ICriAtomRegistry
 {
     private static readonly ConcurrentDictionary<nint, Player> players = new();
     private static readonly ConcurrentDictionary<nint, Acb> acbs = new();
+    private static readonly ConcurrentDictionary<nint, Awb> awbs = new();
     private static readonly ConcurrentDictionary<nint, AudioData> audioDatas = new();
 
     public static Player RegisterPlayer(nint playerHn)
@@ -26,11 +27,42 @@ internal class CriAtomRegistry : ICriAtomRegistry
         return acb;
     }
 
+    public unsafe static Awb RegisterAwb(string path, nint handle)
+    {
+        var awb = new Awb(path, handle);
+        awbs[awb.Handle] = awb;
+        Log.Debug($"Registered AWB || Path: {awb.Path} || Handle: {awb.Handle:X}");
+        return awb;
+    }
+
+    public Awb? GetAwbByHn(nint awbHn)
+    {
+        if (awbs.TryGetValue(awbHn, out var awb))
+        {
+            return awb;
+        }
+
+        Log.Debug($"Unknown AWB Hn: {awbHn:X}");
+        return null;
+    }
+
+    public Awb? GetAwbByPath(string awbPath)
+    {
+        var existingAwb = awbs.Values.FirstOrDefault(x => x.Path.Equals(awbPath, StringComparison.OrdinalIgnoreCase));
+        if (existingAwb != null)
+        {
+            return existingAwb;
+        }
+
+        Log.Debug($"Unknown AWB: {awbPath}");
+        return null;
+    }
+
     public Acb? GetAcbByHn(nint acbHn)
     {
-        if (acbs.TryGetValue(acbHn, out var acbName))
+        if (acbs.TryGetValue(acbHn, out var acb))
         {
-            return acbName;
+            return acb;
         }
 
         Log.Debug($"Unknown ACB Hn: {acbHn:X}");

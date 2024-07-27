@@ -67,7 +67,7 @@ public unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetCategoryByName(nint playerHn, byte* name);
 
     [Function(CallingConventions.Microsoft)]
-    public delegate bool criAtomExPlayer_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfo* info);
+    public delegate bool criAtomExPlayer_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfoTag* info);
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetData(nint playerHn, byte* buffer, int size);
@@ -91,7 +91,7 @@ public unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue);
 
     [Function(CallingConventions.Microsoft)]
-    public delegate ushort criAtomConfig_GetCategoryIndexById(uint id);
+    public delegate ushort criAtomExAcf_GetCategoryIndexById(uint id);
 
     [Function(CallingConventions.Microsoft)]
     public delegate float criAtomExCategory_GetVolume(ushort index);
@@ -104,4 +104,10 @@ public unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate bool criAtomExAcb_ExistsName(nint acbHn, nint nameStr);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate nint criAtomAwb_LoadToc(nint binder, nint path, void* work, int workSize);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate bool criAtomExAcf_GetCategoryInfoByIndex(ushort index, CriAtomExCategoryInfoTag* info);
 }

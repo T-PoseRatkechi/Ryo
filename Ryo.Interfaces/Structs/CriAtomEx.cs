@@ -3,16 +3,6 @@
 namespace Ryo.Definitions.Structs;
 
 [StructLayout(LayoutKind.Sequential)]
-public unsafe struct CriAtomExCategoryInfo
-{
-    public uint groupNo;
-    public uint id;
-    public byte* name;
-    public uint numCueLimits;
-    public float volume;
-}
-
-[StructLayout(LayoutKind.Sequential)]
 public struct CriAtomExPlayerConfigTag
 {
     public int voiceAllocationMethod;
@@ -85,4 +75,14 @@ public unsafe struct CriAtomExCueInfoTag
 
         return cats.ToArray();
     }
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public unsafe struct CriAtomExCategoryInfoTag
+{
+    public uint group_no;
+    public uint id;
+    public nint name;
+    public uint num_cue_limits;
+    public float volume;
 }
