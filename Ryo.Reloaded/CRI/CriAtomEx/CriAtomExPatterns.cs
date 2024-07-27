@@ -100,6 +100,9 @@ internal static class CriAtomExGames
             criAtomExAcf_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
 
             criAtomExPlayer_SetSyncPlaybackId = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? EB ?? 8B CF",
+            criAtomExPlayer_SetStartTime = "48 85 C9 74 ?? 48 85 D2 78 ?? B8 FF FF FF FF 48 3B D0 48 0F 4C C2",
+            criAtomExPlayer_GetStatus = "48 89 5C 24 ?? 57 48 83 EC 20 48 8B F9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? 8D 47",
+            criAtomExPlayback_GetTimeSyncedWithAudioMicro = "48 89 5C 24 ?? 48 89 6C 24 ?? 56 57 41 56 48 83 EC 20 44 8B F1",
         },
         new("p3p")
         {
@@ -234,4 +237,5 @@ internal class CriAtomExPatterns
     public string? criAtomAwb_LoadToc { get; init; }
     public string? criAtomExAcf_GetCategoryInfoByIndex { get; init; }
     public string? criAtomExPlayer_SetSyncPlaybackId { get; init; }
+    public string? criAtomExPlayback_GetTimeSyncedWithAudioMicro { get; init; }
 }

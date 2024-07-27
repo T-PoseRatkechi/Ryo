@@ -94,6 +94,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         scans.AddScan<criAtomExAcf_GetCategoryInfoByIndex>(this.patterns.criAtomExAcf_GetCategoryInfoByIndex);
         scans.AddScan<criAtomExPlayer_SetSyncPlaybackId>(this.patterns.criAtomExPlayer_SetSyncPlaybackId);
+        scans.AddScan<criAtomExPlayer_SetStartTime>(this.patterns.criAtomExPlayer_SetStartTime);
+        scans.AddScan<criAtomExPlayback_GetTimeSyncedWithAudioMicro>(this.patterns.CriAtomExPlayback_GetTimeSyncedWithAudio);
+        scans.AddScan<criAtomExPlayer_GetStatus>(this.patterns.criAtomExPlayer_GetStatus);
 
         ScanHooks.Add(
             nameof(criAtomExAcf_GetCategoryInfoByIndex),
@@ -148,16 +151,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
             nameof(criAtomExAcb_LoadAcbData),
             this.patterns.criAtomExAcb_LoadAcbData,
             (hooks, result) => this.loadAcbDataHook = hooks.CreateHook<criAtomExAcb_LoadAcbData>(this.Acb_LoadAcbData, result).Activate());
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_SetStartTime),
-            this.patterns.criAtomExPlayer_SetStartTime,
-            (hooks, result) => this.setStartTime = hooks.CreateFunction<criAtomExPlayer_SetStartTime>(result));
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayback_GetTimeSyncedWithAudio),
-            this.patterns.CriAtomExPlayback_GetTimeSyncedWithAudio,
-            (hooks, result) => this.getTimeSyncedWithAudio = hooks.CreateFunction<criAtomExPlayback_GetTimeSyncedWithAudio>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_GetNumPlayedSamples),
@@ -218,11 +211,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
             nameof(criAtomExPlayer_LimitLoopCount),
             this.patterns.criAtomExPlayer_LimitLoopCount,
             (hooks, result) => this.limitLoopCount = hooks.CreateFunction<criAtomExPlayer_LimitLoopCount>(result));
-
-        ScanHooks.Add(
-            nameof(criAtomExPlayer_GetStatus),
-            this.patterns.criAtomExPlayer_GetStatus,
-            (hooks, result) => this.getStatus = hooks.CreateFunction<criAtomExPlayer_GetStatus>(result));
 
         ScanHooks.Add(
             nameof(criAtomExPlayer_Stop),

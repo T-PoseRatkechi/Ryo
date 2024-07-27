@@ -58,6 +58,9 @@ public unsafe static class CriAtomExFunctions
     public delegate int criAtomExPlayback_GetTimeSyncedWithAudio(uint playbackId);
 
     [Function(CallingConventions.Microsoft)]
+    public delegate int criAtomExPlayback_GetTimeSyncedWithAudioMicro(uint playbackId);
+
+    [Function(CallingConventions.Microsoft)]
     public delegate nint criAtomExPlayer_Create(CriAtomExPlayerConfigTag* config, void* work, int workSize);
 
     [Function(CallingConventions.Microsoft)]
