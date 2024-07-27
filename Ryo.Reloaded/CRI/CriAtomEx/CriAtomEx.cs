@@ -57,6 +57,8 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly WrapperContainer<criAtomExPlayer_SetWaveId> setWaveId;
     private readonly WrapperContainer<criAtomExPlayer_SetData> setData;
     private readonly WrapperContainer<criAtomExAcf_GetCategoryIndexById> getCategoryIndex;
+    private readonly WrapperContainer<criAtomExAcb_GetCueInfoById> getCueInfoById;
+    private readonly WrapperContainer<criAtomExAcb_GetCueInfoByName> getCueInfoByName;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -82,7 +84,10 @@ internal unsafe class CriAtomEx : ICriAtomEx
         this.setData = scans.CreateWrapper<criAtomExPlayer_SetData>(Mod.NAME);
 
         scans.AddScan<criAtomExAcb_GetCueInfoById>(this.patterns.criAtomExAcb_GetCueInfoById);
+        this.getCueInfoById = scans.CreateWrapper<criAtomExAcb_GetCueInfoById>(Mod.NAME);
+
         scans.AddScan<criAtomExAcb_GetCueInfoByName>(this.patterns.criAtomExAcb_GetCueInfoByName);
+        this.getCueInfoByName = scans.CreateWrapper<criAtomExAcb_GetCueInfoByName>(Mod.NAME);
 
         scans.AddScan<criAtomExAcf_GetCategoryIndexById>(this.patterns.criAtomExAcf_GetCategoryIndexById);
         this.getCategoryIndex = scans.CreateWrapper<criAtomExAcf_GetCategoryIndexById>(Mod.NAME);
@@ -229,16 +234,19 @@ internal unsafe class CriAtomEx : ICriAtomEx
             (hooks, result) => this.setAisacControlByName = hooks.CreateFunction<criAtomExPlayer_SetAisacControlByName>(result));
     }
 
-    private bool Acf_GetCategoryInfoById(ushort id, CriAtomExCategoryInfoTag* info)
+    public void SetDevMode(bool devMode) => this.devMode = devMode;
+
+    public bool Acb_GetCueInfoById(nint acbHn, int id, CriAtomExCueInfoTag* info) => this.getCueInfoById.Wrapper(acbHn, id, info);
+
+    public bool Acb_GetCueInfoByName(nint acbHn, nint name, CriAtomExCueInfoTag* info) => this.getCueInfoByName.Wrapper(acbHn, name, info);
+
+    public bool Acf_GetCategoryInfoById(ushort id, CriAtomExCategoryInfoTag* info)
     {
         var result = this.acfGetCategoryInfoByIdHook!.OriginalFunction(id, info);
         return result;
     }
 
-    public void SetDevMode(bool devMode)
-        => this.devMode = devMode;
-
-    private nint Acb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize)
+    public nint Acb_LoadAcbData(nint acbData, int acbDataSize, nint awbBinder, nint awbPath, void* work, int workSize)
     {
         var acbHn = (AcbHn*)this.loadAcbDataHook!.OriginalFunction(acbData, acbDataSize, awbBinder, awbPath, work, workSize);
         CriAtomRegistry.RegisterAcb(acbHn);

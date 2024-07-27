@@ -1,5 +1,5 @@
-﻿using Ryo.Interfaces.Classes;
-using Ryo.Reloaded.CRI.CriAtomEx;
+﻿using Ryo.Interfaces;
+using Ryo.Interfaces.Classes;
 
 namespace Ryo.Reloaded.Audio;
 
@@ -56,7 +56,7 @@ internal static class GameDefaults
         return new();
     }
 
-    public static void ConfigureCriAtom(string game, CriAtomEx criAtomEx)
+    public static void ConfigureCriAtom(string game, ICriAtomEx criAtomEx)
     {
         var normalizedGame = game.ToLower();
         switch (normalizedGame)
