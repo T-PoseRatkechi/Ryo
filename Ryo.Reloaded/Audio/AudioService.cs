@@ -1,6 +1,7 @@
 ﻿using Ryo.Definitions.Structs;
 using Ryo.Interfaces;
 using Ryo.Reloaded.Audio.Models.Containers;
+using Ryo.Reloaded.Audio.Services;
 using Ryo.Reloaded.CRI.CriAtomEx;
 using SharedScans.Interfaces;
 using System.Runtime.InteropServices;
@@ -13,6 +14,7 @@ internal unsafe class AudioService
     private readonly CriAtomEx criAtomEx;
     private readonly CriAtomRegistry criAtomRegistry;
     private readonly AudioRegistry audioRegistry;
+    private readonly VirtualAcfService virtualAcf;
 
     private bool devMode;
     private readonly bool useSetFile;
@@ -35,6 +37,7 @@ internal unsafe class AudioService
         this.criAtomEx = criAtomEx;
         this.criAtomRegistry = criAtomRegistry;
         this.audioRegistry = audioRegistry;
+        this.virtualAcf = new(scans);
 
         GameDefaults.ConfigureCriAtom(game, criAtomEx);
         var patterns = CriAtomExGames.GetGamePatterns(game);
@@ -237,10 +240,23 @@ internal unsafe class AudioService
 
     private void CriAtomExPlayer_SetWaveId(nint playerHn, nint awbHn, int waveId)
     {
-        //if (this.SetCue(playerHn, awbHn, waveId.ToString()) == false)
-        //{
-        //    this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
-        //}
+        var awbPath = this.criAtomRegistry.GetAwbByHn(awbHn)?.Path ?? "Unknown";
+        var player = this.criAtomRegistry.GetPlayerByHn(playerHn)!;
+
+        if (this.devMode)
+        {
+            Log.Information($"{nameof(criAtomExPlayer_SetWaveId)} || Player: {player.Id} || AWB: {awbPath} || Wave ID: {waveId}");
+        }
+
+        if (awbPath != null && this.audioRegistry.TryGetFileContainer($"{awbPath.Trim('/')}/{waveId}.wave", out var file))
+        {
+            this.SetRyoAudio(player, file, file.CategoryIds);
+        }
+        else
+        {
+            this.ResetPlayerVolume(playerHn);
+            this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
+        }
     }
 
     private void ResetPlayerVolume(nint playerHn)
