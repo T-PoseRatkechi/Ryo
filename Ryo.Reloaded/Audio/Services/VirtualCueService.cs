@@ -32,7 +32,8 @@ internal unsafe class VirtualCueService
             _ = int.TryParse(cue, out int id);
             info->id = id;
             info->name = StringsCache.GetStringPtr(cue);
-            Log.Debug($"{nameof(GetCueInfoByRyo)} || Faked Cue: {cue} / {acb}");
+            info->categories[0] = -1;
+            Log.Debug($"{nameof(GetCueInfoByRyo)} || Virtual Cue: {cue} / {acb}");
             return true;
         }
 
