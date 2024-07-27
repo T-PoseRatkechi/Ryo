@@ -213,7 +213,7 @@ internal class CriAtomExPatterns
     public string? criAtomExCategory_SetVolumeById { get; init; }
     public string? criAtomExPlayer_SetCategoryById { get; init; }
     public string? criAtomExPlayer_SetStartTime { get; init; }
-    public string? CriAtomExPlayback_GetTimeSyncedWithAudio { get; init; }
+    public string? criAtomExPlayback_GetTimeSyncedWithAudio { get; init; }
     public string? criAtomExPlayer_Create { get; init; }
     public string? criAtomExPlayer_GetLastPlaybackId { get; init; }
     public string? criAtomExPlayer_SetCategoryByName { get; init; }

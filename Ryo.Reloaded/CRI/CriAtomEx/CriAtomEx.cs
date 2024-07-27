@@ -95,7 +95,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         scans.AddScan<criAtomExAcf_GetCategoryInfoByIndex>(this.patterns.criAtomExAcf_GetCategoryInfoByIndex);
         scans.AddScan<criAtomExPlayer_SetSyncPlaybackId>(this.patterns.criAtomExPlayer_SetSyncPlaybackId);
         scans.AddScan<criAtomExPlayer_SetStartTime>(this.patterns.criAtomExPlayer_SetStartTime);
-        scans.AddScan<criAtomExPlayback_GetTimeSyncedWithAudioMicro>(this.patterns.CriAtomExPlayback_GetTimeSyncedWithAudio);
+        scans.AddScan<criAtomExPlayback_GetTimeSyncedWithAudioMicro>(this.patterns.criAtomExPlayback_GetTimeSyncedWithAudioMicro);
         scans.AddScan<criAtomExPlayer_GetStatus>(this.patterns.criAtomExPlayer_GetStatus);
 
         ScanHooks.Add(
