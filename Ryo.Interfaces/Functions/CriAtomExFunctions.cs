@@ -110,4 +110,7 @@ public unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate bool criAtomExAcf_GetCategoryInfoByIndex(ushort index, CriAtomExCategoryInfoTag* info);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_SetSyncPlaybackId(nint playerHn, uint playbackId);
 }

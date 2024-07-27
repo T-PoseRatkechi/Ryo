@@ -93,6 +93,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
         this.getCategoryIndex = scans.CreateWrapper<criAtomExAcf_GetCategoryIndexById>(Mod.NAME);
 
         scans.AddScan<criAtomExAcf_GetCategoryInfoByIndex>(this.patterns.criAtomExAcf_GetCategoryInfoByIndex);
+        scans.AddScan<criAtomExPlayer_SetSyncPlaybackId>(this.patterns.criAtomExPlayer_SetSyncPlaybackId);
 
         ScanHooks.Add(
             nameof(criAtomExAcf_GetCategoryInfoByIndex),

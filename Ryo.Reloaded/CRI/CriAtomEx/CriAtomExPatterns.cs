@@ -98,6 +98,8 @@ internal static class CriAtomExGames
             
             //criAtomExAcf_GetCategoryInfoByIndex = "48 89 5C 24 ?? 48 89 74 24 ?? 55 57 41 55 41 56 41 57 48 8D 6C 24",
             criAtomExAcf_GetCategoryIndexById = "48 89 5C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 8B F9 BE FF FF 00 00",
+
+            criAtomExPlayer_SetSyncPlaybackId = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E8 ?? ?? ?? ?? EB ?? 8B CF",
         },
         new("p3p")
         {
@@ -231,4 +233,5 @@ internal class CriAtomExPatterns
     public string? criAtomExAcb_GetCueInfoById { get; init; }
     public string? criAtomAwb_LoadToc { get; init; }
     public string? criAtomExAcf_GetCategoryInfoByIndex { get; init; }
+    public string? criAtomExPlayer_SetSyncPlaybackId { get; init; }
 }
