@@ -18,8 +18,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly List<PlayerConfig> players = new();
 
     private IFunction<criAtomExPlayer_Create>? create;
-    private IFunction<criAtomExPlayer_SetStartTime>? setStartTime;
-    private IFunction<criAtomExPlayback_GetTimeSyncedWithAudio>? getTimeSyncedWithAudio;
     private IFunction<criAtomExPlayer_GetNumPlayedSamples>? getNumPlayedSamples;
     private IFunction<criAtomExAcb_LoadAcbFile>? loadAcbFile;
     private IFunction<criAtomExPlayer_SetFormat>? setFormat;
@@ -32,7 +30,6 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private IFunction<criAtomExPlayer_GetCategoryInfo>? getCategoryInfo;
     private IFunction<criAtomExPlayer_UpdateAll>? updateAll;
     private IFunction<criAtomExPlayer_LimitLoopCount>? limitLoopCount;
-    private IFunction<criAtomExPlayer_GetStatus>? getStatus;
     private IFunction<criAtomExPlayer_Stop>? stop;
     private IFunction<criAtomExPlayer_SetAisacControlByName>? setAisacControlByName;
 
@@ -59,6 +56,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly WrapperContainer<criAtomExAcf_GetCategoryIndexById> getCategoryIndex;
     private readonly WrapperContainer<criAtomExAcb_GetCueInfoById> getCueInfoById;
     private readonly WrapperContainer<criAtomExAcb_GetCueInfoByName> getCueInfoByName;
+    private readonly WrapperContainer<criAtomExPlayer_SetStartTime> setStartTime;
+    private readonly WrapperContainer<criAtomExPlayback_GetTimeSyncedWithAudioMicro> getTimeSyncedWithAudioMicro;
+    private readonly WrapperContainer<criAtomExPlayer_GetStatus> getStatus;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -92,11 +92,14 @@ internal unsafe class CriAtomEx : ICriAtomEx
         scans.AddScan<criAtomExAcf_GetCategoryIndexById>(this.patterns.criAtomExAcf_GetCategoryIndexById);
         this.getCategoryIndex = scans.CreateWrapper<criAtomExAcf_GetCategoryIndexById>(Mod.NAME);
 
-        scans.AddScan<criAtomExAcf_GetCategoryInfoByIndex>(this.patterns.criAtomExAcf_GetCategoryInfoByIndex);
-        scans.AddScan<criAtomExPlayer_SetSyncPlaybackId>(this.patterns.criAtomExPlayer_SetSyncPlaybackId);
         scans.AddScan<criAtomExPlayer_SetStartTime>(this.patterns.criAtomExPlayer_SetStartTime);
+        this.setStartTime = scans.CreateWrapper<criAtomExPlayer_SetStartTime>(Mod.NAME);
+
         scans.AddScan<criAtomExPlayback_GetTimeSyncedWithAudioMicro>(this.patterns.criAtomExPlayback_GetTimeSyncedWithAudioMicro);
+        this.getTimeSyncedWithAudioMicro = scans.CreateWrapper<criAtomExPlayback_GetTimeSyncedWithAudioMicro>(Mod.NAME);
+
         scans.AddScan<criAtomExPlayer_GetStatus>(this.patterns.criAtomExPlayer_GetStatus);
+        this.getStatus = scans.CreateWrapper<criAtomExPlayer_GetStatus>(Mod.NAME);
 
         ScanHooks.Add(
             nameof(criAtomExAcf_GetCategoryInfoByIndex),
@@ -259,58 +262,43 @@ internal unsafe class CriAtomEx : ICriAtomEx
     public PlayerConfig? GetPlayerById(int playerId)
         => this.players.FirstOrDefault(x => x.Id == playerId);
 
-    public CriAtomExPlayerStatusTag Player_GetStatus(nint playerHn)
-        => this.getStatus!.GetWrapper()(playerHn);
+    public CriAtomExPlayerStatusTag Player_GetStatus(nint playerHn) => this.getStatus.Wrapper(playerHn);
 
-    public void Player_LimitLoopCount(nint playerHn, int count)
-        => this.limitLoopCount!.GetWrapper()(playerHn, count);
+    public void Player_LimitLoopCount(nint playerHn, int count) => this.limitLoopCount!.GetWrapper()(playerHn, count);
 
-    public void Player_Stop(nint playerHn)
-        => this.stop!.GetWrapper()(playerHn);
+    public void Player_Stop(nint playerHn) => this.stop!.GetWrapper()(playerHn);
 
-    public void Player_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue)
-        => this.setAisacControlByName!.GetWrapper()(playerHn, controlName, controlValue);
+    public void Player_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue)  => this.setAisacControlByName!.GetWrapper()(playerHn, controlName, controlValue);
 
-    public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)
-        => this.setCueId.Wrapper(playerHn, acbHn, cueId);
+    public void Player_SetCueId(nint playerHn, nint acbHn, int cueId)  => this.setCueId.Wrapper(playerHn, acbHn, cueId);
 
-    public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)
-        => this.setCueName.Wrapper(playerHn, acbHn, cueName);
+    public void Player_SetCueName(nint playerHn, nint acbHn, byte* cueName)  => this.setCueName.Wrapper(playerHn, acbHn, cueName);
 
-    public void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config)
-        => this.playerConfigs[id] = config;
+    public void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config) => this.playerConfigs[id] = config;
 
-    public int Playback_GetTimeSyncedWithAudio(uint playbackId)
-        => this.getTimeSyncedWithAudio!.GetWrapper()(playbackId);
+    public int Playback_GetTimeSyncedWithAudio(uint playbackId) => throw new NotImplementedException();
 
-    public uint Player_Start(nint playerHn)
-        => this.start.Wrapper(playerHn);
+    public uint Player_Start(nint playerHn) => this.start.Wrapper(playerHn);
 
-    public void Player_SetStartTime(nint playerHn, int currentBgmTime)
-        => this.setStartTime!.GetWrapper()(playerHn, currentBgmTime);
+    public void Player_SetStartTime(nint playerHn, int currentBgmTime) => this.setStartTime.Wrapper(playerHn, currentBgmTime);
 
-    public void Player_SetFile(nint playerHn, nint criBinderHn, byte* path)
-        => this.setFile.Wrapper(playerHn, criBinderHn, path);
+    public void Player_SetFile(nint playerHn, nint criBinderHn, byte* path) => this.setFile.Wrapper(playerHn, criBinderHn, path);
 
-    public void Player_SetFormat(nint playerHn, CriAtomFormat format)
-        => this.setFormat!.GetWrapper()(playerHn, format);
+    public void Player_SetFormat(nint playerHn, CriAtomFormat format) => this.setFormat!.GetWrapper()(playerHn, format);
 
-    public void Player_SetNumChannels(nint playerHn, int numChannels)
-        => this.setNumChannels!.GetWrapper()(playerHn, numChannels);
+    public void Player_SetNumChannels(nint playerHn, int numChannels) => this.setNumChannels!.GetWrapper()(playerHn, numChannels);
 
-    public void Player_SetCategoryById(nint playerHn, uint id)
-        => this.setCategoryById!.GetWrapper()(playerHn, id);
+    public void Player_SetCategoryById(nint playerHn, uint id) => this.setCategoryById!.GetWrapper()(playerHn, id);
 
-    public void Player_SetSamplingRate(nint playerHn, int samplingRate)
-        => this.setSamplingRate!.GetWrapper()(playerHn, samplingRate);
-    public uint Player_GetLastPlaybackId(nint playerHn)
-        => this.getLastPlaybackId!.GetWrapper()(playerHn);
+    public void Player_SetSamplingRate(nint playerHn, int samplingRate) => this.setSamplingRate!.GetWrapper()(playerHn, samplingRate);
 
-    public void Player_SetCategoryByName(nint playerHn, byte* name)
-        => this.setCategoryByName!.GetWrapper()(playerHn, name);
+    public uint Player_GetLastPlaybackId(nint playerHn) => this.getLastPlaybackId!.GetWrapper()(playerHn);
 
-    public bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfoTag* info)
-        => this.getCategoryInfo!.GetWrapper()(playerHn, index, info);
+    public void Player_SetCategoryByName(nint playerHn, byte* name) => this.setCategoryByName!.GetWrapper()(playerHn, name);
+
+    public bool Player_GetCategoryInfo(nint playerHn, ushort index, CriAtomExCategoryInfoTag* info) => this.getCategoryInfo!.GetWrapper()(playerHn, index, info);
+
+    public int Playback_GetTimeSyncedWithAudioMicro(uint playbackId) => this.getTimeSyncedWithAudioMicro.Wrapper(playbackId);
 
     public float Category_GetVolumeById(uint id)
     {

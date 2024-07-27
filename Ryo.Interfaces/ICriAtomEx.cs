@@ -36,6 +36,7 @@ public interface ICriAtomEx
     void Player_Stop(nint playerHn);
     void Player_UpdateAll(nint playerHn);
     void SetPlayerConfigById(int id, CriAtomExPlayerConfigTag config);
+    int Playback_GetTimeSyncedWithAudioMicro(uint playbackId);
 
     [Obsolete("No alternative until needed.")]
     PlayerConfig? GetPlayerByAcbPath(string acbPath);
