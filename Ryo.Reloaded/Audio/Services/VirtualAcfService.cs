@@ -6,12 +6,12 @@ namespace Ryo.Reloaded.Audio.Services;
 
 internal unsafe class VirtualAcfService
 {
-    private readonly HookContainer<criAtomExAcf_GetCategoryIndexById> getCategoryIndexById;
+    private readonly HookContainer<criAtomConfig_GetCategoryIndexById> getCategoryIndexById;
     private readonly HookContainer<criAtomExAcf_GetCategoryInfoByIndex> getCategoryInfoByIndex;
 
     public VirtualAcfService(ISharedScans scans)
     {
-        this.getCategoryIndexById = scans.CreateHook<criAtomExAcf_GetCategoryIndexById>(this.CriAtomExAcf_GetCategoryIndexById, Mod.NAME);
+        this.getCategoryIndexById = scans.CreateHook<criAtomConfig_GetCategoryIndexById>(this.CriAtomExAcf_GetCategoryIndexById, Mod.NAME);
         this.getCategoryInfoByIndex = scans.CreateHook<criAtomExAcf_GetCategoryInfoByIndex>(this.CriAtomExAcf_GetCategoryInfoByIndex, Mod.NAME);
     }
 

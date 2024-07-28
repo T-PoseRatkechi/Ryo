@@ -53,7 +53,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly WrapperContainer<criAtomExPlayer_Start> start;
     private readonly WrapperContainer<criAtomExPlayer_SetWaveId> setWaveId;
     private readonly WrapperContainer<criAtomExPlayer_SetData> setData;
-    private readonly WrapperContainer<criAtomExAcf_GetCategoryIndexById> getCategoryIndex;
+    private readonly WrapperContainer<criAtomConfig_GetCategoryIndexById> getCategoryIndex;
     private readonly WrapperContainer<criAtomExAcb_GetCueInfoById> getCueInfoById;
     private readonly WrapperContainer<criAtomExAcb_GetCueInfoByName> getCueInfoByName;
     private readonly WrapperContainer<criAtomExPlayer_SetStartTime> setStartTime;
@@ -89,8 +89,8 @@ internal unsafe class CriAtomEx : ICriAtomEx
         scans.AddScan<criAtomExAcb_GetCueInfoByName>(this.patterns.criAtomExAcb_GetCueInfoByName);
         this.getCueInfoByName = scans.CreateWrapper<criAtomExAcb_GetCueInfoByName>(Mod.NAME);
 
-        scans.AddScan<criAtomExAcf_GetCategoryIndexById>(this.patterns.criAtomExAcf_GetCategoryIndexById);
-        this.getCategoryIndex = scans.CreateWrapper<criAtomExAcf_GetCategoryIndexById>(Mod.NAME);
+        scans.AddScan<criAtomConfig_GetCategoryIndexById>(this.patterns.criAtomConfig_GetCategoryIndexById);
+        this.getCategoryIndex = scans.CreateWrapper<criAtomConfig_GetCategoryIndexById>(Mod.NAME);
 
         scans.AddScan<criAtomExPlayer_SetStartTime>(this.patterns.criAtomExPlayer_SetStartTime);
         this.setStartTime = scans.CreateWrapper<criAtomExPlayer_SetStartTime>(Mod.NAME);

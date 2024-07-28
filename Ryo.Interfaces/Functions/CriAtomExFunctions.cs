@@ -94,7 +94,7 @@ public unsafe static class CriAtomExFunctions
     public delegate void criAtomExPlayer_SetAisacControlByName(nint playerHn, byte* controlName, float controlValue);
 
     [Function(CallingConventions.Microsoft)]
-    public delegate ushort criAtomExAcf_GetCategoryIndexById(uint id);
+    public delegate ushort criAtomConfig_GetCategoryIndexById(uint id);
 
     [Function(CallingConventions.Microsoft)]
     public delegate float criAtomExCategory_GetVolume(ushort index);
