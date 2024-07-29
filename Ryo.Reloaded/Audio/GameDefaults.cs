@@ -5,6 +5,23 @@ namespace Ryo.Reloaded.Audio;
 
 internal static class GameDefaults
 {
+    private static readonly Dictionary<string, Func<AcbCueInfo, string>> linkCueCallback = new(StringComparer.OrdinalIgnoreCase)
+    {
+        ["p5r"] = (AcbCueInfo info) =>
+        {
+            if (info.Acb == "bgm") return info.Cue.Replace("link", "bgm");
+            return info.Cue;
+        },
+
+        ["p3r"] = (AcbCueInfo info) => info.Cue.Replace("link_", string.Empty),
+    };
+
+    public static Func<AcbCueInfo, string>? GetLinkCueCb(string game)
+    {
+        linkCueCallback.TryGetValue(game, out var cb);
+        return cb;
+    }
+
     private static readonly Dictionary<string, AudioConfig> defaults = new(StringComparer.OrdinalIgnoreCase)
     {
         ["p5r"] = new()

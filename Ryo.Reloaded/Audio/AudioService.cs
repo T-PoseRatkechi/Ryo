@@ -17,12 +17,13 @@ internal unsafe class AudioService
     private readonly RyoService ryo;
     private readonly VirtualCueService virtualCue;
 
-    private bool devMode;
     private readonly HookContainer<criAtomExPlayer_SetCueName> setCueName;
     private readonly HookContainer<criAtomExPlayer_SetCueId> setCueId;
     private readonly HookContainer<criAtomExPlayer_SetFile> setFile;
     private readonly HookContainer<criAtomExPlayer_SetWaveId> setWaveId;
     private readonly HookContainer<criAtomExPlayer_SetData> setData;
+
+    private bool devMode;
 
     public AudioService(
         string game,
@@ -36,7 +37,7 @@ internal unsafe class AudioService
         this.audioRegistry = audioRegistry;
 
         this.ryo = new(game, criAtomEx, criAtomRegistry);
-        this.virtualCue = new(scans, criAtomRegistry, audioRegistry);
+        this.virtualCue = new(game, scans, criAtomRegistry, audioRegistry);
 
         GameDefaults.ConfigureCriAtom(game, criAtomEx);
 
@@ -69,17 +70,17 @@ internal unsafe class AudioService
 
         if (cue.Id != -1 && this.audioRegistry.TryGetCueContainer(cue.Id.ToString(), acbName, out var idContainer))
         {
-            this.ryo.SetAudio(player, idContainer, idContainer.CategoryIds ?? cue.Categories);
+            this.ryo.SetAudio(player, idContainer, idContainer.CategoryIds ?? cue.Categories, SetSource.Cue);
             return true;
         }
         else if (cue.Name != null && this.audioRegistry.TryGetCueContainer(cue.Name, acbName, out var nameContainer))
         {
-            this.ryo.SetAudio(player, nameContainer, nameContainer.CategoryIds ?? cue.Categories);
+            this.ryo.SetAudio(player, nameContainer, nameContainer.CategoryIds ?? cue.Categories, SetSource.Cue);
             return true;
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn);
+            this.ryo.ResetPlayerVolume(playerHn, SetSource.Cue);
             return false;
         }
     }
@@ -140,11 +141,11 @@ internal unsafe class AudioService
 
         if (filePath != null && this.audioRegistry.TryGetFileContainer(filePath, out var file))
         {
-            this.ryo.SetAudio(player, file, file.CategoryIds);
+            this.ryo.SetAudio(player, file, file.CategoryIds, SetSource.File);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn);
+            this.ryo.ResetPlayerVolume(playerHn, SetSource.File);
             this.setFile.Hook!.OriginalFunction(playerHn, criBinderHn, path);
         }
     }
@@ -161,11 +162,11 @@ internal unsafe class AudioService
 
         if (audioData != null && this.audioRegistry.TryGetDataContainer(audioData.Name, out var data))
         {
-            this.ryo.SetAudio(player, data, data.CategoryIds);
+            this.ryo.SetAudio(player, data, data.CategoryIds, SetSource.Data);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn);
+            this.ryo.ResetPlayerVolume(playerHn, SetSource.Data);
             this.setData.Hook!.OriginalFunction(playerHn, buffer, size);
         }
     }
@@ -182,11 +183,11 @@ internal unsafe class AudioService
 
         if (awbPath != null && this.audioRegistry.TryGetFileContainer($"{awbPath.Trim('/')}/{waveId}.wave", out var file))
         {
-            this.ryo.SetAudio(player, file, file.CategoryIds);
+            this.ryo.SetAudio(player, file, file.CategoryIds, SetSource.Wave);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn);
+            this.ryo.ResetPlayerVolume(playerHn, SetSource.Wave);
             this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
         }
     }

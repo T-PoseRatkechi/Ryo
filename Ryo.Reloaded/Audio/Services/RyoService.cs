@@ -9,7 +9,7 @@ internal unsafe class RyoService
 {
     private readonly ICriAtomEx criAtomEx;
     private readonly ICriAtomRegistry criAtomRegistry;
-    private readonly Dictionary<nint, CategoryVolume> modifiedCategories = new();
+    private readonly Dictionary<VolumePlayer, CategoryVolume> modifiedCategories = new();
     private readonly bool useSetFile;
 
     public RyoService(string game, ICriAtomEx criAtomEx, ICriAtomRegistry criAtomRegistry)
@@ -29,7 +29,7 @@ internal unsafe class RyoService
         }
     }
 
-    public void SetAudio(Player player, BaseContainer container, int[]? categories)
+    public void SetAudio(Player player, BaseContainer container, int[]? categories, SetSource source)
     {
         var currentPlayer = player;
 
@@ -61,12 +61,13 @@ internal unsafe class RyoService
         // Use first category for setting custom volume.
         if (categories != null)
         {
-            Log.Debug($"Categories: {string.Join(", ", categories.Select(x => $"{x}"))}");
             int volumeCategory = categories.Length > 0 ? categories[0] : -1;
-            if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(currentPlayer.Handle))
+            var volumePlayer = new VolumePlayer(currentPlayer.Handle, source);
+
+            if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(volumePlayer))
             {
                 var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
-                this.modifiedCategories[currentPlayer.Handle] = new CategoryVolume(currentPlayer.Id, volumeCategory, currentVolume);
+                this.modifiedCategories[volumePlayer] = new CategoryVolume(currentPlayer.Id, volumeCategory, currentVolume);
                 this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, newAudio.Volume);
                 Log.Debug($"Modified volume. Player ID: {currentPlayer.Id} || Category ID: {volumeCategory} || Volume: {newAudio.Volume}");
             }
@@ -87,17 +88,21 @@ internal unsafe class RyoService
         Log.Debug($"Redirected {container.Name}\nFile: {newAudio.FilePath}");
     }
 
-    public void ResetPlayerVolume(nint playerHn)
+    public void ResetPlayerVolume(nint playerHn, SetSource source)
     {
+        var player = new VolumePlayer(playerHn, source);
+
         // Reset modified category volume.
         // Limited to one modified category per player.
-        if (this.modifiedCategories.TryGetValue(playerHn, out var modifiedVolume))
+        if (this.modifiedCategories.TryGetValue(player, out var modifiedVolume))
         {
             Log.Debug($"Reseting volume. Player ID: {modifiedVolume.PlayerId} || Category ID: {modifiedVolume.CategoryId}");
             this.criAtomEx.Category_SetVolumeById((uint)modifiedVolume.CategoryId, modifiedVolume.OriginalVolume);
-            this.modifiedCategories.Remove(playerHn);
+            this.modifiedCategories.Remove(player);
         }
     }
 
     private record CategoryVolume(int PlayerId, int CategoryId, float OriginalVolume);
+
+    private record VolumePlayer(nint Handle, SetSource Source);
 }
