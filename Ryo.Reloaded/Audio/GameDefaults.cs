@@ -48,17 +48,17 @@ internal static class GameDefaults
         },
         ["likeadragon8"] = new()
         {
-            //CategoryIds = new int[] { 11 },
+            CategoryIds = new int[] { 11 },
             Volume = 0.35f,
         },
         ["likeadragongaiden"] = new()
         {
-            //CategoryIds = new int[] { 11 },
+            CategoryIds = new int[] { 11 },
             Volume = 0.35f,
         },
         ["LostJudgment"] = new()
         {
-            //CategoryIds = new int[] { 11 },
+            CategoryIds = new int[] { 11 },
             Volume = 0.35f,
         },
     };
