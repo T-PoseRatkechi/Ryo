@@ -116,4 +116,7 @@ public unsafe static class CriAtomExFunctions
 
     [Function(CallingConventions.Microsoft)]
     public delegate void criAtomExPlayer_SetSyncPlaybackId(nint playerHn, uint playbackId);
+
+    [Function(CallingConventions.Microsoft)]
+    public delegate void criAtomExPlayer_ResetParameters(nint playerHn);
 }

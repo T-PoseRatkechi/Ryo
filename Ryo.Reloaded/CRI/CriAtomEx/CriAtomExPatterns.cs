@@ -79,6 +79,8 @@ internal static class CriAtomExGames
             criAtomExPlayer_SetNumChannels = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 8D 42",
             criAtomExPlayer_SetSamplingRate = "48 89 5C 24 ?? 57 48 83 EC 20 8B FA 48 8B D9 48 85 C9 74 ?? 85 D2",
             criAtomExPlayer_SetCategoryById = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 50 48 8B F9 8B F2",
+            criAtomExPlayer_SetVolume = "48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? E9 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? 33 D2",
+            criAtomExPlayer_ResetParameters = "40 53 48 83 EC 20 48 8B D9 48 85 C9 75 ?? 44 8D 41 ?? 48 8D 15 ?? ?? ?? ?? 48 83 C4 20 5B E9 ?? ?? ?? ?? 48 8B 89 ?? ?? ?? ?? E8 ?? ?? ?? ?? 83 A3 ?? ?? ?? ?? 00",
 
             criAtomExPlayer_SetFile = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 8B F0 48 8B EA 48 8B F9",
             criAtomExPlayer_SetCueId = "48 89 5C 24 ?? 48 89 6C 24 ?? 48 89 74 24 ?? 57 48 83 EC 20 49 63 F8 48 8B F2 48 8B D9",
@@ -282,4 +284,5 @@ internal class CriAtomExPatterns
     public string? criAtomExAcf_GetCategoryInfoByIndex { get; init; }
     public string? criAtomExPlayer_SetSyncPlaybackId { get; init; }
     public string? criAtomExPlayback_GetTimeSyncedWithAudioMicro { get; init; }
+    public string? criAtomExPlayer_ResetParameters { get; init; }
 }

@@ -26,4 +26,6 @@ internal class RyoAudio
     public string? Key => this.config.Key ?? null;
 
     public string[] Tags => this.config.Tags ?? Array.Empty<string>();
+
+    public bool UsePlayerVolume => this.config.UsePlayerVolume ?? false;
 }
