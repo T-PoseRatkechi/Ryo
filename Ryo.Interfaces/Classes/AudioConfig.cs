@@ -41,6 +41,8 @@ public class AudioConfig
 
     public PlaybackMode? PlaybackMode { get; set; }
 
+    public bool? UsePlayerVolume { get; set; }
+
     public AudioConfig Clone() => (AudioConfig)this.MemberwiseClone();
 
     /// <summary>
@@ -62,5 +64,6 @@ public class AudioConfig
         this.AudioDataName = newConfig.AudioDataName ?? this.AudioDataName;
         this.AudioFilePath = newConfig.AudioFilePath ?? this.AudioFilePath;
         this.PlaybackMode = newConfig.PlaybackMode ?? this.PlaybackMode;
+        this.UsePlayerVolume = newConfig.UsePlayerVolume ?? this.UsePlayerVolume;
     }
 }

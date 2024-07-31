@@ -1,4 +1,5 @@
 ﻿using Ryo.Interfaces;
+using Ryo.Reloaded.Audio.Models;
 using Ryo.Reloaded.Audio.Models.Containers;
 using Ryo.Reloaded.CRI.CriAtomEx;
 using static Ryo.Definitions.Functions.CriAtomExFunctions;
@@ -9,7 +10,8 @@ internal unsafe class RyoService
 {
     private readonly ICriAtomEx criAtomEx;
     private readonly ICriAtomRegistry criAtomRegistry;
-    private readonly Dictionary<VolumePlayer, CategoryVolume> modifiedCategories = new();
+    private readonly Dictionary<int, float> modifiedCategories = new();
+    private readonly HashSet<nint> modifiedPlayers = new();
     private readonly bool useSetFile;
 
     public RyoService(string game, ICriAtomEx criAtomEx, ICriAtomRegistry criAtomRegistry)
@@ -29,7 +31,7 @@ internal unsafe class RyoService
         }
     }
 
-    public void SetAudio(Player player, BaseContainer container, int[]? categories, SetSource source)
+    public void SetAudio(Player player, BaseContainer container, int[]? categories)
     {
         var currentPlayer = player;
 
@@ -54,30 +56,11 @@ internal unsafe class RyoService
             this.criAtomEx.Player_SetData(currentPlayer.Handle, (byte*)audioData.Address, audioData.Size);
         }
 
+        this.ResetPlayerVolume(player);
         this.criAtomEx.Player_SetFormat(currentPlayer.Handle, newAudio.Format);
         this.criAtomEx.Player_SetSamplingRate(currentPlayer.Handle, newAudio.SampleRate);
         this.criAtomEx.Player_SetNumChannels(currentPlayer.Handle, newAudio.NumChannels);
-
-        // Use first category for setting custom volume.
-        if (categories != null)
-        {
-            int volumeCategory = categories.Length > 0 ? categories[0] : -1;
-            var volumePlayer = new VolumePlayer(currentPlayer.Handle, source);
-
-            if (volumeCategory > -1 && newAudio.Volume >= 0 && !this.modifiedCategories.ContainsKey(volumePlayer))
-            {
-                var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
-                this.modifiedCategories[volumePlayer] = new CategoryVolume(currentPlayer.Id, volumeCategory, currentVolume);
-                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, newAudio.Volume);
-                Log.Debug($"Modified volume. Player ID: {currentPlayer.Id} || Category ID: {volumeCategory} || Volume: {newAudio.Volume}");
-            }
-
-            // Apply categories.
-            foreach (var id in categories)
-            {
-                this.criAtomEx.Player_SetCategoryById(currentPlayer.Handle, (uint)id);
-            }
-        }
+        this.SetAudioVolume(currentPlayer, newAudio, categories);
 
         if (manualStart)
         {
@@ -88,21 +71,64 @@ internal unsafe class RyoService
         Log.Debug($"Redirected {container.Name}\nFile: {newAudio.FilePath}");
     }
 
-    public void ResetPlayerVolume(nint playerHn, SetSource source)
+    private void SetAudioVolume(Player player, RyoAudio audio, int[]? categories)
     {
-        var player = new VolumePlayer(playerHn, source);
-
-        // Reset modified category volume.
-        // Limited to one modified category per player.
-        if (this.modifiedCategories.TryGetValue(player, out var modifiedVolume))
+        if (audio.Volume < 0)
         {
-            Log.Debug($"Reseting volume. Player ID: {modifiedVolume.PlayerId} || Category ID: {modifiedVolume.CategoryId}");
-            this.criAtomEx.Category_SetVolumeById((uint)modifiedVolume.CategoryId, modifiedVolume.OriginalVolume);
-            this.modifiedCategories.Remove(player);
+            return;
+        }
+
+        // Set volume by player
+        if (audio.UsePlayerVolume)
+        {
+            this.criAtomEx.Player_SetVolume(player.Handle, audio.Volume);
+            this.modifiedPlayers.Add(player.Handle);
+            Log.Debug($"Modified player volume. Player ID: {player.Id} || Volume: {audio.Volume}");
+        }
+
+        // Set volume by category.
+        else if (categories != null && categories.Length > 0)
+        {
+            // Use first category for setting custom volume.
+            int volumeCategory = categories[0];
+            if (!this.modifiedCategories.ContainsKey(volumeCategory))
+            {
+                var currentVolume = this.criAtomEx.Category_GetVolumeById((uint)volumeCategory);
+                this.modifiedCategories[volumeCategory] = currentVolume;
+                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
+                Log.Debug($"Modified volume. Category ID: {volumeCategory} || Volume: {audio.Volume}");
+                this.criAtomEx.Player_SetVolume(player.Handle, audio.Volume);
+            }
+
+            // Apply categories.
+            foreach (var id in categories)
+            {
+                this.criAtomEx.Player_SetCategoryById(player.Handle, (uint)id);
+            }
         }
     }
 
-    private record CategoryVolume(int PlayerId, int CategoryId, float OriginalVolume);
+    private void ResetPlayerVolume(Player player)
+    {
+        if (this.modifiedPlayers.Contains(player.Handle))
+        {
+            this.criAtomEx.Player_ResetParameters(player.Handle);
+            Log.Debug($"Reset volume for Player ID: {player.Id}");
+        }
+    }
 
-    private record VolumePlayer(nint Handle, SetSource Source);
+    public void ResetCategoryVolumes(IEnumerable<int> categoryIds)
+    {
+        foreach (var id in categoryIds)
+        {
+            if (this.modifiedCategories.TryGetValue(id, out var ogVolume))
+            {
+                this.criAtomEx.Category_SetVolumeById((uint)id, ogVolume);
+                this.modifiedCategories.Remove(id);
+                Log.Debug($"Reset volume for Category ID: {id}");
+            }
+        }
+    }
+
+    private record CategoryVolume(int CategoryId, float OriginalVolume);
 }

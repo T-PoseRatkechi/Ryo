@@ -70,17 +70,17 @@ internal unsafe class AudioService
 
         if (cue.Id != -1 && this.audioRegistry.TryGetCueContainer(cue.Id.ToString(), acbName, out var idContainer))
         {
-            this.ryo.SetAudio(player, idContainer, idContainer.CategoryIds ?? cue.Categories, SetSource.Cue);
+            this.ryo.SetAudio(player, idContainer, idContainer.CategoryIds ?? cue.Categories);
             return true;
         }
         else if (cue.Name != null && this.audioRegistry.TryGetCueContainer(cue.Name, acbName, out var nameContainer))
         {
-            this.ryo.SetAudio(player, nameContainer, nameContainer.CategoryIds ?? cue.Categories, SetSource.Cue);
+            this.ryo.SetAudio(player, nameContainer, nameContainer.CategoryIds ?? cue.Categories);
             return true;
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn, SetSource.Cue);
+            this.ryo.ResetCategoryVolumes(cue.Categories ?? Array.Empty<int>());
             return false;
         }
     }
@@ -141,11 +141,10 @@ internal unsafe class AudioService
 
         if (filePath != null && this.audioRegistry.TryGetFileContainer(filePath, out var file))
         {
-            this.ryo.SetAudio(player, file, file.CategoryIds, SetSource.File);
+            this.ryo.SetAudio(player, file, file.CategoryIds);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn, SetSource.File);
             this.setFile.Hook!.OriginalFunction(playerHn, criBinderHn, path);
         }
     }
@@ -162,11 +161,10 @@ internal unsafe class AudioService
 
         if (audioData != null && this.audioRegistry.TryGetDataContainer(audioData.Name, out var data))
         {
-            this.ryo.SetAudio(player, data, data.CategoryIds, SetSource.Data);
+            this.ryo.SetAudio(player, data, data.CategoryIds);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn, SetSource.Data);
             this.setData.Hook!.OriginalFunction(playerHn, buffer, size);
         }
     }
@@ -183,11 +181,10 @@ internal unsafe class AudioService
 
         if (awbPath != null && this.audioRegistry.TryGetFileContainer($"{awbPath.Trim('/')}/{waveId}.wave", out var file))
         {
-            this.ryo.SetAudio(player, file, file.CategoryIds, SetSource.Wave);
+            this.ryo.SetAudio(player, file, file.CategoryIds);
         }
         else
         {
-            this.ryo.ResetPlayerVolume(playerHn, SetSource.Wave);
             this.setWaveId.Hook!.OriginalFunction(playerHn, awbHn, waveId);
         }
     }

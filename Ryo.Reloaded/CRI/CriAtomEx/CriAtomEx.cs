@@ -59,6 +59,7 @@ internal unsafe class CriAtomEx : ICriAtomEx
     private readonly WrapperContainer<criAtomExPlayer_SetStartTime> setStartTime;
     private readonly WrapperContainer<criAtomExPlayback_GetTimeSyncedWithAudioMicro> getTimeSyncedWithAudioMicro;
     private readonly WrapperContainer<criAtomExPlayer_GetStatus> getStatus;
+    private readonly WrapperContainer<criAtomExPlayer_ResetParameters> resetParameters;
 
     public CriAtomEx(string game, ISharedScans scans)
     {
@@ -100,6 +101,9 @@ internal unsafe class CriAtomEx : ICriAtomEx
 
         scans.AddScan<criAtomExPlayer_GetStatus>(this.patterns.criAtomExPlayer_GetStatus);
         this.getStatus = scans.CreateWrapper<criAtomExPlayer_GetStatus>(Mod.NAME);
+
+        scans.AddScan<criAtomExPlayer_ResetParameters>(this.patterns.criAtomExPlayer_ResetParameters);
+        this.resetParameters = scans.CreateWrapper<criAtomExPlayer_ResetParameters>(Mod.NAME);
 
         ScanHooks.Add(
             nameof(criAtomExAcf_GetCategoryInfoByIndex),
@@ -227,6 +231,8 @@ internal unsafe class CriAtomEx : ICriAtomEx
     }
 
     public void SetDevMode(bool devMode) => this.devMode = devMode;
+
+    public void Player_ResetParameters(nint playerHn) => this.resetParameters.Wrapper(playerHn);
 
     public bool Acb_GetCueInfoById(nint acbHn, int id, CriAtomExCueInfoTag* info) => this.getCueInfoById.Wrapper(acbHn, id, info);
 
