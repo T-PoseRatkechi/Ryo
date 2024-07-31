@@ -61,6 +61,10 @@ internal static class GameDefaults
             CategoryIds = new int[] { 11 },
             Volume = 0.35f,
         },
+        ["RainCodePlus-Win64-Shipping"] = new()
+        {
+            Volume = 0.35f,
+        },
     };
 
     public static AudioConfig CreateDefaultConfig(string game)
