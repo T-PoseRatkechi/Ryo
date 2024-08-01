@@ -28,6 +28,7 @@ internal static class GameDefaults
         {
             //AcbName = "bgm",
             //CategoryIds = new int[] { 1, 8 },
+            UsePlayerVolume = true,
         },
         ["p4g"] = new()
         {
