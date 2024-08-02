@@ -57,10 +57,20 @@ internal unsafe class RyoService
         }
 
         this.ResetPlayerVolume(player);
+        this.SetAudioVolume(currentPlayer, newAudio, categories);
+
         this.criAtomEx.Player_SetFormat(currentPlayer.Handle, newAudio.Format);
         this.criAtomEx.Player_SetSamplingRate(currentPlayer.Handle, newAudio.SampleRate);
         this.criAtomEx.Player_SetNumChannels(currentPlayer.Handle, newAudio.NumChannels);
-        this.SetAudioVolume(currentPlayer, newAudio, categories);
+
+        // Apply categories.
+        if (categories?.Length > 0)
+        {
+            foreach (var id in categories)
+            {
+                this.criAtomEx.Player_SetCategoryById(player.Handle, (uint)id);
+            }
+        }
 
         if (manualStart)
         {
@@ -87,7 +97,7 @@ internal unsafe class RyoService
         }
 
         // Set volume by category.
-        else if (categories != null && categories.Length > 0)
+        else if (categories?.Length > 0)
         {
             // Use first category for setting custom volume.
             int volumeCategory = categories[0];
@@ -98,12 +108,6 @@ internal unsafe class RyoService
                 this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
                 Log.Debug($"Modified volume. Category ID: {volumeCategory} || Volume: {audio.Volume}");
                 this.criAtomEx.Player_SetVolume(player.Handle, audio.Volume);
-            }
-
-            // Apply categories.
-            foreach (var id in categories)
-            {
-                this.criAtomEx.Player_SetCategoryById(player.Handle, (uint)id);
             }
         }
     }
