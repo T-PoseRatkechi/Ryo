@@ -107,7 +107,7 @@ internal unsafe class RyoService
                 this.modifiedCategories[volumeCategory] = currentVolume;
                 this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
                 Log.Debug($"Modified volume. Category ID: {volumeCategory} || Volume: {audio.Volume}");
-                this.criAtomEx.Player_SetVolume(player.Handle, audio.Volume);
+                this.criAtomEx.Category_SetVolumeById((uint)volumeCategory, audio.Volume);
             }
         }
     }
